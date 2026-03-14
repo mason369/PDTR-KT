@@ -1,159 +1,229 @@
 package com.example.pdtranslator
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TranslatorScreen(
-    viewModel: TranslatorViewModel,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) {
-            viewModel.loadLanguageFilesFromZip(context.contentResolver, uri)
-        }
-    }
+fun TranslatorScreen(viewModel: TranslatorViewModel) {
+    // Dummy state for now, will be replaced with ViewModel state
+    var sourceLang by remember { mutableStateOf("ZH") }
+    var targetLang by remember { mutableStateOf("EL") }
+    var searchText by remember { mutableStateOf(TextFieldValue("")) }
+    val filterOptions = listOf("所有", "未翻译", "已改动")
+    var selectedFilter by remember { mutableStateOf(filterOptions[0]) }
+    val translationProgress by remember { mutableStateOf(0.08f) }
+    val currentPage by remember { mutableStateOf(7) }
+    val totalPages by remember { mutableStateOf(20) }
 
-    val languageGroups by remember { mutableStateOf(viewModel.languageGroups) }
-    val selectedGroup by viewModel.selectedGroup
-    val sourceLanguage by viewModel.sourceLanguage
-    val targetLanguage by viewModel.targetLanguage
-    val translationResult by viewModel.translationResult
+    val translationItems = remember {
+        listOf(
+            TranslationItemData(
+                key = "ui.changelist.mlpd.vm0_5_x_changes.icescorpiologs",
+                originalText = "原文:来自于恶魔深处的扭曲生物,请小心行事。",
+                translatedText = ""
+            ),
+            TranslationItemData(
+                key = "ui.changelist.mlpd.vm0_5_x_changes.icewandgod",
+                originalText = "原文:新法杖:霜冻神级法杖",
+                translatedText = ""
+            )
+        )
+    }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = Modifier
             .padding(16.dp)
+            .fillMaxSize()
     ) {
-        Button(onClick = { launcher.launch("application/zip") }) {
-            Text("导入ZIP")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Dropdown for Language Groups
-        LanguageGroupSelector(groups = languageGroups, selected = selectedGroup, onSelected = { viewModel.selectGroup(it) })
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (selectedGroup != null) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                // Dropdown for Source Language
-                LanguageFileSelector(
-                    label = "源语言",
-                    files = selectedGroup!!.files,
-                    selected = sourceLanguage,
-                    onSelected = { viewModel.selectSourceLanguage(it) },
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Dropdown for Target Language
-                LanguageFileSelector(
-                    label = "目标语言",
-                    files = selectedGroup!!.files,
-                    selected = targetLanguage,
-                    onSelected = { viewModel.selectTargetLanguage(it) },
-                    modifier = Modifier.weight(1f)
-                )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(onClick = { /* Handle import */ }) {
+                Text("导入语言组")
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(onClick = { viewModel.translate() }, enabled = sourceLanguage != null && targetLanguage != null) {
-                Text("翻译")
+            Button(onClick = { /* Handle save */ }, enabled = false) {
+                Text("保存")
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = translationResult,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("翻译结果") },
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f)
-        )
-    }
-}
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            LanguageSelector(
+                label = "源语言",
+                selectedLanguage = sourceLang,
+                onLanguageSelected = { sourceLang = it },
+                modifier = Modifier.weight(1f)
+            )
+            LanguageSelector(
+                label = "目标语言",
+                selectedLanguage = targetLang,
+                onLanguageSelected = { targetLang = it },
+                modifier = Modifier.weight(1f)
+            )
+        }
 
-@Composable
-fun LanguageGroupSelector(groups: List<LanguageGroup>, selected: LanguageGroup?, onSelected: (LanguageGroup) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
+        Spacer(modifier = Modifier.height(16.dp))
 
-    Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
         OutlinedTextField(
-            value = selected?.baseName ?: "请选择语言组",
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("语言组") },
-            trailingIcon = { Icon(Icons.Filled.ArrowDropDown, "Dropdown", modifier = Modifier.clickable { expanded = true }) },
+            value = searchText,
+            onValueChange = { searchText = it },
+            label = { Text("搜索 (Key或原文)") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            groups.forEach { group ->
-                DropdownMenuItem(text = { Text(group.baseName) }, onClick = {
-                    onSelected(group)
-                    expanded = false
-                })
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            filterOptions.forEach { option ->
+                Row(
+                    Modifier
+                        .selectable(
+                            selected = (option == selectedFilter),
+                            onClick = { selectedFilter = option }
+                        )
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = (option == selectedFilter),
+                        onClick = { selectedFilter = option }
+                    )
+                    Text(text = option)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Column {
+            Text("翻译进度")
+            LinearProgressIndicator(
+                progress = translationProgress,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = "${(translationProgress * 100).toInt()}%",
+                modifier = Modifier.align(Alignment.End)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyColumn(
+            modifier = Modifier.weight(1f), // This is the fix!
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(translationItems) { item ->
+                TranslationCard(item = item)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(onClick = { /* prev page */ }) {
+                Text("上一页")
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Text("第 $currentPage / $totalPages 页")
+            Spacer(modifier = Modifier.width(16.dp))
+            Button(onClick = { /* next page */ }) {
+                Text("下一页")
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageFileSelector(label: String, files: List<LanguageFile>, selected: LanguageFile?, onSelected: (LanguageFile) -> Unit, modifier: Modifier = Modifier) {
+fun LanguageSelector(
+    label: String,
+    selectedLanguage: String,
+    onLanguageSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var expanded by remember { mutableStateOf(false) }
+    val languages = listOf("ZH", "EL", "EN", "FR", "DE") // Dummy data
 
-    Box(modifier = modifier.wrapContentSize(Alignment.TopStart)) {
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier
+    ) {
         OutlinedTextField(
-            value = selected?.fileName ?: "请选择",
+            value = selectedLanguage,
             onValueChange = {},
-            readOnly = true,
             label = { Text(label) },
-            trailingIcon = { Icon(Icons.Filled.ArrowDropDown, "Dropdown", modifier = Modifier.clickable { expanded = true }) },
-            modifier = Modifier.fillMaxWidth()
+            readOnly = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.fillMaxWidth().menuAnchor()
         )
-
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            files.forEach { file ->
-                DropdownMenuItem(text = { Text(file.fileName) }, onClick = {
-                    onSelected(file)
-                    expanded = false
-                })
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            languages.forEach { language ->
+                DropdownMenuItem(
+                    text = { Text(language) },
+                    onClick = {
+                        onLanguageSelected(language)
+                        expanded = false
+                    }
+                )
             }
         }
     }
+}
+
+@Composable
+fun TranslationCard(item: TranslationItemData) {
+    var translatedText by remember { mutableStateOf(TextFieldValue(item.translatedText)) }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Text(item.key, style = MaterialTheme.typography.labelSmall)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(item.originalText, style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = translatedText,
+                onValueChange = { translatedText = it },
+                label = { Text("译文") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+data class TranslationItemData(
+    val key: String,
+    val originalText: String,
+    val translatedText: String
+)
+
+@Preview(showBackground = true)
+@Composable
+fun TranslatorScreenPreview() {
+    // Previewing this complex screen requires a mock ViewModel and state,
+    // which is beyond the scope of this refactoring.
 }
