@@ -2,6 +2,8 @@ package com.example.pdtranslator
 
 import android.content.ContentResolver
 import android.net.Uri
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -20,6 +22,12 @@ class TranslatorViewModel : ViewModel() {
     val targetLanguage = mutableStateOf<LanguageFile?>(null)
 
     val translationResult = mutableStateOf("")
+
+    // This property derives the list of group names from the languageGroups list.
+    // It is a State object, so Compose can react to its changes.
+    val languageGroupNames: State<List<String>> = derivedStateOf {
+        languageGroups.map { it.baseName }
+    }
 
     fun loadLanguageFilesFromZip(contentResolver: ContentResolver, zipFileUri: Uri) {
         val rawFiles = mutableMapOf<String, String>()
@@ -77,6 +85,13 @@ class TranslatorViewModel : ViewModel() {
         sourceLanguage.value = null
         targetLanguage.value = null
     }
+
+    // This function allows selecting a group by its name, as required by LanguageGroupScreen.
+    fun selectLanguageGroup(groupName: String) {
+        val group = languageGroups.find { it.baseName == groupName }
+        group?.let { selectGroup(it) }
+    }
+
 
     fun selectSourceLanguage(file: LanguageFile) {
         sourceLanguage.value = file
