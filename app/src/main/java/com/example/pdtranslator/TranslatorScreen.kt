@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,7 +24,7 @@ import com.example.pdtranslator.ui.theme.PDTranslatorTheme
 
 @Composable
 fun TranslatorScreen(
-    viewModel: TranslatorViewModel, 
+    viewModel: TranslatorViewModel,
     onSelectOriginal: () -> Unit,
     onSelectTranslated: () -> Unit,
     modifier: Modifier = Modifier
@@ -47,6 +49,12 @@ fun TranslatorScreen(
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = { viewModel.machineTranslateAll() }) {
+            Text("一键机翻")
+        }
+
         if (translationItems.isNotEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
             Row(
@@ -66,14 +74,25 @@ fun TranslatorScreen(
             )
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(translationItems) { item ->
-                    Column(
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
                     ) {
-                        Text(text = "键: ${item.key}", style = MaterialTheme.typography.bodySmall)
-                        Text(text = "原文: ${item.original}", style = MaterialTheme.typography.bodyMedium)
-                        Text(text = "译文: ${item.translation}", style = MaterialTheme.typography.bodyMedium)
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "键: ${item.key}", style = MaterialTheme.typography.bodySmall)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "原文: ${item.original}", style = MaterialTheme.typography.bodyMedium)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = item.translation,
+                                onValueChange = { newTranslation ->
+                                    viewModel.updateTranslation(item.key, newTranslation)
+                                },
+                                label = { Text("译文") },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }

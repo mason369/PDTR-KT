@@ -41,7 +41,34 @@ class TranslatorViewModel : ViewModel() {
         }
 
         _translationItems.value = items
+        updateProgress()
+    }
 
+    fun updateTranslation(key: String, newTranslation: String) {
+        _translationItems.value = _translationItems.value.map {
+            if (it.key == key) {
+                it.copy(translation = newTranslation)
+            } else {
+                it
+            }
+        }
+        updateProgress()
+    }
+
+    fun machineTranslateAll() {
+        _translationItems.value = _translationItems.value.map {
+            if (it.translation.isBlank()) {
+                // Placeholder for machine translation - reverses the original string
+                it.copy(translation = it.original.reversed())
+            } else {
+                it
+            }
+        }
+        updateProgress()
+    }
+
+    private fun updateProgress() {
+        val items = _translationItems.value
         val translatedCount = items.count { it.translation.isNotBlank() }
         _translationProgress.value = if (items.isNotEmpty()) {
             translatedCount.toFloat() / items.size
