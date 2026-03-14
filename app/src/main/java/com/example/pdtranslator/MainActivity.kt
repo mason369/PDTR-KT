@@ -3,6 +3,7 @@ package com.example.pdtranslator
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -11,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -61,12 +63,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation(viewModel: TranslatorViewModel, onSave: () -> Unit) {
     val navController = rememberNavController()
+    val context = LocalContext.current
 
     val openLanguageFilesLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments(),
-        onResult = { uris ->
+        onResult = { uris: List<Uri> ->
             if (uris.isNotEmpty()) {
-                viewModel.loadLanguageFiles(navController.context.contentResolver, uris)
+                viewModel.loadLanguageFiles(context.contentResolver, uris)
                 navController.navigate("languageGroupSelector")
             }
         }
@@ -74,7 +77,7 @@ fun AppNavigation(viewModel: TranslatorViewModel, onSave: () -> Unit) {
 
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {
-            MainScreen(
+            TranslatorScreen(
                 viewModel = viewModel,
                 onSelectLanguageGroup = {
                     openLanguageFilesLauncher.launch(arrayOf("*/*"))
