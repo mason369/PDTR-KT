@@ -32,7 +32,7 @@ class TranslatorViewModel : ViewModel() {
     private val _searchQuery = mutableStateOf("")
     val searchQuery: State<String> = _searchQuery
 
-    private val _filterOption = mutableState of(FilterOption.ALL)
+    private val _filterOption = mutableStateOf(FilterOption.ALL)
     val filterOption: State<FilterOption> = _filterOption
 
     val filteredItems: State<List<TranslationItem>> = derivedStateOf {
@@ -49,6 +49,7 @@ class TranslatorViewModel : ViewModel() {
             FilterOption.ALL -> searchedItems
             FilterOption.UNTRANSLATED -> searchedItems.filter { it.translation.isBlank() }
             FilterOption.MODIFIED -> searchedItems.filter { it.isModified }
+            else -> searchedItems
         }
     }
 
