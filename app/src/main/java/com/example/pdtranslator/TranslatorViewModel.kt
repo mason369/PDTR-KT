@@ -4,6 +4,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import java.io.StringWriter
 import java.util.Properties
 import kotlin.math.ceil
@@ -22,12 +24,31 @@ enum class FilterOption {
 data class LanguageFile(
     val fileName: String,
     val langCode: String,
+    val displayName: String,
     val content: String,
     val properties: Properties,
     var isModified: Boolean = false
 )
 
 class TranslatorViewModel : ViewModel() {
+
+    private val translationService = TranslationService()
+
+    private val languageCodeToNameMap = mapOf(
+        "zh" to "中文",
+        "en" to "英文",
+        "jp" to "日文",
+        "ko" to "韩文",
+        "fr" to "法文",
+        "de" to "德文",
+        "ru" to "俄文",
+        "es" to "西班牙文",
+        "el" to "希腊语"
+    )
+
+    fun getLanguageDisplayName(langCode: String): String {
+        return languageCodeToNameMap[langCode.lowercase()] ?: langCode.uppercase()
+    }
 
     private val _languageFiles = mutableStateOf<List<LanguageFile>>(emptyList())
 
@@ -92,6 +113,10 @@ class TranslatorViewModel : ViewModel() {
         }
     }
 
+    val untranslatedItemsCount: State<Int> = derivedStateOf {
+        _items.value.count { it.translation.isBlank() }
+    }
+
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
         _currentPage.value = 1 // Reset to first page
@@ -119,8 +144,9 @@ class TranslatorViewModel : ViewModel() {
         val langFiles = fileContents.mapNotNull { (path, content) ->
             val fileName = path.substringAfterLast('/')
             val langCode = extractLangCode(fileName)
+            val displayName = getLanguageDisplayName(langCode)
             val props = Properties().apply { load(content.reader()) }
-            LanguageFile(fileName, langCode, content, props)
+            LanguageFile(fileName, langCode, displayName, content, props)
         }
         _languageFiles.value = langFiles.sortedBy { it.langCode }
         _currentPage.value = 1 // Reset to first page
@@ -197,6 +223,20 @@ class TranslatorViewModel : ViewModel() {
         updateProgress()
     }
 
+    fun autoTranslateUntranslatedItems() {
+        viewModelScope.launch {
+            val source = _sourceLanguage.value ?: return@launch
+            val target = _targetLanguage.value ?: return@launch
+            val untranslated = _items.value.filter { it.translation.isBlank() }
+
+            untranslated.forEach { item ->
+                val translatedText = translationService.translate(item.original, source.langCode, target.langCode)
+                if (translatedText != null) {
+                    updateTranslation(item.key, translatedText)
+                }
+            }
+        }
+    }
 
     fun getModifiedContentForTarget(): String? {
         val target = _targetLanguage.value

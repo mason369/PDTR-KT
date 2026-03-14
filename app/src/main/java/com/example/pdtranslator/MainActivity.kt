@@ -13,16 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.pdtranslator.ui.theme.PDTranslatorTheme
 import java.io.BufferedReader
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import java.util.zip.ZipInputStream
 
 class MainActivity : ComponentActivity() {
     private val viewModel: TranslatorViewModel by viewModels()
 
-    private val openLanguageGroupLauncher = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        if (uris.isNotEmpty()) {
-            loadLanguageGroupFromUris(uris)
-        }
+    private val openLanguageGroupLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { loadLanguageGroupFromUri(it) }
     }
 
     private val saveLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
@@ -47,22 +47,37 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun selectLanguageGroup() {
-        openLanguageGroupLauncher.launch(arrayOf("text/plain", "application/octet-stream", "*/*"))
+        openLanguageGroupLauncher.launch(arrayOf("application/zip"))
     }
 
-    private fun loadLanguageGroupFromUris(uris: List<Uri>) {
-        val fileContents = uris.associate { uri ->
-            val path = uri.path ?: "unknown"
-            val content = contentResolver.openInputStream(uri)?.use {
-                BufferedReader(InputStreamReader(it)).readText()
-            } ?: ""
-            path to content
-        }.filterValues { it.isNotBlank() }
-
+    private fun loadLanguageGroupFromUri(uri: Uri) {
+        val fileContents = unzipAndReadProperties(uri)
         if (fileContents.isNotEmpty()) {
             viewModel.loadLanguageGroup(fileContents)
         }
     }
+
+    private fun unzipAndReadProperties(uri: Uri): Map<String, String> {
+        val fileContents = mutableMapOf<String, String>()
+        try {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                ZipInputStream(inputStream).use { zipInputStream ->
+                    var entry = zipInputStream.nextEntry
+                    while (entry != null) {
+                        if (!entry.isDirectory && entry.name.endsWith(".properties")) {
+                            val content = zipInputStream.bufferedReader().readText()
+                            fileContents[entry.name] = content
+                        }
+                        entry = zipInputStream.nextEntry
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Handle exceptions, e.g., show a toast to the user
+        }
+        return fileContents
+    }
+
 
     private fun onSave() {
         val targetLanguage = viewModel.targetLanguage.value ?: return

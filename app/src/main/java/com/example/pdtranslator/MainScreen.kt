@@ -1,9 +1,13 @@
 package com.example.pdtranslator
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -22,26 +26,32 @@ fun MainScreen(
 ) {
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
-    val tabs = listOf("翻译", "设置")
+    val items = listOf("翻译", "设置")
+    val icons = listOf(Icons.Filled.Description, Icons.Filled.Settings)
 
-    Column {
-        TabRow(selectedTabIndex = pagerState.currentPage) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = pagerState.currentPage == index,
-                    onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(index)
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                items.forEachIndexed { index, screen ->
+                    NavigationBarItem(
+                        icon = { Icon(icons[index], contentDescription = screen) },
+                        label = { Text(screen) },
+                        selected = pagerState.currentPage == index,
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
                         }
-                    },
-                    text = { Text(title) }
-                )
+                    )
+                }
             }
         }
+    ) { innerPadding ->
         HorizontalPager(
-            count = tabs.size,
+            count = items.size,
             state = pagerState,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.padding(innerPadding),
+            userScrollEnabled = false // Disable swipe gesture
         ) { page ->
             when (page) {
                 0 -> TranslatorScreen(
@@ -49,7 +59,7 @@ fun MainScreen(
                     onSelectLanguageGroup = onSelectLanguageGroup,
                     onSave = onSave
                 )
-                1 -> SettingsScreen()
+                1 -> SettingsScreen(viewModel = viewModel)
             }
         }
     }

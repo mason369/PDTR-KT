@@ -220,14 +220,17 @@ fun LanguageSelector(
     var expanded by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.wrapContentSize(Alignment.TopStart)) {
-        OutlinedTextField(
-            value = selectedLanguage?.langCode?.uppercase() ?: "请选择",
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(label) },
-            trailingIcon = { Icon(Icons.Filled.ArrowDropDown, "Dropdown", modifier = Modifier.clickable { expanded = true }) },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Box(modifier = Modifier.clickable { expanded = true }) {
+            OutlinedTextField(
+                value = selectedLanguage?.displayName ?: "请选择",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(label) },
+                trailingIcon = { Icon(Icons.Filled.ArrowDropDown, "Dropdown") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = false // Make it look like a button
+            )
+        }
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
@@ -235,7 +238,7 @@ fun LanguageSelector(
         ) {
             languages.forEach { language ->
                 DropdownMenuItem(
-                    text = { Text(language.langCode.uppercase()) },
+                    text = { Text(language.displayName) },
                     onClick = {
                         onLanguageSelected(language)
                         expanded = false
