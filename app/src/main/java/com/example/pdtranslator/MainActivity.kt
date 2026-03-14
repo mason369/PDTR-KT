@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -71,6 +72,7 @@ class MainActivity : ComponentActivity() {
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
     object Translator : Screen("translator", "Translator", Icons.Default.Translate)
     object Settings : Screen("settings", "Settings", Icons.Default.Settings)
+    object Changelog : Screen("changelog", "Changelog", Icons.Default.Info)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +83,7 @@ fun MainApp(viewModel: TranslatorViewModel, onSave: () -> Unit) {
     val items = listOf(
         Screen.Translator,
         Screen.Settings,
+        Screen.Changelog
     )
 
     Scaffold(
@@ -112,10 +115,10 @@ fun MainApp(viewModel: TranslatorViewModel, onSave: () -> Unit) {
                 TranslatorNavigation(viewModel = viewModel, onSave = onSave)
             }
             composable(Screen.Settings.route) {
-                SettingsScreen(onNavigateToChangelog = { navController.navigate("changelog") })
+                SettingsScreen(viewModel = viewModel)
             }
-            composable("changelog") {
-                ChangelogScreen(onNavigateBack = { navController.popBackStack() })
+            composable(Screen.Changelog.route) {
+                ChangelogScreen()
             }
         }
     }
