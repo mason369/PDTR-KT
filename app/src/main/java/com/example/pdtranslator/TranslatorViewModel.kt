@@ -2,26 +2,46 @@ package com.example.pdtranslator
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import java.io.StringReader
+import java.util.Properties
+
+data class TranslationItem(
+    val key: String,
+    val original: String,
+    val translation: String,
+    val isTranslated: Boolean
+)
 
 class TranslatorViewModel : ViewModel() {
-    val mainLanguage = mutableStateOf("English")
-    val translationLanguage = mutableStateOf("Spanish")
-    val missingTranslations = mutableStateOf<List<String>>(emptyList())
-    val showTranslationDialog = mutableStateOf(false)
-    val selectedTranslation = mutableStateOf("")
 
-    fun getMissingTranslations() {
-        // In a real application, you would read the files and compare them
-        // to find the missing translations.
-        missingTranslations.value = listOf("hello", "world", "goodbye")
-    }
+    val translationItems = mutableStateOf<List<TranslationItem>>(emptyList())
+    val translationProgress = mutableStateOf(0f)
 
-    fun onTranslateClicked(translation: String) {
-        selectedTranslation.value = translation
-        showTranslationDialog.value = true
-    }
+    fun loadTranslations(originalContent: String, translatedContent: String) {
+        val originalProps = Properties()
+        originalProps.load(StringReader(originalContent))
 
-    fun onDismissDialog() {
-        showTranslationDialog.value = false
+        val translatedProps = Properties()
+        translatedProps.load(StringReader(translatedContent))
+
+        val items = mutableListOf<TranslationItem>()
+        var translatedCount = 0
+
+        originalProps.stringPropertyNames().forEach { key ->
+            val originalValue = originalProps.getProperty(key) ?: ""
+            val translatedValue = translatedProps.getProperty(key) ?: ""
+            val isTranslated = translatedValue.isNotEmpty() && translatedValue != originalValue
+
+            if (isTranslated) {
+                translatedCount++
+            }
+
+            items.add(TranslationItem(key, originalValue, translatedValue, isTranslated))
+        }
+
+        translationItems.value = items
+        if (originalProps.size > 0) {
+            translationProgress.value = translatedCount.toFloat() / originalProps.size
+        }
     }
 }
