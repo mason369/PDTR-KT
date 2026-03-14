@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +70,10 @@ class TranslatorViewModel : ViewModel() {
         // This coroutine reacts to any state changes and updates the final displayed list.
         viewModelScope.launch(Dispatchers.Default) {
             combine(
-                _allEntries, searchText, filterState, currentPage.value
+                _allEntries, 
+                searchText, 
+                filterState, 
+                snapshotFlow { currentPage.value }
             ) { entries, search, filter, page ->
                 // Filtering logic
                 val filtered = entries.filter { entry ->
@@ -89,7 +93,9 @@ class TranslatorViewModel : ViewModel() {
                 totalPages.value = (filtered.size + pageSize - 1) / pageSize.coerceAtLeast(1)
                 if (page > totalPages.value) currentPage.value = 1
 
-                displayEntries.value = filtered.chunked(pageSize).getOrElse(currentPage.value - 1) { emptyList() }
+                val newPage = if (page > totalPages.value) 1 else page
+
+                displayEntries.value = filtered.chunked(pageSize).getOrElse(newPage - 1) { emptyList() }
 
             }.collect {}
         }
