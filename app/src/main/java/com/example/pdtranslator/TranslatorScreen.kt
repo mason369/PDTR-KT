@@ -1,5 +1,7 @@
 package com.example.pdtranslator
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,148 +10,138 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TranslatorScreen(viewModel: TranslatorViewModel) {
-    // Dummy state for now, will be replaced with ViewModel state
-    var sourceLang by remember { mutableStateOf("ZH") }
-    var targetLang by remember { mutableStateOf("EL") }
-    var searchText by remember { mutableStateOf(TextFieldValue("")) }
-    val filterOptions = listOf("所有", "未翻译", "已改动")
-    var selectedFilter by remember { mutableStateOf(filterOptions[0]) }
-    val translationProgress by remember { mutableStateOf(0.08f) }
-    val currentPage by remember { mutableStateOf(7) }
-    val totalPages by remember { mutableStateOf(20) }
+    val context = LocalContext.current
 
-    val translationItems = remember {
-        listOf(
-            TranslationItemData(
-                key = "ui.changelist.mlpd.vm0_5_x_changes.icescorpiologs",
-                originalText = "原文:来自于恶魔深处的扭曲生物,请小心行事。",
-                translatedText = ""
-            ),
-            TranslationItemData(
-                key = "ui.changelist.mlpd.vm0_5_x_changes.icewandgod",
-                originalText = "原文:新法杖:霜冻神级法杖",
-                translatedText = ""
-            )
-        )
-    }
+    // State collected from the ViewModel
+    val languageGroupNames by viewModel.languageGroupNames.collectAsState()
+    val selectedGroupName by viewModel.selectedGroupName.collectAsState()
+    val availableLanguages by viewModel.availableLanguages.collectAsState()
+    val sourceLangCode by viewModel.sourceLangCode.collectAsState()
+    val targetLangCode by viewModel.targetLangCode.collectAsState()
+    val searchText by viewModel.searchText.collectAsState()
+    val filterState by viewModel.filterState.collectAsState()
+    val displayEntries by viewModel.displayEntries.collectAsState()
+    val isSaveEnabled by viewModel.isSaveEnabled
+
+    // File pickers
+    val zipPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri -> uri?.let { viewModel.loadFilesFromZip(context.contentResolver, it) } }
+    )
+    val multipleFilesPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenMultipleDocuments(),
+        onResult = { uris -> if (uris.isNotEmpty()) viewModel.loadFilesFromUris(context.contentResolver, uris) }
+    )
+    val saveFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/zip"),
+        onResult = { uri -> uri?.let { viewModel.saveChangesToZip(context.contentResolver, it) } }
+    )
+
+    var showImportSheet by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .padding(16.dp)
             .fillMaxSize()
     ) {
+        // Top Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(onClick = { /* Handle import */ }) {
-                Text("导入语言组")
+            Button(onClick = { showImportSheet = true }) {
+                Text("导入文件")
             }
-            Button(onClick = { /* Handle save */ }, enabled = false) {
+            Button(
+                onClick = { saveFileLauncher.launch("translation_output.zip") },
+                enabled = isSaveEnabled
+            ) {
                 Text("保存")
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Language Group Selector
+        LanguageGroupSelector(languageGroupNames, selectedGroupName) { viewModel.selectGroup(it) }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Language Selectors
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LanguageSelector(
-                label = "源语言",
-                selectedLanguage = sourceLang,
-                onLanguageSelected = { sourceLang = it },
-                modifier = Modifier.weight(1f)
-            )
-            LanguageSelector(
-                label = "目标语言",
-                selectedLanguage = targetLang,
-                onLanguageSelected = { targetLang = it },
-                modifier = Modifier.weight(1f)
-            )
+            LanguageSelector("源语言", availableLanguages, sourceLangCode) { viewModel.selectSourceLanguage(it) }
+            LanguageSelector("目标语言", availableLanguages, targetLangCode) { viewModel.selectTargetLanguage(it) }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Search Field
         OutlinedTextField(
             value = searchText,
-            onValueChange = { searchText = it },
+            onValueChange = { viewModel.setSearchText(it) },
             label = { Text("搜索 (Key或原文)") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            filterOptions.forEach { option ->
-                Row(
-                    Modifier
-                        .selectable(
-                            selected = (option == selectedFilter),
-                            onClick = { selectedFilter = option }
-                        )
-                        .padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = (option == selectedFilter),
-                        onClick = { selectedFilter = option }
-                    )
-                    Text(text = option)
-                }
-            }
-        }
+        // Filter Radio Buttons
+        FilterButtons(filterState) { viewModel.setFilter(it) }
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Progress Indicator
         Column {
             Text("翻译进度")
-            LinearProgressIndicator(
-                progress = translationProgress,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Text(
-                text = "${(translationProgress * 100).toInt()}%",
-                modifier = Modifier.align(Alignment.End)
-            )
+            LinearProgressIndicator(progress = viewModel.translationProgress.value, modifier = Modifier.fillMaxWidth())
+            Text("${(viewModel.translationProgress.value * 100).toInt()}%", modifier = Modifier.align(Alignment.End))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Translation Entries List
         LazyColumn(
-            modifier = Modifier.weight(1f), // This is the fix!
+            modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(translationItems) { item ->
-                TranslationCard(item = item)
+            items(displayEntries, key = { it.key }) { entry ->
+                TranslationCard(entry) { newText -> viewModel.updateEntry(entry.key, newText) }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(onClick = { /* prev page */ }) {
-                Text("上一页")
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Text("第 $currentPage / $totalPages 页")
-            Spacer(modifier = Modifier.width(16.dp))
-            Button(onClick = { /* next page */ }) {
-                Text("下一页")
+        // Pagination
+        PaginationControls(viewModel.currentPage.value, viewModel.totalPages.value, viewModel::previousPage, viewModel::nextPage)
+    }
+
+    // Import Bottom Sheet
+    if (showImportSheet) {
+        ModalBottomSheet(onDismissRequest = { showImportSheet = false }) {
+            Column(Modifier.padding(16.dp)) {
+                Text("请选择导入方式", style = MaterialTheme.typography.titleLarge)
+                Spacer(Modifier.height(16.dp))
+                Button({
+                    showImportSheet = false
+                    zipPickerLauncher.launch(arrayOf("application/zip"))
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text("从 ZIP 压缩包导入")
+                }
+                Spacer(Modifier.height(8.dp))
+                Button({
+                    showImportSheet = false
+                    multipleFilesPickerLauncher.launch(arrayOf("text/plain", "application/octet-stream")) // Adjust mime types if needed
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text("从多个 .properties 文件导入")
+                }
             }
         }
     }
@@ -157,57 +149,72 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageSelector(
-    label: String,
-    selectedLanguage: String,
-    onLanguageSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun LanguageGroupSelector(groups: List<String>, selected: String?, onSelect: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val languages = listOf("ZH", "EL", "EN", "FR", "DE") // Dummy data
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
-        modifier = modifier
-    ) {
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         OutlinedTextField(
-            value = selectedLanguage,
+            value = selected ?: "请选择语言组",
+            onValueChange = {},
+            label = { Text("语言组") },
+            readOnly = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.fillMaxWidth().menuAnchor()
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            groups.forEach { group ->
+                DropdownMenuItem(text = { Text(group) }, onClick = { onSelect(group); expanded = false })
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RowScope.LanguageSelector(label: String, languages: List<String>, selected: String?, onSelect: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }, modifier = Modifier.weight(1f)) {
+        OutlinedTextField(
+            value = selected ?: "",
             onValueChange = {},
             label = { Text(label) },
             readOnly = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.fillMaxWidth().menuAnchor()
         )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            languages.forEach { language ->
-                DropdownMenuItem(
-                    text = { Text(language) },
-                    onClick = {
-                        onLanguageSelected(language)
-                        expanded = false
-                    }
-                )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            languages.forEach { lang ->
+                DropdownMenuItem(text = { Text(lang) }, onClick = { onSelect(lang); expanded = false })
             }
         }
     }
 }
 
 @Composable
-fun TranslationCard(item: TranslationItemData) {
-    var translatedText by remember { mutableStateOf(TextFieldValue(item.translatedText)) }
+fun FilterButtons(selectedFilter: FilterState, onFilterSelected: (FilterState) -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+        FilterState.values().forEach { filter ->
+            Row(
+                Modifier.selectable(selected = (filter == selectedFilter), onClick = { onFilterSelected(filter) }).padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(selected = (filter == selectedFilter), onClick = { onFilterSelected(filter) })
+                Text(text = filter.name)
+            }
+        }
+    }
+}
+
+@Composable
+fun TranslationCard(entry: TranslationEntry, onValueChange: (String) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            Text(item.key, style = MaterialTheme.typography.labelSmall)
+            Text(entry.key, style = MaterialTheme.typography.labelSmall)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(item.originalText, style = MaterialTheme.typography.bodyMedium)
+            Text(entry.sourceValue, style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
-                value = translatedText,
-                onValueChange = { translatedText = it },
+                value = entry.targetValue,
+                onValueChange = onValueChange,
                 label = { Text("译文") },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -215,15 +222,13 @@ fun TranslationCard(item: TranslationItemData) {
     }
 }
 
-data class TranslationItemData(
-    val key: String,
-    val originalText: String,
-    val translatedText: String
-)
-
-@Preview(showBackground = true)
 @Composable
-fun TranslatorScreenPreview() {
-    // Previewing this complex screen requires a mock ViewModel and state,
-    // which is beyond the scope of this refactoring.
+fun PaginationControls(currentPage: Int, totalPages: Int, onPrev: () -> Unit, onNext: () -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Button(onClick = onPrev, enabled = currentPage > 1) { Text("上一页") }
+        Spacer(modifier = Modifier.width(16.dp))
+        Text("第 $currentPage / $totalPages 页")
+        Spacer(modifier = Modifier.width(16.dp))
+        Button(onClick = onNext, enabled = currentPage < totalPages) { Text("下一页") }
+    }
 }

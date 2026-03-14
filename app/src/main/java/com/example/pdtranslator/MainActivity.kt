@@ -5,15 +5,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -59,11 +60,11 @@ fun MainApp(viewModel: TranslatorViewModel) {
 
     Scaffold(
         bottomBar = {
-            BottomNavigation {
+            NavigationBar {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 items.forEach { screen ->
-                    BottomNavigationItem(
+                    NavigationBarItem(
                         icon = { Icon(screen.icon, contentDescription = screen.title) },
                         label = { Text(screen.title) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
@@ -81,11 +82,16 @@ fun MainApp(viewModel: TranslatorViewModel) {
             }
         }
     ) { innerPadding ->
-        NavHost(navController, startDestination = Screen.Translator.route, Modifier.padding(innerPadding)) {
+        NavHost(
+            navController, 
+            startDestination = Screen.Translator.route, 
+            Modifier.padding(innerPadding)
+        ) {
             composable(Screen.Translator.route) {
                 TranslatorScreen(viewModel = viewModel)
             }
             composable(Screen.Settings.route) {
+                // Correctly pass the ViewModel to SettingsScreen
                 SettingsScreen(viewModel = viewModel)
             }
         }
