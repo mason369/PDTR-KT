@@ -16,11 +16,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 11
+      # 改用 JDK 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
 
       - name: Cache Gradle packages
         uses: actions/cache@v3
@@ -35,5 +36,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build
+      # 构建 Release APK（要 Debug 版就换成 assembleDebug）
+      - name: Build Android APK
+        run: ./gradlew assembleRelease
+
+      # 上传构建好的 APK，在 GitHub Actions 页面可以直接下载
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-release-apk
+          path: app/build/outputs/apk/release/*.apk
