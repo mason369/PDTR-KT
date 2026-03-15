@@ -39,9 +39,9 @@
     <string name="settings_section_general">General</string>
     <string name="settings_section_about">About</string>
     <string name="settings_item_language">Language</string>
-    <string name="settings_item_language_subtitle">Change the application&apos;s display language</string>
+    <string name="settings_item_language_subtitle">Change the application\'s display language</string>
     <string name="settings_item_theme_color">Theme Color</string>
-    <string name="settings_item_theme_color_subtitle">Customize the app&apos;s theme color</string>
+    <string name="settings_item_theme_color_subtitle">Customize the app\'s theme color</string>
     <string name="settings_item_translation_engine">Translation Engine</string>
     <string name="settings_item_translation_engine_subtitle">Choose the online service for translation</string>
     <string name="settings_item_source_code_license">Source Code License</string>
@@ -49,7 +49,7 @@
     <string name="settings_item_about_us">About Us</string>
     <string name="settings_item_about_us_subtitle">Learn the story behind this application</string>
     <string name="settings_item_changelog">Changelog</string>
-    <string name="settings_item_changelog_subtitle">View the app&apos;s version history and updates</string>
+    <string name="settings_item_changelog_subtitle">View the app\'s version history and updates</string>
 
     <!-- About Dialog -->
     <string name="about_us_dialog_title">About Us</string>
@@ -91,7 +91,7 @@
     <string name="lib_nav_compose_name">AndroidX Navigation Compose</string>
     <string name="lib_nav_compose_desc">Provides navigation components for Jetpack Compose.</string>
     <string name="lib_core_ktx_name">AndroidX Core KTX</string>
-    <string name="lib_core_ktx_desc">Provides Kotlin extensions for Android&apos;s core functionalities.</string>
+    <string name="lib_core_ktx_desc">Provides Kotlin extensions for Android\'s core functionalities.</string>
     <string name="lib_splashscreen_name">AndroidX Core Splashscreen</string>
     <string name="lib_splashscreen_desc">Provides the SplashScreen API for Android 12+ and backward compatibility.</string>
     <string name="lib_lifecycle_name">AndroidX Lifecycle</string>
