@@ -118,7 +118,7 @@ fun ThemeColorSetting() {
 
 @Composable
 fun LibraryInfoSetting(onClick: () -> Unit) {
-    SettingItem(Icons.Default.Info, "程序依赖库使用", "查看应用使用的开源库", onClick = onClick)
+    SettingItem(Icons.Default.Info, "源代码开放许可", "查看应用使用的开源库", onClick = onClick)
 }
 
 @Composable

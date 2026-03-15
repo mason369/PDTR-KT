@@ -31,7 +31,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: TranslatorViewModel, onNavigateToSettings: () -> Unit) {
+fun MainScreen(viewModel: TranslatorViewModel, onNavigateToDependencies: () -> Unit) {
     val navController = rememberNavController()
 
     val items = listOf(
@@ -51,16 +51,12 @@ fun MainScreen(viewModel: TranslatorViewModel, onNavigateToSettings: () -> Unit)
                         label = { Text(screen.title) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
-                            if (screen.route == "settings") {
-                                onNavigateToSettings()
-                            } else {
-                                navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
                                 }
+                                launchSingleTop = true
+                                restoreState = true
                             }
                         }
                     )
@@ -78,6 +74,12 @@ fun MainScreen(viewModel: TranslatorViewModel, onNavigateToSettings: () -> Unit)
             }
             composable(Screen.Translator.route) {
                 TranslatorScreen(viewModel = viewModel)
+            }
+            composable(Screen.Settings.route) {
+                SettingsScreen(
+                    viewModel = viewModel,
+                    onNavigateToDependencies = onNavigateToDependencies
+                )
             }
         }
     }
