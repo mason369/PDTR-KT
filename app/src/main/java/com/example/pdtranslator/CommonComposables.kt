@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,13 +54,31 @@ fun LanguageGroupSelector(groups: List<String>, selected: String?, onSelect: (St
     }
 }
 
+@Composable
+fun getLanguageDisplayName(langCode: String): String {
+    if (langCode.isEmpty()) return ""
+    if (langCode == "base") return stringResource(id = R.string.source_language)
+
+    val currentLocale = Locale.getDefault()
+    val languageLocale = Locale.forLanguageTag(langCode)
+
+    val nativeName = languageLocale.getDisplayName(languageLocale)
+    val localizedName = languageLocale.getDisplayName(currentLocale)
+
+    return if (nativeName.equals(localizedName, ignoreCase = true)) {
+        nativeName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(languageLocale) else it.toString() }
+    } else {
+        "$nativeName ($localizedName)".replaceFirstChar { if (it.isLowerCase()) it.titlecase(languageLocale) else it.toString() }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RowScope.LanguageSelector(label: String, languages: List<String>, selected: String?, onSelect: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }, modifier = Modifier.weight(1f)) {
         OutlinedTextField(
-            value = selected ?: "",
+            value = getLanguageDisplayName(selected ?: ""),
             onValueChange = {},
             label = { Text(label) },
             readOnly = true,
@@ -68,7 +87,7 @@ fun RowScope.LanguageSelector(label: String, languages: List<String>, selected: 
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             languages.forEach { lang ->
-                DropdownMenuItem(text = { Text(lang) }, onClick = { onSelect(lang); expanded = false })
+                DropdownMenuItem(text = { Text(getLanguageDisplayName(lang)) }, onClick = { onSelect(lang); expanded = false })
             }
         }
     }
