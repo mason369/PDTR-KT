@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,7 +65,7 @@ fun DependencyScreen(onNavigateUp: () -> Unit) {
                 title = { Text(stringResource(id = R.string.source_code_license_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.back_button_description))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back_button_description))
                     }
                 }
             )
