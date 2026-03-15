@@ -99,6 +99,14 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
         // Filter Radio Buttons
         FilterButtons(filterState) { viewModel.setFilter(it) }
 
+        // "Complete Missing" Button
+        if (filterState == FilterState.MISSING) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = { viewModel.completeMissingEntries() }, modifier = Modifier.fillMaxWidth()) {
+                Text("补全缺失字段")
+            }
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
 
         // Progress Indicator
@@ -194,14 +202,22 @@ fun RowScope.LanguageSelector(label: String, languages: List<String>, selected: 
 
 @Composable
 fun FilterButtons(selectedFilter: FilterState, onFilterSelected: (FilterState) -> Unit) {
+    // Use a scrollable row in case the filter options overflow on smaller screens
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
         FilterState.values().forEach { filter ->
+            val filterName = when (filter) {
+                FilterState.ALL -> "总条目"
+                FilterState.UNTRANSLATED -> "未翻译"
+                FilterState.TRANSLATED -> "已翻译"
+                FilterState.MODIFIED -> "已改动"
+                FilterState.MISSING -> "缺失"
+            }
             Row(
-                Modifier.selectable(selected = (filter == selectedFilter), onClick = { onFilterSelected(filter) }).padding(horizontal = 8.dp),
+                Modifier.selectable(selected = (filter == selectedFilter), onClick = { onFilterSelected(filter) }).padding(horizontal = 4.dp), // Reduced padding
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(selected = (filter == selectedFilter), onClick = { onFilterSelected(filter) })
-                Text(text = filter.name)
+                Text(text = filterName)
             }
         }
     }
@@ -219,7 +235,9 @@ fun TranslationCard(entry: TranslationEntry, onValueChange: (String) -> Unit) {
                 value = entry.targetValue,
                 onValueChange = onValueChange,
                 label = { Text("译文") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                // Disable editing for missing entries until they are added
+                enabled = !entry.isMissing
             )
         }
     }

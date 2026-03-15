@@ -27,7 +27,8 @@ data class TranslationEntry(
     val sourceValue: String,
     var targetValue: String,
     val isUntranslated: Boolean,
-    var isModified: Boolean = false
+    var isModified: Boolean = false,
+    val isMissing: Boolean = false
 )
 
 data class LanguageData(val fileName: String, val properties: Properties)
@@ -37,7 +38,7 @@ data class LanguageGroup(
     val languages: Map<String, LanguageData> // Key: langCode (e.g., "en", "base")
 )
 
-enum class FilterState { ALL, UNTRANSLATED, MODIFIED }
+enum class FilterState { ALL, UNTRANSLATED, TRANSLATED, MODIFIED, MISSING }
 
 class TranslatorViewModel : ViewModel() {
 
@@ -78,7 +79,9 @@ class TranslatorViewModel : ViewModel() {
                     val matchesFilter = when (filter) {
                         FilterState.ALL -> true
                         FilterState.UNTRANSLATED -> entry.isUntranslated
+                        FilterState.TRANSLATED -> !entry.isUntranslated && !entry.isMissing
                         FilterState.MODIFIED -> entry.isModified
+                        FilterState.MISSING -> entry.isMissing
                     }
                     val matchesSearch = if (search.isBlank()) true else {
                         entry.key.contains(search, ignoreCase = true) || 
@@ -221,6 +224,40 @@ class TranslatorViewModel : ViewModel() {
         isSaveEnabled.value = true
     }
 
+    fun completeMissingEntries() {
+        val langCode = targetLangCode.value ?: return
+        val missingEntries = _allEntries.value.filter { it.isMissing }
+        if (missingEntries.isEmpty()) return
+
+        // Update modification cache
+        _modifiedEntries.update { currentMods ->
+            val newMods = currentMods.toMutableMap()
+            val langProps = newMods.getOrPut(langCode) { Properties() }
+            missingEntries.forEach { entry ->
+                // Add with an empty string, it will become an "untranslated" entry
+                if (!langProps.containsKey(entry.key)) {
+                    langProps.setProperty(entry.key, "")
+                }
+            }
+            newMods
+        }
+
+        // Update live entries for immediate UI feedback
+        _allEntries.update { currentEntries ->
+            currentEntries.map { entry ->
+                if (entry.isMissing) {
+                    // No longer missing, now it is untranslated and modified (because we added it)
+                    entry.copy(targetValue = "", isMissing = false, isUntranslated = true, isModified = true)
+                } else {
+                    it
+                }
+            }
+        }
+        isSaveEnabled.value = true
+        // After completing, switch filter to UNTRANSLATED to show the newly added entries
+        filterState.value = FilterState.UNTRANSLATED
+    }
+
     // --- Private Helper Functions ---
 
     private fun processLoadedGroups(groups: Map<String, Map<String, LanguageData>>) {
@@ -253,22 +290,28 @@ class TranslatorViewModel : ViewModel() {
 
             val entries = sourceProps.stringPropertyNames().map { key ->
                 val sourceValue = sourceProps.getProperty(key, "")
-                val originalTargetValue = targetProps.getProperty(key, "")
+                
+                val isMissing = !targetProps.containsKey(key) && modifiedProps?.containsKey(key) != true
+                
+                val originalTargetValue = if (isMissing) "" else targetProps.getProperty(key, "")
                 val isModified = modifiedProps?.containsKey(key) ?: false
                 val finalTargetValue = if (isModified) modifiedProps!!.getProperty(key) else originalTargetValue
                 
+                val isUntranslated = !isMissing && (finalTargetValue.isBlank() || (sourceValue == finalTargetValue && !isModified))
+
                 TranslationEntry(
                     key = key,
                     sourceValue = sourceValue,
                     targetValue = finalTargetValue,
-                    isUntranslated = finalTargetValue.isBlank() || (sourceValue == finalTargetValue && !isModified),
-                    isModified = isModified
+                    isUntranslated = isUntranslated,
+                    isModified = isModified,
+                    isMissing = isMissing
                 )
             }.sortedBy { it.key }
 
             _allEntries.value = entries
             
-            val translatedCount = entries.count { !it.isUntranslated }
+            val translatedCount = entries.count { !it.isUntranslated && !it.isMissing }
             translationProgress.value = if (entries.isEmpty()) 0f else translatedCount.toFloat() / entries.size
         }
     }
