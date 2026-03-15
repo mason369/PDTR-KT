@@ -173,10 +173,9 @@ class TranslatorViewModel : ViewModel() {
                     } ?: continue
                     
                     val preprocessedContent = content
-                        .replace(Regex("""\u(?![0-9a-fA-F]{4})"""), """\u""")
+                        .replace(Regex("\\\\u(?![0-9a-fA-F]{4})"), "\\\\u")
                         .lines()
-                        .joinToString("
-") { line ->
+                        .joinToString("\n") { line ->
                             val trimmedLine = line.trim()
                             if (trimmedLine.startsWith("//")) {
                                 "#" + trimmedLine.substring(2)
@@ -238,45 +237,6 @@ class TranslatorViewModel : ViewModel() {
             }
         }
     }
-    
-    fun replaceAll() {
-        val search = searchQuery.value
-        val replace = replaceQuery.value
-        if (search.isBlank()) return
-
-        val caseSensitive = isCaseSensitive.value
-        val exactMatch = isExactMatch.value
-        val langCode = targetLangCode.value ?: return
-
-        _allEntries.update { currentEntries ->
-            currentEntries.map { entry ->
-                 val matches = if (exactMatch) {
-                    entry.sourceValue.equals(search, ignoreCase = !caseSensitive)
-                } else {
-                    entry.sourceValue.contains(search, ignoreCase = !caseSensitive)
-                }
-                
-                if (matches) {
-                    val newTargetValue = entry.sourceValue.replace(search, replace, ignoreCase = !caseSensitive)
-                    val isTrulyModified = newTargetValue != entry.originalTargetValue
-                     if (isTrulyModified) {
-                        updateModifiedProperties(langCode, entry.key, newTargetValue)
-                    } else {
-                        removeModifiedProperty(langCode, entry.key)
-                    }
-                    
-                    entry.copy(
-                        targetValue = newTargetValue,
-                        isModified = isTrulyModified,
-                        isUntranslated = newTargetValue.isBlank() || (newTargetValue == entry.sourceValue)
-                    )
-                } else {
-                    entry
-                }
-            }
-        }
-    }
-
 
     fun saveChangesToZip(resolver: ContentResolver, uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {

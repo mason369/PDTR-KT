@@ -7,9 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -58,11 +55,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(displayEntries, key = { it.key }) { entry ->
-                NewTranslationCard(
-                    entry = entry,
-                    onStageChange = { key, newValue -> viewModel.stageChange(key, newValue) },
-                    onAutoTranslate = { viewModel.autoTranslateEntry(entry) }
-                )
+                NewTranslationCard(entry = entry)
             }
         }
 
@@ -116,9 +109,6 @@ fun SearchReplaceControls(viewModel: TranslatorViewModel) {
                     Text("完全匹配")
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                Button(onClick = { viewModel.replaceAll() }) {
-                    Text("全部替换")
-                }
             }
         }
     }
@@ -126,13 +116,8 @@ fun SearchReplaceControls(viewModel: TranslatorViewModel) {
 
 @Composable
 fun NewTranslationCard(
-    entry: TranslationEntry,
-    onStageChange: (String, String) -> Unit,
-    onAutoTranslate: () -> Unit
+    entry: TranslationEntry
 ) {
-    var tempTargetValue by remember(entry.targetValue) { mutableStateOf(entry.targetValue) }
-    val isTemporarilyModified = tempTargetValue != entry.targetValue
-
     val cardColors = if (entry.isModified) {
         CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
     } else {
@@ -171,31 +156,13 @@ fun NewTranslationCard(
                 
                 // Target TextField
                 OutlinedTextField(
-                    value = tempTargetValue,
-                    onValueChange = { tempTargetValue = it },
+                    value = entry.targetValue,
+                    onValueChange = {},
                     modifier = Modifier.weight(1f),
                     label = { Text(stringResource(id = R.string.common_translation)) },
-                    singleLine = true
+                    singleLine = true,
+                    readOnly = true
                 )
-            }
-
-            // Action buttons
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onAutoTranslate) {
-                    Icon(
-                        imageVector = Icons.Default.Translate,
-                        contentDescription = stringResource(id = R.string.translator_auto_translate_button)
-                    )
-                }
-                
-                Button(
-                    onClick = { onStageChange(entry.key, tempTargetValue) },
-                    enabled = isTemporarilyModified || entry.isModified // Enable if there's a new temp change or if it's already staged
-                ) {
-                    Icon(imageVector = Icons.Default.Save, contentDescription = "Stage Change", modifier = Modifier.size(ButtonDefaults.IconSize))
-                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                    Text("保存修改")
-                }
             }
         }
     }

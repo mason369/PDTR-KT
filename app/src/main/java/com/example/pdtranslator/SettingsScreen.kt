@@ -1,7 +1,6 @@
 package com.example.pdtranslator
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
@@ -30,8 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.example.pdtranslator.translators.GoogleTranslator
-import com.example.pdtranslator.translators.TranslationService
 
 @Composable
 fun SettingsScreen(
@@ -41,7 +37,6 @@ fun SettingsScreen(
     onLanguageSelected: (String) -> Unit
 ) {
     val showAboutDialog by viewModel.showAboutDialog.collectAsState()
-    val selectedEngine by viewModel.translationEngine.collectAsState()
     val selectedTheme by viewModel.themeColor.collectAsState()
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showThemeColorDialog by remember { mutableStateOf(false) }
@@ -67,7 +62,6 @@ fun SettingsScreen(
         item { SectionTitle(stringResource(R.string.settings_section_general)) }
         item { LanguageSetting { showLanguageDialog = true } }
         item { ThemeColorSetting { showThemeColorDialog = true } }
-        item { TranslationEngineSetting(selectedEngine) { engine -> viewModel.setTranslationEngine(engine) } }
 
         item { Spacer(modifier = Modifier.padding(vertical = 8.dp)) }
 
@@ -161,37 +155,6 @@ fun LanguageSetting(onClick: () -> Unit) {
         subtitle = stringResource(R.string.settings_item_language_subtitle),
         onClick = onClick
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TranslationEngineSetting(selectedEngine: TranslationService, onEngineSelected: (TranslationService) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    val engines = listOf(GoogleTranslator()) // Can be expanded with more engines
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column {
-            Text(stringResource(R.string.settings_item_translation_engine), style = MaterialTheme.typography.bodyLarge)
-            Text(stringResource(R.string.settings_item_translation_engine_subtitle), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.menuAnchor()) {
-                Text(selectedEngine.name)
-                Icon(Icons.Default.ArrowDropDown, "")
-            }
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                engines.forEach { engine ->
-                    DropdownMenuItem(text = { Text(engine.name) }, onClick = { onEngineSelected(engine); expanded = false })
-                }
-            }
-        }
-    }
 }
 
 @Composable
