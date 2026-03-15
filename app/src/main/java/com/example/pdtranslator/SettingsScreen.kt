@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -129,7 +131,7 @@ fun AboutDialog(onDismiss: () -> Unit) {
     val annotatedString = buildAnnotatedString {
         append("此应用由指挥官 JDSALing 构思和指导，由 Gemini AI 负责具体的编码实现。\n\n你的想法，我的代码，我们共同创造！\n\n")
         pushStringAnnotation(tag = "URL", annotation = repoUrl)
-        style(style = SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
+        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
             append("我们的GitHub仓库")
         }
         pop()
