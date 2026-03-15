@@ -174,15 +174,6 @@ class TranslatorViewModel : ViewModel() {
                     
                     val preprocessedContent = content
                         .replace(Regex("\\\\u(?![0-9a-fA-F]{4})"), "\\\\u")
-                        .lines()
-                        .joinToString("\n") { line ->
-                            val trimmedLine = line.trim()
-                            if (trimmedLine.startsWith("//")) {
-                                "#" + trimmedLine.substring(2)
-                            } else {
-                                line
-                            }
-                        }
 
                     try {
                         val props = Properties().apply { load(StringReader(preprocessedContent)) }
