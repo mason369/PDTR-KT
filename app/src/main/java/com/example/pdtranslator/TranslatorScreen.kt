@@ -1,7 +1,6 @@
 
 package com.example.pdtranslator
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,9 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -200,47 +197,6 @@ fun NewTranslationCard(
                     Text("保存修改")
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun FilterButtons(selectedFilter: FilterState, onFilterSelected: (FilterState) -> Unit) {
-    val filters = FilterState.values()
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        filters.forEach { filter ->
-            FilterChip(
-                selected = selectedFilter == filter,
-                onClick = { onFilterSelected(filter) },
-                label = { Text(filter.name) },
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun PaginationControls(
-    currentPage: Int,
-    totalPages: Int,
-    onPrevious: () -> Unit,
-    onNext: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Button(onClick = onPrevious, enabled = currentPage > 1) {
-            Text("上一页")
-        }
-        Text(
-            text = "第 $currentPage / $totalPages 页",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            textAlign = TextAlign.Center
-        )
-        Button(onClick = onNext, enabled = currentPage < totalPages) {
-            Text("下一页")
         }
     }
 }

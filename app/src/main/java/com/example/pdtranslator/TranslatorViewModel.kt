@@ -7,6 +7,7 @@ import android.provider.OpenableColumns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pdtranslator.translators.GoogleTranslator
+import com.example.pdtranslator.translators.TranslationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -90,16 +91,16 @@ class TranslatorViewModel : ViewModel() {
     val themeColor = _themeColor.asStateFlow()
 
     init {
-        // This coroutine reacts to any state changes and updates the final displayed list.
         viewModelScope.launch(Dispatchers.Default) {
             combine(
-                _allEntries,
-                searchQuery,
-                isCaseSensitive,
-                isExactMatch,
-                filterState,
-                currentPage
-            ) { entries, search, caseSensitive, exactMatch, filter, page ->
+                _allEntries, searchQuery, isCaseSensitive, isExactMatch, filterState, currentPage
+            ) { flows ->
+                val entries = flows[0] as List<TranslationEntry>
+                val search = flows[1] as String
+                val caseSensitive = flows[2] as Boolean
+                val exactMatch = flows[3] as Boolean
+                val filter = flows[4] as FilterState
+                val page = flows[5] as Int
 
                 // --- Filtering Logic ---
                 val filtered = entries.filter { entry ->
@@ -137,15 +138,13 @@ class TranslatorViewModel : ViewModel() {
                     val total = entries.size
                     val translated = total - entries.count { it.isUntranslated }
                     val progress = if (total == 0) 0f else translated.toFloat() / total
-                    infoBarText.value = "翻译进度: ${ (progress * 100).toInt() }%"
+                    infoBarText.value = "翻译进度: ${(progress * 100).toInt()}%%"
                 } else {
                     infoBarText.value = "语言组总条目: ${entries.size}"
                 }
-
             }.collect {}
         }
 
-        // Keep save button state updated
         viewModelScope.launch {
             _modifiedEntries.collect {
                 isSaveEnabled.value = it.isNotEmpty() && it.any { entry -> entry.value.isNotEmpty() }
@@ -176,11 +175,9 @@ class TranslatorViewModel : ViewModel() {
                         BufferedReader(InputStreamReader(stream)).readText()
                     } ?: continue
 
-                    // Filter out comments before loading into properties
                     val filteredContent = content.lines().filter {
                         !it.trim().startsWith("#") && !it.trim().startsWith("//")
-                    }.joinToString("
-")
+                    }.joinToString("\n")
 
                     val props = Properties().apply { load(StringReader(filteredContent)) }
                     groups.getOrPut(baseName) { mutableMapOf() }[langCode] = LanguageData(fileName, props)
@@ -209,11 +206,9 @@ class TranslatorViewModel : ViewModel() {
         if (sourceLangCode.value != null) regenerateEntries()
     }
 
-    // Stages a single change from a translation card
     fun stageChange(key: String, newTargetValue: String) {
         val langCode = targetLangCode.value ?: return
 
-        // Update the specific entry in the main list to reflect the change immediately
         _allEntries.update { currentEntries ->
             currentEntries.map { entry ->
                 if (entry.key == key) {
@@ -238,7 +233,6 @@ class TranslatorViewModel : ViewModel() {
             val source = sourceLangCode.value ?: return@launch
             val target = targetLangCode.value ?: return@launch
             val translatedText = _translationEngine.value.translate(entry.sourceValue, source, target)
-            // Auto-translated text is also a staged change
             stageChange(entry.key, translatedText)
         }
     }
@@ -261,9 +255,7 @@ class TranslatorViewModel : ViewModel() {
                 }
                 
                 if (matches) {
-                    // This creates a new value but doesn't replace the source text itself
                     val newTargetValue = entry.sourceValue.replace(search, replace, ignoreCase = !caseSensitive)
-                    
                     val isTrulyModified = newTargetValue != entry.originalTargetValue
                      if (isTrulyModified) {
                         updateModifiedProperties(langCode, entry.key, newTargetValue)
@@ -293,34 +285,28 @@ class TranslatorViewModel : ViewModel() {
                 ZipOutputStream(it).use { zos ->
                     group.languages.forEach { (langCode, langData) ->
                         val finalProps = Properties()
-                        // Start with original, non-comment properties
                         val originalContent = langData.properties.stringPropertyNames().associateWith { langData.properties.getProperty(it) }
                         finalProps.putAll(originalContent)
                         
-                        // Apply staged modifications
                         _modifiedEntries.value[langCode]?.let { mods -> finalProps.putAll(mods) }
 
                         val entryPath = "${group.name}/${langData.fileName}"
                         zos.putNextEntry(ZipEntry(entryPath))
                         val writer = OutputStreamWriter(zos)
-                        // Storing properties does not retain original comments, this is a limitation.
                         finalProps.store(writer, "PDTranslator Modified File")
                         writer.flush()
                         zos.closeEntry()
                     }
                 }
             }
-            // Clear modifications for the current language group after saving
             _modifiedEntries.update { currentMods ->
                 val newMods = currentMods.toMutableMap()
                 group.languages.keys.forEach { langCode -> newMods.remove(langCode) }
                 newMods
             }
-            regenerateEntries() // Refresh UI to show no more modified entries
+            regenerateEntries()
         }
     }
-
-    // --- Private Helper Functions ---
 
     private fun updateModifiedProperties(langCode: String, key: String, value: String) {
         _modifiedEntries.update { currentMods ->
@@ -378,43 +364,23 @@ class TranslatorViewModel : ViewModel() {
 
             val newEntries = sortedKeys.map { key ->
                 val sourceValue = sourceProps.getProperty(key, "")
-                
-                val originalTargetValue = targetProps.getProperty(key) 
-                    ?: if (sourceProps.containsKey(key)) "" else null // Distinguish missing from empty
+                val isMissing = !targetProps.containsKey(key)
+                val originalTargetValue = if (isMissing) "" else targetProps.getProperty(key, "")
+                val isModified = modifiedTargetProps?.containsKey(key) ?: false
+                val finalTargetValue = if (isModified) modifiedTargetProps!!.getProperty(key) else originalTargetValue
+                val isIdentical = sourceValue == finalTargetValue && finalTargetValue.isNotBlank()
+                val isUntranslated = !isMissing && (finalTargetValue.isBlank() || isIdentical)
 
-                if (originalTargetValue != null) {
-                     val isModified = modifiedTargetProps?.containsKey(key) ?: false
-                     val finalTargetValue = if (isModified) {
-                        modifiedTargetProps!!.getProperty(key)
-                    } else {
-                        originalTargetValue
-                    }
-                    val isIdentical = sourceValue == finalTargetValue && finalTargetValue.isNotBlank()
-
-                    TranslationEntry(
-                        key = key,
-                        sourceValue = sourceValue,
-                        targetValue = finalTargetValue,
-                        originalTargetValue = originalTargetValue,
-                        isUntranslated = finalTargetValue.isBlank() || isIdentical,
-                        isModified = isModified,
-                        isMissing = false,
-                        isIdentical = isIdentical
-                    )
-                } else {
-                    // Handle case where key is in source but not in target at all
-                     TranslationEntry(
-                        key = key,
-                        sourceValue = sourceValue,
-                        targetValue = "",
-                        originalTargetValue = "",
-//                        isUntranslated = true,
-                        isUntranslated = true,
-                        isModified = false,
-                        isMissing = true,
-                        isIdentical = false
-                    )
-                }
+                TranslationEntry(
+                    key = key,
+                    sourceValue = sourceValue,
+                    targetValue = finalTargetValue,
+                    originalTargetValue = originalTargetValue,
+                    isUntranslated = isUntranslated,
+                    isModified = isModified,
+                    isMissing = isMissing,
+                    isIdentical = isIdentical
+                )
             }
             _allEntries.value = newEntries
         }
