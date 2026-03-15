@@ -6,8 +6,6 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pdtranslator.translators.GoogleTranslator
-import com.example.pdtranslator.translators.TranslationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,7 +56,6 @@ class TranslatorViewModel : ViewModel() {
     private val _allEntries = MutableStateFlow<List<TranslationEntry>>(emptyList())
     private val _modifiedEntries = MutableStateFlow<Map<String, Properties>>(emptyMap())
     private val _showAboutDialog = MutableStateFlow(false)
-    private val _translationEngine = MutableStateFlow<TranslationService>(GoogleTranslator())
     private val _themeColor = MutableStateFlow(ThemeColor.DEFAULT)
 
     // --- UI State Exposed as StateFlows ---
@@ -89,7 +86,6 @@ class TranslatorViewModel : ViewModel() {
     val isSaveEnabled = MutableStateFlow(false)
     val showAboutDialog = _showAboutDialog.asStateFlow()
     val themeColor = _themeColor.asStateFlow()
-    val translationEngine = _translationEngine.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.Default) {
@@ -164,7 +160,6 @@ class TranslatorViewModel : ViewModel() {
     fun previousPage() { if (currentPage.value > 1) currentPage.value-- }
     fun setShowAboutDialog(show: Boolean) { _showAboutDialog.value = show }
     fun setThemeColor(theme: ThemeColor) { _themeColor.value = theme }
-    fun setTranslationEngine(engine: TranslationService) { _translationEngine.value = engine }
 
     fun loadFilesFromUris(resolver: ContentResolver, uris: List<Uri>) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -177,14 +172,21 @@ class TranslatorViewModel : ViewModel() {
                         BufferedReader(InputStreamReader(stream)).readText()
                     } ?: continue
                     
-                    val escapedContent = content.replace("\\u(?![0-9a-fA-F]{4})".toRegex(), "\\\\u")
-
-                    val filteredContent = escapedContent.lines().filter {
-                        !it.trim().startsWith("#") && !it.trim().startsWith("//")
-                    }.joinToString("\n")
+                    val preprocessedContent = content
+                        .replace(Regex("""\u(?![0-9a-fA-F]{4})"""), """\u""")
+                        .lines()
+                        .joinToString("
+") { line ->
+                            val trimmedLine = line.trim()
+                            if (trimmedLine.startsWith("//")) {
+                                "#" + trimmedLine.substring(2)
+                            } else {
+                                line
+                            }
+                        }
 
                     try {
-                        val props = Properties().apply { load(StringReader(filteredContent)) }
+                        val props = Properties().apply { load(StringReader(preprocessedContent)) }
                         groups.getOrPut(baseName) { mutableMapOf() }[langCode] = LanguageData(fileName, props)
                     } catch (e: Exception) {
                         // Log or handle the error for the specific file that failed to load
@@ -234,15 +236,6 @@ class TranslatorViewModel : ViewModel() {
                     )
                 } else entry
             }
-        }
-    }
-
-    fun autoTranslateEntry(entry: TranslationEntry) {
-        viewModelScope.launch {
-            val source = sourceLangCode.value ?: return@launch
-            val target = targetLangCode.value ?: return@launch
-            val translatedText = _translationEngine.value.translate(entry.sourceValue, source, target)
-            stageChange(entry.key, translatedText)
         }
     }
     

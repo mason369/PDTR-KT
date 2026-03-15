@@ -20,7 +20,6 @@
     <string name="translator_complete_missing">Complete Missing Fields</string>
     <string name="translator_progress">Translation Progress</string>
     <string name="translator_identical_warning">[Identical Fields]</string>
-    <string name="translator_auto_translate_button">Auto Translate</string>
 
     <!-- Common Composables -->
     <string name="common_select_language_group">Select language group</string>
@@ -44,8 +43,6 @@
     <string name="settings_item_language_subtitle">Change the application\'s display language</string>
     <string name="settings_item_theme_color">Theme Color</string>
     <string name="settings_item_theme_color_subtitle">Customize the app\'s theme color</string>
-    <string name="settings_item_translation_engine">Translation Engine</string>
-    <string name="settings_item_translation_engine_subtitle">Choose the online service for translation</string>
     <string name="settings_item_source_code_license">Source Code License</string>
     <string name="settings_item_source_code_license_subtitle">View open source libraries used by the app</string>
     <string name="settings_item_about_us">About Us</string>
@@ -83,9 +80,6 @@
     <string name="changelog_version_1_1_0">1.1.0 - Google Translate Integration</string>
     <string name="changelog_content_1_1_0">- Re-implemented and integrated the Google Translate engine based on the C# version provided by the user.\n- Added a one-click translation button to each translation entry card for instant translation.\n- Refactored and streamlined the translation engine module, removing previous engines to focus on a single, powerful implementation.</string>
 
-    <!-- Translation Engines -->
-    <string name="translation_engine_google">Google Translate</string>
-
     <!-- Theme Names -->
     <string name="theme_name_default">Default</string>
     <string name="theme_name_m3">M3 Baseline</string>
@@ -97,8 +91,6 @@
     <string name="lib_kotlin_desc">A modern programming language that makes developers happier.</string>
     <string name="lib_crash_name">CustomActivityOnCrash</string>
     <string name="lib_crash_desc">An Android library that allows launching a custom activity when your app crashes.</string>
-    <string name="lib_ktor_name">Ktor Client</string>
-    <string name="lib_ktor_desc">An asynchronous client for making requests.</string>
     <string name="lib_nav_compose_name">AndroidX Navigation Compose</string>
     <string name="lib_nav_compose_desc">Provides navigation components for Jetpack Compose.</string>
     <string name="lib_core_ktx_name">AndroidX Core KTX</string>

@@ -44,7 +44,6 @@ fun getLibraries(): List<Library> {
     return listOf(
         Library(stringResource(R.string.lib_kotlin_name), stringResource(R.string.lib_kotlin_desc), "Apache License 2.0", "1.9.22", "https://github.com/JetBrains/kotlin"),
         Library(stringResource(R.string.lib_crash_name), stringResource(R.string.lib_crash_desc), "Apache License 2.0", "2.4.0", "https://github.com/Ereza/CustomActivityOnCrash"),
-        Library(stringResource(R.string.lib_ktor_name), stringResource(R.string.lib_ktor_desc), "Apache License 2.0", "2.3.8", "https://github.com/ktorio/ktor"),
         Library(stringResource(R.string.lib_nav_compose_name), stringResource(R.string.lib_nav_compose_desc), "Apache License 2.0", "2.7.7", "https://developer.android.com/jetpack/androidx/releases/navigation"),
         Library(stringResource(R.string.lib_core_ktx_name), stringResource(R.string.lib_core_ktx_desc), "Apache License 2.0", "1.12.0", "https://developer.android.com/jetpack/androidx/releases/core"),
         Library(stringResource(R.string.lib_splashscreen_name), stringResource(R.string.lib_splashscreen_desc), "Apache License 2.0", "1.0.1", "https://developer.android.com/jetpack/androidx/releases/core"),
