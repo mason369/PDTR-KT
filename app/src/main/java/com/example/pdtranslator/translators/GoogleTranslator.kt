@@ -2,7 +2,7 @@ package com.example.pdtranslator.translators
 
 import com.example.pdtranslator.TranslationService
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.charsets.Charsets
@@ -12,7 +12,7 @@ import org.json.JSONArray
 
 class GoogleTranslator : TranslationService {
 
-    private val client = HttpClient(CIO)
+    private val client = HttpClient(Android)
 
     override suspend fun translate(text: String, from: String, to: String): String {
         if (text.isBlank()) return ""
@@ -21,12 +21,7 @@ class GoogleTranslator : TranslationService {
 
         return withContext(Dispatchers.IO) {
             try {
-                val response: HttpResponse = client.get(url) {
-                    header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
-                    header("Accept-Encoding", "gzip, deflate")
-                    header("Accept-Language", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,zh-TW;q=0.6,ko;q=0.5,ja;q=0.4")
-                    header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-                }
+                val response: HttpResponse = client.get(url)
                 val responseBody = response.bodyAsText(Charsets.UTF_8)
                 parseGoogleTranslateResponse(responseBody)
             } catch (e: Exception) {
