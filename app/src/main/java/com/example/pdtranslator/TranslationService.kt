@@ -7,7 +7,7 @@ interface TranslationService {
 }
 
 // Factory to get the selected translation engine
-fun getTranslationService(engineId: Int): TranslationService {
-    // For now, we only have Google Translate
-    return GoogleTranslator()
-}
+//fun getTranslationService(engineId: Int): TranslationService {
+//    // For now, we only have Google Translate
+//    return GoogleTranslator()
+//}

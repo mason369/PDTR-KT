@@ -181,8 +181,7 @@ class TranslatorViewModel : ViewModel() {
 
                     val filteredContent = escapedContent.lines().filter {
                         !it.trim().startsWith("#") && !it.trim().startsWith("//")
-                    }.joinToString("
-")
+                    }.joinToString("\n")
 
                     try {
                         val props = Properties().apply { load(StringReader(filteredContent)) }
