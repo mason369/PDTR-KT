@@ -32,7 +32,7 @@ fun AppNavigator() {
             )
         }
         composable(AppDestinations.DEPENDENCY_SCREEN) {
-            DependencyScreen()
+            DependencyScreen(onNavigateUp = { navController.popBackStack() })
         }
         composable(AppDestinations.CHANGELOG_SCREEN) {
             ChangelogScreen()

@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
 
     override fun attachBaseContext(newBase: Context) {
         val sharedPreferences = newBase.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-        val lang = sharedPreferences.getString("language", "en") ?: "en"
+        val lang = sharedPreferences.getString("language", null) ?: newBase.resources.configuration.locales[0].language
         val locale = Locale(lang)
         val config = Configuration(newBase.resources.configuration)
         config.setLocale(locale)
