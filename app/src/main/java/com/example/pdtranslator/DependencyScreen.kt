@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -37,6 +38,7 @@ data class Library(
     val url: String
 )
 
+// Data is often kept in English as a base, and not part of the string resource files.
 val libraries = listOf(
     Library("Kotlin", "A modern programming language that makes developers happier.", "Apache License 2.0", "1.9.22", "https://github.com/JetBrains/kotlin"),
     Library("CustomActivityOnCrash", "An Android library that allows launching a custom activity when your app crashes.", "Apache License 2.0", "2.4.0", "https://github.com/Ereza/CustomActivityOnCrash"),
@@ -56,10 +58,10 @@ fun DependencyScreen(onNavigateUp: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("源代码开放许可") },
+                title = { Text(stringResource(R.string.source_code_license_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back_button_description))
                     }
                 }
             )
@@ -96,7 +98,7 @@ fun DependencyItem(library: Library) {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(library.url))
             context.startActivity(intent)
         }) {
-            Icon(Icons.Default.Link, contentDescription = "访问链接")
+            Icon(Icons.Default.Link, contentDescription = stringResource(R.string.visit_link_description))
         }
     }
 }

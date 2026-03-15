@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -31,24 +33,32 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsScreen(
     viewModel: TranslatorViewModel,
-    onNavigateToDependencies: () -> Unit
+    onNavigateToDependencies: () -> Unit,
+    onNavigateToChangelog: () -> Unit,
+    onLanguageSelected: (String) -> Unit
 ) {
     val showAboutDialog by viewModel.showAboutDialog.collectAsState()
     val selectedEngine by viewModel.translationEngine.collectAsState()
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
     if (showAboutDialog) {
         AboutDialog(onDismiss = { viewModel.setShowAboutDialog(false) })
     }
+    if (showLanguageDialog) {
+        LanguageDialog(onDismiss = { showLanguageDialog = false }, onLanguageSelected = onLanguageSelected)
+    }
 
     LazyColumn(modifier = Modifier.padding(16.dp)) {
-        item { SectionTitle("通用") }
+        item { SectionTitle(stringResource(R.string.settings_section_general)) }
+        item { LanguageSetting { showLanguageDialog = true } }
         item { ThemeColorSetting() }
         item { TranslationEngineSetting(selectedEngine) { engine -> viewModel.setTranslationEngine(engine) } }
 
         item { Spacer(modifier = Modifier.padding(vertical = 8.dp)) }
 
-        item { SectionTitle("关于") }
+        item { SectionTitle(stringResource(R.string.settings_section_about)) }
         item { LibraryInfoSetting(onClick = onNavigateToDependencies) }
+        item { ChangelogSetting(onClick = onNavigateToChangelog) }
         item { AboutUsSetting { viewModel.setShowAboutDialog(true) } }
     }
 }
@@ -80,6 +90,16 @@ fun SettingItem(icon: ImageVector, title: String, subtitle: String, onClick: () 
     }
 }
 
+@Composable
+fun LanguageSetting(onClick: () -> Unit) {
+    SettingItem(
+        icon = Icons.Default.Language,
+        title = stringResource(R.string.settings_item_language),
+        subtitle = stringResource(R.string.settings_item_language_subtitle),
+        onClick = onClick
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TranslationEngineSetting(selectedEngine: String, onEngineSelected: (String) -> Unit) {
@@ -94,8 +114,8 @@ fun TranslationEngineSetting(selectedEngine: String, onEngineSelected: (String) 
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text("翻译引擎", style = MaterialTheme.typography.bodyLarge)
-            Text("选择用于翻译的在线服务", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.settings_item_translation_engine), style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.settings_item_translation_engine_subtitle), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.menuAnchor()) {
@@ -113,17 +133,39 @@ fun TranslationEngineSetting(selectedEngine: String, onEngineSelected: (String) 
 
 @Composable
 fun ThemeColorSetting() {
-    SettingItem(Icons.Default.Palette, "主题颜色", "自定义应用的主题颜色", onClick = { /* TODO */ })
+    SettingItem(
+        Icons.Default.Palette, 
+        stringResource(R.string.settings_item_theme_color), 
+        stringResource(R.string.settings_item_theme_color_subtitle), 
+        onClick = { /* TODO */ })
 }
 
 @Composable
 fun LibraryInfoSetting(onClick: () -> Unit) {
-    SettingItem(Icons.Default.Info, "源代码开放许可", "查看应用使用的开源库", onClick = onClick)
+    SettingItem(
+        Icons.Default.Info, 
+        stringResource(R.string.settings_item_source_code_license), 
+        stringResource(R.string.settings_item_source_code_license_subtitle), 
+        onClick = onClick)
+}
+
+@Composable
+fun ChangelogSetting(onClick: () -> Unit) {
+    SettingItem(
+        icon = Icons.Default.Info,
+        title = stringResource(R.string.settings_item_changelog),
+        subtitle = stringResource(R.string.settings_item_changelog_subtitle),
+        onClick = onClick
+    )
 }
 
 @Composable
 fun AboutUsSetting(onClick: () -> Unit) {
-    SettingItem(Icons.Default.Info, "关于我们", "了解本应用的开发故事", onClick = onClick)
+    SettingItem(
+        Icons.Default.Info, 
+        stringResource(R.string.settings_item_about_us), 
+        stringResource(R.string.settings_item_about_us_subtitle), 
+        onClick = onClick)
 }
 
 @Composable
@@ -132,26 +174,51 @@ fun AboutDialog(onDismiss: () -> Unit) {
     val repoUrl = "https://github.com/LingASDJ/PDTR-KT"
 
     val annotatedString = buildAnnotatedString {
-        append("此应用由指挥官 JDSALing 构思和指导，由 Gemini AI 负责具体的编码实现。\n\n你的想法，我的代码，我们共同创造！\n\n")
+        append(stringResource(R.string.about_us_dialog_content))
         pushStringAnnotation(tag = "URL", annotation = repoUrl)
         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)) {
-            append("我们的GitHub仓库")
+            append(stringResource(R.string.about_us_dialog_repo_link))
         }
         pop()
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("关于我们") },
+        title = { Text(stringResource(R.string.about_us_dialog_title)) },
         text = {
             Column {
                 Text(annotatedString)
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = { uriHandler.openUri(repoUrl) }) {
-                     Text("访问仓库")
+                     Text(stringResource(R.string.about_us_dialog_visit_repo_button))
                 }
             }
         },
-        confirmButton = { Button(onClick = onDismiss) { Text("关闭") } }
+        confirmButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.dialog_close_button)) } }
+    )
+}
+
+@Composable
+fun LanguageDialog(onDismiss: () -> Unit, onLanguageSelected: (String) -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.language_dialog_title)) },
+        text = {
+            Column {
+                Text(
+                    text = stringResource(R.string.language_chinese),
+                    modifier = Modifier.fillMaxWidth().clickable { onLanguageSelected("zh"); onDismiss() }.padding(vertical = 8.dp)
+                )
+                Text(
+                    text = stringResource(R.string.language_english),
+                    modifier = Modifier.fillMaxWidth().clickable { onLanguageSelected("en"); onDismiss() }.padding(vertical = 8.dp)
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.dialog_close_button))
+            }
+        }
     )
 }

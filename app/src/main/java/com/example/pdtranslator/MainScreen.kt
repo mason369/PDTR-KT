@@ -1,6 +1,7 @@
 
 package com.example.pdtranslator
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -23,15 +25,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
-sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
-    object Config : Screen("config", "基础配置", Icons.Default.Build)
-    object Translator : Screen("translator", "翻译中心", Icons.Default.Translate)
-    object Settings : Screen("settings", "全局设置", Icons.Default.Settings)
+sealed class Screen(val route: String, @StringRes val titleRes: Int, val icon: ImageVector) {
+    object Config : Screen("config", R.string.screen_title_config, Icons.Default.Build)
+    object Translator : Screen("translator", R.string.screen_title_translator, Icons.Default.Translate)
+    object Settings : Screen("settings", R.string.screen_title_settings, Icons.Default.Settings)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: TranslatorViewModel, onNavigateToDependencies: () -> Unit) {
+fun MainScreen(
+    viewModel: TranslatorViewModel, 
+    onNavigateToDependencies: () -> Unit,
+    onNavigateToChangelog: () -> Unit,
+    onLanguageSelected: (String) -> Unit
+) {
     val navController = rememberNavController()
 
     val items = listOf(
@@ -47,8 +54,8 @@ fun MainScreen(viewModel: TranslatorViewModel, onNavigateToDependencies: () -> U
                 val currentDestination = navBackStackEntry?.destination
                 items.forEach { screen ->
                     NavigationBarItem(
-                        icon = { Icon(screen.icon, contentDescription = screen.title) },
-                        label = { Text(screen.title) },
+                        icon = { Icon(screen.icon, contentDescription = stringResource(screen.titleRes)) },
+                        label = { Text(stringResource(screen.titleRes)) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
                             navController.navigate(screen.route) {
@@ -78,7 +85,9 @@ fun MainScreen(viewModel: TranslatorViewModel, onNavigateToDependencies: () -> U
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     viewModel = viewModel,
-                    onNavigateToDependencies = onNavigateToDependencies
+                    onNavigateToDependencies = onNavigateToDependencies,
+                    onNavigateToChangelog = onNavigateToChangelog,
+                    onLanguageSelected = onLanguageSelected
                 )
             }
         }
