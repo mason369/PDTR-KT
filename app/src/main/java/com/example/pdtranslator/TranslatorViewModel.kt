@@ -89,6 +89,7 @@ class TranslatorViewModel : ViewModel() {
     val isSaveEnabled = MutableStateFlow(false)
     val showAboutDialog = _showAboutDialog.asStateFlow()
     val themeColor = _themeColor.asStateFlow()
+    val translationEngine = _translationEngine.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.Default) {
@@ -163,6 +164,7 @@ class TranslatorViewModel : ViewModel() {
     fun previousPage() { if (currentPage.value > 1) currentPage.value-- }
     fun setShowAboutDialog(show: Boolean) { _showAboutDialog.value = show }
     fun setThemeColor(theme: ThemeColor) { _themeColor.value = theme }
+    fun setTranslationEngine(engine: TranslationService) { _translationEngine.value = engine }
 
     fun loadFilesFromUris(resolver: ContentResolver, uris: List<Uri>) {
         viewModelScope.launch(Dispatchers.IO) {

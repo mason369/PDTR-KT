@@ -27,7 +27,7 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
     // File pickers
     val zipPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
-        onResult = { uri -> uri?.let { viewModel.loadFilesFromZip(context.contentResolver, it) } }
+        onResult = { uri -> uri?.let { viewModel.loadFilesFromUris(context.contentResolver, listOf(it)) } }
     )
     val multipleFilesPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments(),

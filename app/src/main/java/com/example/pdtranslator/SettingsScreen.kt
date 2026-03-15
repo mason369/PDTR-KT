@@ -30,6 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.example.pdtranslator.translators.GoogleTranslator
+import com.example.pdtranslator.translators.TranslationService
 
 @Composable
 fun SettingsScreen(
@@ -163,11 +165,9 @@ fun LanguageSetting(onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TranslationEngineSetting(selectedEngine: Int, onEngineSelected: (Int) -> Unit) {
+fun TranslationEngineSetting(selectedEngine: TranslationService, onEngineSelected: (TranslationService) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val engines = listOf(
-        R.string.translation_engine_google
-    )
+    val engines = listOf(GoogleTranslator()) // Can be expanded with more engines
 
     Row(
         modifier = Modifier
@@ -182,12 +182,12 @@ fun TranslationEngineSetting(selectedEngine: Int, onEngineSelected: (Int) -> Uni
         }
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.menuAnchor()) {
-                Text(stringResource(id = selectedEngine))
+                Text(selectedEngine.name)
                 Icon(Icons.Default.ArrowDropDown, "")
             }
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                engines.forEach { engineResId ->
-                    DropdownMenuItem(text = { Text(stringResource(id = engineResId)) }, onClick = { onEngineSelected(engineResId); expanded = false })
+                engines.forEach { engine ->
+                    DropdownMenuItem(text = { Text(engine.name) }, onClick = { onEngineSelected(engine); expanded = false })
                 }
             }
         }
