@@ -32,7 +32,12 @@ sealed class Screen(val route: String, val title: Int, val icon: ImageVector) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: TranslatorViewModel, onNavigateToDependencies: () -> Unit) {
+fun MainScreen(
+    viewModel: TranslatorViewModel,
+    onNavigateToDependencies: () -> Unit,
+    onNavigateToChangelog: () -> Unit,
+    onLanguageSelected: (String) -> Unit
+) {
     val navController = rememberNavController()
 
     val items = listOf(
@@ -79,7 +84,9 @@ fun MainScreen(viewModel: TranslatorViewModel, onNavigateToDependencies: () -> U
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     viewModel = viewModel,
-                    onNavigateToDependencies = onNavigateToDependencies
+                    onNavigateToDependencies = onNavigateToDependencies,
+                    onNavigateToChangelog = onNavigateToChangelog,
+                    onLanguageSelected = onLanguageSelected
                 )
             }
         }
