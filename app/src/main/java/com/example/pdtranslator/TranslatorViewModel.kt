@@ -46,6 +46,8 @@ class TranslatorViewModel : ViewModel() {
     private val _languageGroups = MutableStateFlow<List<LanguageGroup>>(emptyList())
     private val _allEntries = MutableStateFlow<List<TranslationEntry>>(emptyList())
     private val _modifiedEntries = MutableStateFlow<Map<String, Properties>>(emptyMap()) // Key: langCode, Value: Modified properties
+    private val _showAboutDialog = MutableStateFlow(false)
+    private val _translationEngine = MutableStateFlow("内置有道")
 
     // --- UI State Exposed as StateFlows ---
     val languageGroupNames = MutableStateFlow<List<String>>(emptyList())
@@ -64,6 +66,9 @@ class TranslatorViewModel : ViewModel() {
     val totalPages = MutableStateFlow(1)
     val translationProgress = MutableStateFlow(0f)
     val isSaveEnabled = MutableStateFlow(false)
+
+    val showAboutDialog = _showAboutDialog.asStateFlow()
+    val translationEngine = _translationEngine.asStateFlow()
 
     init {
         // This coroutine reacts to any state changes and updates the final displayed list.
@@ -103,6 +108,15 @@ class TranslatorViewModel : ViewModel() {
     }
 
     // --- Public Intent Functions ---
+
+    fun setShowAboutDialog(show: Boolean) {
+        _showAboutDialog.value = show
+    }
+
+    fun setTranslationEngine(engine: String) {
+        _translationEngine.value = engine
+        // Here you might add logic to re-initialize your translation service
+    }
 
     fun loadFilesFromZip(resolver: ContentResolver, uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
