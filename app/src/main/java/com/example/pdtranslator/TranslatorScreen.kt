@@ -13,57 +13,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TranslatorScreen(viewModel: TranslatorViewModel) {
-    // State collected from the ViewModel for translation
-    val searchText by viewModel.searchText.collectAsState()
-    val filterState by viewModel.filterState.collectAsState()
+    // State collected from the ViewModel
     val displayEntries by viewModel.displayEntries.collectAsState()
-    val translationProgress by viewModel.translationProgress.collectAsState()
+    val filterState by viewModel.filterState.collectAsState()
     val currentPage by viewModel.currentPage.collectAsState()
     val totalPages by viewModel.totalPages.collectAsState()
+    val infoBarText by viewModel.infoBarText.collectAsState()
 
     Column(
         modifier = Modifier
-            .padding(16.dp)
             .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Search Field
-        OutlinedTextField(
-            value = searchText,
-            onValueChange = { viewModel.setSearchText(it) },
-            label = { Text(stringResource(id = R.string.translator_search_placeholder)) },
+        Spacer(modifier = Modifier.height(4.dp)) // Top padding
+
+        // Search and Replace Card
+        SearchReplaceControls(viewModel)
+
+        // Info Bar and Filters
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Filter Radio Buttons
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = infoBarText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+        }
         FilterButtons(filterState) { viewModel.setFilter(it) }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // "Complete Missing" Button
-        if (filterState == FilterState.MISSING) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { viewModel.completeMissingEntries() }, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(id = R.string.translator_complete_missing))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Progress Indicator
-        Column {
-            Text(stringResource(id = R.string.translator_progress))
-            Spacer(modifier = Modifier.height(4.dp))
-            LinearProgressIndicator(progress = translationProgress, modifier = Modifier.fillMaxWidth())
-            Text("${(translationProgress * 100).toInt()}%", modifier = Modifier.align(Alignment.End))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // Translation Entries List
         LazyColumn(
@@ -71,13 +54,119 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(displayEntries, key = { it.key }) { entry ->
-                TranslationCard(entry) { newText -> viewModel.updateEntry(entry.key, newText) }
+                NewTranslationCard(
+                    entry = entry,
+                    onValueChange = { newValue ->
+                        viewModel.stageChange(entry.key, newValue)
+                    }
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Pagination
         PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
+
+        Spacer(modifier = Modifier.height(4.dp)) // Bottom padding
+    }
+}
+
+@Composable
+fun SearchReplaceControls(viewModel: TranslatorViewModel) {
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val replaceQuery by viewModel.replaceQuery.collectAsState()
+    val isCaseSensitive by viewModel.isCaseSensitive.collectAsState()
+    val isExactMatch by viewModel.isExactMatch.collectAsState()
+
+    Card {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { viewModel.setSearchQuery(it) },
+                    label = { Text("搜索") },
+                    modifier = Modifier.weight(1f)
+                )
+                OutlinedTextField(
+                    value = replaceQuery,
+                    onValueChange = { viewModel.setReplaceQuery(it) },
+                    label = { Text("替换") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Row(
+                    Modifier.selectable(selected = isCaseSensitive, onClick = { viewModel.setCaseSensitive(!isCaseSensitive) }),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = isCaseSensitive, onCheckedChange = { viewModel.setCaseSensitive(it) })
+                    Text("区分大小写")
+                }
+                Row(
+                     Modifier.selectable(selected = isExactMatch, onClick = { viewModel.setExactMatch(!isExactMatch) }),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = isExactMatch, onCheckedChange = { viewModel.setExactMatch(it) })
+                    Text("完全匹配")
+                }
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
+fun NewTranslationCard(
+    entry: TranslationEntry,
+    onValueChange: (String) -> Unit
+) {
+    val cardColors = if (entry.isModified) {
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    } else {
+        CardDefaults.cardColors()
+    }
+
+    Card(modifier = Modifier.fillMaxWidth(), colors = cardColors) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Top row with key and status
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(entry.key, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(modifier = Modifier.width(8.dp))
+                if (entry.isIdentical) {
+                    Text(
+                        text = stringResource(id = R.string.translator_identical_warning),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                 if (entry.isMissing) {
+                    Text(
+                        text = "(Missing)",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Source and Target text fields
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Source Text
+                Box(modifier = Modifier.weight(1f)) {
+                     Text(entry.sourceValue, modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(8.dp), maxLines = 1)
+                }
+                
+                // Target TextField
+                OutlinedTextField(
+                    value = entry.targetValue,
+                    onValueChange = onValueChange,
+                    modifier = Modifier.weight(1f),
+                    label = { Text(stringResource(id = R.string.common_translation)) },
+                    singleLine = true
+                )
+            }
+        }
     }
 }
