@@ -65,7 +65,6 @@ fun SettingsScreen(
         item { SectionTitle(stringResource(R.string.settings_section_general)) }
         item { LanguageSetting { showLanguageDialog = true } }
         item { ThemeColorSetting { showThemeColorDialog = true } }
-        item { TranslationEngineSetting(selectedEngine) { engine -> viewModel.setTranslationEngine(engine) } }
 
         item { Spacer(modifier = Modifier.padding(vertical = 8.dp)) }
 
