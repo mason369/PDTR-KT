@@ -1,5 +1,7 @@
+
 package com.example.pdtranslator
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,59 +17,43 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TranslatorScreen(viewModel: TranslatorViewModel) {
-    // State collected from the ViewModel for translation
-    val searchText by viewModel.searchText.collectAsState()
-    val filterState by viewModel.filterState.collectAsState()
+    // State collected from the ViewModel
     val displayEntries by viewModel.displayEntries.collectAsState()
-    val translationProgress by viewModel.translationProgress.collectAsState()
+    val filterState by viewModel.filterState.collectAsState()
     val currentPage by viewModel.currentPage.collectAsState()
     val totalPages by viewModel.totalPages.collectAsState()
+    val infoBarText by viewModel.infoBarText.collectAsState()
 
     Column(
         modifier = Modifier
-            .padding(16.dp)
             .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Search Field
-        OutlinedTextField(
-            value = searchText,
-            onValueChange = { viewModel.setSearchText(it) },
-            label = { Text(stringResource(id = R.string.translator_search_placeholder)) },
+        Spacer(modifier = Modifier.height(4.dp)) // Top padding
+
+        // Search and Replace Card
+        SearchReplaceControls(viewModel)
+
+        // Info Bar and Filters
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Filter Radio Buttons
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = infoBarText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+        }
         FilterButtons(filterState) { viewModel.setFilter(it) }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // "Complete Missing" Button
-        if (filterState == FilterState.MISSING) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { viewModel.completeMissingEntries() }, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(id = R.string.translator_complete_missing))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Progress Indicator
-        Column {
-            Text(stringResource(id = R.string.translator_progress))
-            Spacer(modifier = Modifier.height(4.dp))
-            LinearProgressIndicator(progress = translationProgress, modifier = Modifier.fillMaxWidth())
-            Text("${(translationProgress * 100).toInt()}%", modifier = Modifier.align(Alignment.End))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // Translation Entries List
         LazyColumn(
@@ -74,57 +61,186 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(displayEntries, key = { it.key }) { entry ->
-                TranslationCard(
+                NewTranslationCard(
                     entry = entry,
-                    onValueChange = { newText -> viewModel.updateEntry(entry.key, newText) },
+                    onStageChange = { key, newValue -> viewModel.stageChange(key, newValue) },
                     onAutoTranslate = { viewModel.autoTranslateEntry(entry) }
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Pagination
         PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
+
+        Spacer(modifier = Modifier.height(4.dp)) // Bottom padding
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchReplaceControls(viewModel: TranslatorViewModel) {
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val replaceQuery by viewModel.replaceQuery.collectAsState()
+    val isCaseSensitive by viewModel.isCaseSensitive.collectAsState()
+    val isExactMatch by viewModel.isExactMatch.collectAsState()
+
+    Card {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { viewModel.setSearchQuery(it) },
+                    label = { Text("搜索") },
+                    modifier = Modifier.weight(1f)
+                )
+                OutlinedTextField(
+                    value = replaceQuery,
+                    onValueChange = { viewModel.setReplaceQuery(it) },
+                    label = { Text("替换") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Row(
+                    Modifier.selectable(selected = isCaseSensitive, onClick = { viewModel.setCaseSensitive(!isCaseSensitive) }),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = isCaseSensitive, onCheckedChange = { viewModel.setCaseSensitive(it) })
+                    Text("区分大小写")
+                }
+                Row(
+                     Modifier.selectable(selected = isExactMatch, onClick = { viewModel.setExactMatch(!isExactMatch) }),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = isExactMatch, onCheckedChange = { viewModel.setExactMatch(it) })
+                    Text("完全匹配")
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Button(onClick = { viewModel.replaceAll() }) {
+                    Text("全部替换")
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun TranslationCard(
+fun NewTranslationCard(
     entry: TranslationEntry,
-    onValueChange: (String) -> Unit,
+    onStageChange: (String, String) -> Unit,
     onAutoTranslate: () -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    var tempTargetValue by remember(entry.targetValue) { mutableStateOf(entry.targetValue) }
+    val isTemporarilyModified = tempTargetValue != entry.targetValue
+
+    val cardColors = if (entry.isModified) {
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    } else {
+        CardDefaults.cardColors()
+    }
+
+    Card(modifier = Modifier.fillMaxWidth(), colors = cardColors) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Top row with key and status
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(entry.key, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text(entry.key, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(modifier = Modifier.width(8.dp))
                 if (entry.isIdentical) {
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        stringResource(id = R.string.translator_identical_warning),
-                        style = MaterialTheme.typography.bodySmall,
+                        text = stringResource(id = R.string.translator_identical_warning),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                 if (entry.isMissing) {
+                    Text(
+                        text = "(Missing)",
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(entry.sourceValue, style = MaterialTheme.typography.bodyLarge)
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-            OutlinedTextField(
-                value = entry.targetValue,
-                onValueChange = onValueChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(id = R.string.common_translation)) },
-                trailingIcon = {
-                    IconButton(onClick = onAutoTranslate) {
-                        Icon(
-                            imageVector = Icons.Default.Translate,
-                            contentDescription = stringResource(id = R.string.translator_auto_translate_button)
-                        )
-                    }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Source and Target text fields
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Source Text
+                Box(modifier = Modifier.weight(1f)) {
+                     Text(entry.sourceValue, modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(8.dp), maxLines = 1)
                 }
+                
+                // Target TextField
+                OutlinedTextField(
+                    value = tempTargetValue,
+                    onValueChange = { tempTargetValue = it },
+                    modifier = Modifier.weight(1f),
+                    label = { Text(stringResource(id = R.string.common_translation)) },
+                    singleLine = true
+                )
+            }
+
+            // Action buttons
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onAutoTranslate) {
+                    Icon(
+                        imageVector = Icons.Default.Translate,
+                        contentDescription = stringResource(id = R.string.translator_auto_translate_button)
+                    )
+                }
+                
+                Button(
+                    onClick = { onStageChange(entry.key, tempTargetValue) },
+                    enabled = isTemporarilyModified || entry.isModified // Enable if there's a new temp change or if it's already staged
+                ) {
+                    Icon(imageVector = Icons.Default.Save, contentDescription = "Stage Change", modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                    Text("保存修改")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FilterButtons(selectedFilter: FilterState, onFilterSelected: (FilterState) -> Unit) {
+    val filters = FilterState.values()
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        filters.forEach { filter ->
+            FilterChip(
+                selected = selectedFilter == filter,
+                onClick = { onFilterSelected(filter) },
+                label = { Text(filter.name) },
+                modifier = Modifier.padding(horizontal = 4.dp)
             )
+        }
+    }
+}
+
+@Composable
+fun PaginationControls(
+    currentPage: Int,
+    totalPages: Int,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(onClick = onPrevious, enabled = currentPage > 1) {
+            Text("上一页")
+        }
+        Text(
+            text = "第 $currentPage / $totalPages 页",
+            modifier = Modifier.padding(horizontal = 16.dp),
+            textAlign = TextAlign.Center
+        )
+        Button(onClick = onNext, enabled = currentPage < totalPages) {
+            Text("下一页")
         }
     }
 }
