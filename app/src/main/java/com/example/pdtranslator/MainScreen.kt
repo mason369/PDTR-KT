@@ -1,7 +1,6 @@
 
 package com.example.pdtranslator
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
@@ -25,7 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
-sealed class Screen(val route: String, @StringRes val titleRes: Int, val icon: ImageVector) {
+sealed class Screen(val route: String, val title: Int, val icon: ImageVector) {
     object Config : Screen("config", R.string.screen_title_config, Icons.Default.Build)
     object Translator : Screen("translator", R.string.screen_title_translator, Icons.Default.Translate)
     object Settings : Screen("settings", R.string.screen_title_settings, Icons.Default.Settings)
@@ -33,12 +32,7 @@ sealed class Screen(val route: String, @StringRes val titleRes: Int, val icon: I
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
-    viewModel: TranslatorViewModel, 
-    onNavigateToDependencies: () -> Unit,
-    onNavigateToChangelog: () -> Unit,
-    onLanguageSelected: (String) -> Unit
-) {
+fun MainScreen(viewModel: TranslatorViewModel, onNavigateToDependencies: () -> Unit) {
     val navController = rememberNavController()
 
     val items = listOf(
@@ -54,8 +48,8 @@ fun MainScreen(
                 val currentDestination = navBackStackEntry?.destination
                 items.forEach { screen ->
                     NavigationBarItem(
-                        icon = { Icon(screen.icon, contentDescription = stringResource(screen.titleRes)) },
-                        label = { Text(stringResource(screen.titleRes)) },
+                        icon = { Icon(screen.icon, contentDescription = stringResource(id = screen.title)) },
+                        label = { Text(stringResource(id = screen.title)) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
                             navController.navigate(screen.route) {
@@ -85,9 +79,7 @@ fun MainScreen(
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     viewModel = viewModel,
-                    onNavigateToDependencies = onNavigateToDependencies,
-                    onNavigateToChangelog = onNavigateToChangelog,
-                    onLanguageSelected = onLanguageSelected
+                    onNavigateToDependencies = onNavigateToDependencies
                 )
             }
         }

@@ -1,4 +1,3 @@
-
 package com.example.pdtranslator
 
 import androidx.compose.foundation.clickable
@@ -102,9 +101,12 @@ fun LanguageSetting(onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TranslationEngineSetting(selectedEngine: String, onEngineSelected: (String) -> Unit) {
+fun TranslationEngineSetting(selectedEngine: Int, onEngineSelected: (Int) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val engines = listOf("内置有道", "百度翻译")
+    val engines = listOf(
+        R.string.translation_engine_youdao,
+        R.string.translation_engine_baidu
+    )
 
     Row(
         modifier = Modifier
@@ -119,12 +121,12 @@ fun TranslationEngineSetting(selectedEngine: String, onEngineSelected: (String) 
         }
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.menuAnchor()) {
-                Text(selectedEngine)
+                Text(stringResource(id = selectedEngine))
                 Icon(Icons.Default.ArrowDropDown, "")
             }
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                engines.forEach { engine ->
-                    DropdownMenuItem(text = { Text(engine) }, onClick = { onEngineSelected(engine); expanded = false })
+                engines.forEach { engineResId ->
+                    DropdownMenuItem(text = { Text(stringResource(id = engineResId)) }, onClick = { onEngineSelected(engineResId); expanded = false })
                 }
             }
         }
@@ -133,20 +135,12 @@ fun TranslationEngineSetting(selectedEngine: String, onEngineSelected: (String) 
 
 @Composable
 fun ThemeColorSetting() {
-    SettingItem(
-        Icons.Default.Palette, 
-        stringResource(R.string.settings_item_theme_color), 
-        stringResource(R.string.settings_item_theme_color_subtitle), 
-        onClick = { /* TODO */ })
+    SettingItem(Icons.Default.Palette, stringResource(R.string.settings_item_theme_color), stringResource(R.string.settings_item_theme_color_subtitle), onClick = { /* TODO */ })
 }
 
 @Composable
 fun LibraryInfoSetting(onClick: () -> Unit) {
-    SettingItem(
-        Icons.Default.Info, 
-        stringResource(R.string.settings_item_source_code_license), 
-        stringResource(R.string.settings_item_source_code_license_subtitle), 
-        onClick = onClick)
+    SettingItem(Icons.Default.Info, stringResource(R.string.settings_item_source_code_license), stringResource(R.string.settings_item_source_code_license_subtitle), onClick = onClick)
 }
 
 @Composable
@@ -161,11 +155,7 @@ fun ChangelogSetting(onClick: () -> Unit) {
 
 @Composable
 fun AboutUsSetting(onClick: () -> Unit) {
-    SettingItem(
-        Icons.Default.Info, 
-        stringResource(R.string.settings_item_about_us), 
-        stringResource(R.string.settings_item_about_us_subtitle), 
-        onClick = onClick)
+    SettingItem(Icons.Default.Info, stringResource(R.string.settings_item_about_us), stringResource(R.string.settings_item_about_us_subtitle), onClick = onClick)
 }
 
 @Composable

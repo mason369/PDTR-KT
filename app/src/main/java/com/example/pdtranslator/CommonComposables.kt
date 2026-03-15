@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,9 +38,9 @@ fun LanguageGroupSelector(groups: List<String>, selected: String?, onSelect: (St
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         OutlinedTextField(
-            value = selected ?: "请选择语言组",
+            value = selected ?: stringResource(id = R.string.common_select_language_group),
             onValueChange = {},
-            label = { Text("语言组") },
+            label = { Text(stringResource(id = R.string.common_language_group)) },
             readOnly = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.fillMaxWidth().menuAnchor()
@@ -85,11 +86,11 @@ fun FilterButtons(selectedFilter: FilterState, onFilterSelected: (FilterState) -
     ) {
         FilterState.values().forEach { filter ->
             val filterName = when (filter) {
-                FilterState.ALL -> "总条目"
-                FilterState.UNTRANSLATED -> "未翻译"
-                FilterState.TRANSLATED -> "已翻译"
-                FilterState.MODIFIED -> "已改动"
-                FilterState.MISSING -> "缺失"
+                FilterState.ALL -> stringResource(id = R.string.filter_all)
+                FilterState.UNTRANSLATED -> stringResource(id = R.string.filter_untranslated)
+                FilterState.TRANSLATED -> stringResource(id = R.string.filter_translated)
+                FilterState.MODIFIED -> stringResource(id = R.string.filter_modified)
+                FilterState.MISSING -> stringResource(id = R.string.filter_missing)
             }
             Row(
                 Modifier
@@ -122,7 +123,7 @@ fun TranslationCard(entry: TranslationEntry, onValueChange: (String) -> Unit) {
             OutlinedTextField(
                 value = entry.targetValue,
                 onValueChange = onValueChange,
-                label = { Text("译文") },
+                label = { Text(stringResource(id = R.string.common_translation)) },
                 modifier = Modifier.fillMaxWidth(),
                 // Disable editing for missing entries until they are added
                 enabled = !entry.isMissing
@@ -134,10 +135,10 @@ fun TranslationCard(entry: TranslationEntry, onValueChange: (String) -> Unit) {
 @Composable
 fun PaginationControls(currentPage: Int, totalPages: Int, onPrev: () -> Unit, onNext: () -> Unit) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-        Button(onClick = onPrev, enabled = currentPage > 1) { Text("上一页") }
+        Button(onClick = onPrev, enabled = currentPage > 1) { Text(stringResource(id = R.string.pagination_previous)) }
         Spacer(modifier = Modifier.width(16.dp))
-        Text("第 $currentPage / $totalPages 页")
+        Text(stringResource(id = R.string.pagination_page_info, currentPage, totalPages))
         Spacer(modifier = Modifier.width(16.dp))
-        Button(onClick = onNext, enabled = currentPage < totalPages) { Text("下一页") }
+        Button(onClick = onNext, enabled = currentPage < totalPages) { Text(stringResource(id = R.string.pagination_next)) }
     }
 }

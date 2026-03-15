@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +33,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
         OutlinedTextField(
             value = searchText,
             onValueChange = { viewModel.setSearchText(it) },
-            label = { Text("搜索 (Key或原文)") },
+            label = { Text(stringResource(id = R.string.translator_search_placeholder)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -48,7 +49,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
         if (filterState == FilterState.MISSING) {
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = { viewModel.completeMissingEntries() }, modifier = Modifier.fillMaxWidth()) {
-                Text("补全缺失字段")
+                Text(stringResource(id = R.string.translator_complete_missing))
             }
         }
 
@@ -56,7 +57,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
 
         // Progress Indicator
         Column {
-            Text("翻译进度")
+            Text(stringResource(id = R.string.translator_progress))
             Spacer(modifier = Modifier.height(4.dp))
             LinearProgressIndicator(progress = translationProgress, modifier = Modifier.fillMaxWidth())
             Text("${(translationProgress * 100).toInt()}%", modifier = Modifier.align(Alignment.End))

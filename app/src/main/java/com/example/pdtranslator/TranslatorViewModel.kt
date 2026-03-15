@@ -5,6 +5,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pdtranslator.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,7 +48,7 @@ class TranslatorViewModel : ViewModel() {
     private val _allEntries = MutableStateFlow<List<TranslationEntry>>(emptyList())
     private val _modifiedEntries = MutableStateFlow<Map<String, Properties>>(emptyMap()) // Key: langCode, Value: Modified properties
     private val _showAboutDialog = MutableStateFlow(false)
-    private val _translationEngine = MutableStateFlow("内置有道")
+    private val _translationEngine = MutableStateFlow(R.string.translation_engine_youdao)
 
     // --- UI State Exposed as StateFlows ---
     val languageGroupNames = MutableStateFlow<List<String>>(emptyList())
@@ -113,7 +114,7 @@ class TranslatorViewModel : ViewModel() {
         _showAboutDialog.value = show
     }
 
-    fun setTranslationEngine(engine: String) {
+    fun setTranslationEngine(engine: Int) {
         _translationEngine.value = engine
         // Here you might add logic to re-initialize your translation service
     }

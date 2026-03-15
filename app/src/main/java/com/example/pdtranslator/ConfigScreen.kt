@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,13 +53,13 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(onClick = { showImportSheet = true }) {
-                Text("导入文件")
+                Text(stringResource(id = R.string.config_import_files))
             }
             Button(
                 onClick = { saveFileLauncher.launch("translation_output.zip") },
                 enabled = isSaveEnabled
             ) {
-                Text("保存")
+                Text(stringResource(id = R.string.config_save))
             }
         }
 
@@ -67,8 +68,8 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
 
         // Language Selectors
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LanguageSelector("源语言", availableLanguages, sourceLangCode) { viewModel.selectSourceLanguage(it) }
-            LanguageSelector("目标语言", availableLanguages, targetLangCode) { viewModel.selectTargetLanguage(it) }
+            LanguageSelector(stringResource(id = R.string.config_source_language), availableLanguages, sourceLangCode) { viewModel.selectSourceLanguage(it) }
+            LanguageSelector(stringResource(id = R.string.config_target_language), availableLanguages, targetLangCode) { viewModel.selectTargetLanguage(it) }
         }
     }
 
@@ -76,20 +77,20 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
     if (showImportSheet) {
         ModalBottomSheet(onDismissRequest = { showImportSheet = false }) {
             Column(Modifier.padding(16.dp)) {
-                Text("请选择导入方式", style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(id = R.string.config_import_dialog_title), style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(16.dp))
                 Button({
                     showImportSheet = false
                     zipPickerLauncher.launch(arrayOf("application/zip"))
                 }, modifier = Modifier.fillMaxWidth()) {
-                    Text("从 ZIP 压缩包导入")
+                    Text(stringResource(id = R.string.config_import_from_zip))
                 }
                 Spacer(Modifier.height(8.dp))
                 Button({
                     showImportSheet = false
                     multipleFilesPickerLauncher.launch(arrayOf("text/plain", "application/octet-stream")) // Adjust mime types if needed
                 }, modifier = Modifier.fillMaxWidth()) {
-                    Text("从多个 .properties 文件导入")
+                    Text(stringResource(id = R.string.config_import_from_properties))
                 }
             }
         }
