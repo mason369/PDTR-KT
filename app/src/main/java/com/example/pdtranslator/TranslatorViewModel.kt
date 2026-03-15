@@ -307,7 +307,7 @@ class TranslatorViewModel : ViewModel() {
                     isModified = isModified,
                     isMissing = isMissing
                 )
-            }.sortedBy { it.key }
+            }.sortedBy { entry -> entry.key }
 
             _allEntries.value = entries
             
