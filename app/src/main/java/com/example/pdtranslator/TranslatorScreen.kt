@@ -27,7 +27,10 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
     val searchText by viewModel.searchText.collectAsState()
     val filterState by viewModel.filterState.collectAsState()
     val displayEntries by viewModel.displayEntries.collectAsState()
-    val isSaveEnabled by viewModel.isSaveEnabled
+    val isSaveEnabled by viewModel.isSaveEnabled.collectAsState()
+    val translationProgress by viewModel.translationProgress.collectAsState()
+    val currentPage by viewModel.currentPage.collectAsState()
+    val totalPages by viewModel.totalPages.collectAsState()
 
     // File pickers
     val zipPickerLauncher = rememberLauncherForActivityResult(
@@ -101,8 +104,8 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
         // Progress Indicator
         Column {
             Text("翻译进度")
-            LinearProgressIndicator(progress = viewModel.translationProgress.value, modifier = Modifier.fillMaxWidth())
-            Text("${(viewModel.translationProgress.value * 100).toInt()}%", modifier = Modifier.align(Alignment.End))
+            LinearProgressIndicator(progress = translationProgress, modifier = Modifier.fillMaxWidth())
+            Text("${(translationProgress * 100).toInt()}%", modifier = Modifier.align(Alignment.End))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -120,7 +123,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Pagination
-        PaginationControls(viewModel.currentPage.value, viewModel.totalPages.value, viewModel::previousPage, viewModel::nextPage)
+        PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
     }
 
     // Import Bottom Sheet
