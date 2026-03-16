@@ -58,6 +58,7 @@ class TranslatorViewModel : ViewModel() {
     private val _showAboutDialog = MutableStateFlow(false)
     private val _themeColor = MutableStateFlow(ThemeColor.DEFAULT)
     private val _isSearchCardVisible = MutableStateFlow(true)
+    private val _missingEntriesCount = MutableStateFlow(0)
 
 
     // --- UI State Exposed as StateFlows ---
@@ -66,6 +67,7 @@ class TranslatorViewModel : ViewModel() {
     val displayEntries = MutableStateFlow<List<TranslationEntry>>(emptyList())
     val stagedChanges = _stagedChanges.asStateFlow()
     val isSearchCardVisible = _isSearchCardVisible.asStateFlow()
+    val missingEntriesCount = _missingEntriesCount.asStateFlow()
 
     val selectedGroupName = MutableStateFlow<String?>(null)
     val sourceLangCode = MutableStateFlow<String?>(null)
@@ -166,7 +168,15 @@ class TranslatorViewModel : ViewModel() {
     fun setReplaceQuery(query: String) { replaceQuery.value = query }
     fun setCaseSensitive(isSensitive: Boolean) { isCaseSensitive.value = isSensitive }
     fun setExactMatch(isExact: Boolean) { isExactMatch.value = isExact }
-    fun setFilter(filter: FilterState) { filterState.value = filter; currentPage.value = 1 }
+    fun setFilter(filter: FilterState) {
+        filterState.value = filter
+        currentPage.value = 1
+        if (filter == FilterState.MISSING) {
+            regenerateEntriesForMissing()
+        } else {
+            regenerateEntries()
+        }
+    }
     fun nextPage() { if (currentPage.value < totalPages.value) currentPage.value++ }
     fun previousPage() { if (currentPage.value > 1) currentPage.value-- }
     fun setShowAboutDialog(show: Boolean) { _showAboutDialog.value = show }
@@ -213,10 +223,10 @@ class TranslatorViewModel : ViewModel() {
         if (langCode != null) {
             resolver.openInputStream(uri)?.use { stream ->
                 val content = BufferedReader(InputStreamReader(stream)).readText()
-                // The original regex had a syntax error because '\\u' was interpreted as an invalid
+                // The original regex had a syntax error because '\u' was interpreted as an invalid
                 // escape sequence by the regex engine. To match a literal backslash, the regex needs '\\',
-                // which requires four backslashes in the Kotlin string literal ("\\\\").
-                val preprocessedContent = content.replace(Regex("\\\\u(?![0-9a-fA-F]{4})"), "\\\\u")
+                // which requires four backslashes in the Kotlin string literal ("\\u").
+                val preprocessedContent = content.replace(Regex("\\u(?![0-9a-fA-F]{4})"), "\\u")
                 try {
                     val props = Properties().apply { load(StringReader(preprocessedContent)) }
                     groups.getOrPut(baseName) { mutableMapOf() }[langCode] = LanguageData(fileName, props)
@@ -326,6 +336,7 @@ class TranslatorViewModel : ViewModel() {
 
         if (sourceCode == null || targetCode == null || group == null) {
             _allEntries.value = emptyList()
+            _missingEntriesCount.value = 0
             return
         }
 
@@ -335,9 +346,11 @@ class TranslatorViewModel : ViewModel() {
 
             val sortedKeys = (sourceProps.keys + targetProps.keys).mapNotNull { it as? String }.distinct().sorted()
 
+            var missingCount = 0
             val newEntries = sortedKeys.map { key ->
                 val sourceValue = sourceProps.getProperty(key, "")
                 val isMissing = !targetProps.containsKey(key)
+                if (isMissing) missingCount++
                 val originalTargetValue = if (isMissing) "" else targetProps.getProperty(key, "")
                 val finalTargetValue = originalTargetValue
                 val isIdentical = sourceValue == finalTargetValue && finalTargetValue.isNotBlank()
@@ -355,6 +368,51 @@ class TranslatorViewModel : ViewModel() {
                 )
             }
             _allEntries.value = newEntries
+            _missingEntriesCount.value = missingCount
+        }
+    }
+
+    private fun regenerateEntriesForMissing() {
+        val sourceCode = sourceLangCode.value
+        val targetCode = targetLangCode.value
+        val group = _languageGroups.value.find { it.name == selectedGroupName.value }
+
+        if (sourceCode == null || targetCode == null || group == null) {
+            _allEntries.value = emptyList()
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.Default) {
+            val sourceProps = group.languages[sourceCode]?.properties ?: Properties()
+            val targetProps = group.languages[targetCode]?.properties ?: Properties()
+
+            val missingEntries = sourceProps.keys.mapNotNull { it as? String }
+                .filter { !targetProps.containsKey(it) }
+                .sorted()
+                .map { key ->
+                    TranslationEntry(
+                        key = key,
+                        sourceValue = sourceProps.getProperty(key, ""),
+                        targetValue = "",
+                        originalTargetValue = "",
+                        isUntranslated = true,
+                        isModified = false,
+                        isMissing = true,
+                        isIdentical = false
+                    )
+                }
+            _allEntries.value = missingEntries
+        }
+    }
+
+    fun fillMissingEntries() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val missingEntries = _allEntries.value.filter { it.isMissing }
+            val newStagedChanges = _stagedChanges.value.toMutableMap()
+            missingEntries.forEach { entry ->
+                newStagedChanges[entry.key] = ""
+            }
+            _stagedChanges.value = newStagedChanges
         }
     }
     

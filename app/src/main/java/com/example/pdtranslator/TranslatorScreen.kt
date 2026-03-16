@@ -27,6 +27,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
     val totalPages by viewModel.totalPages.collectAsState()
     val infoBarText by viewModel.infoBarText.collectAsState()
     val isSearchCardVisible by viewModel.isSearchCardVisible.collectAsState()
+    val missingEntriesCount by viewModel.missingEntriesCount.collectAsState()
 
     Column(
         modifier = Modifier
@@ -60,20 +61,35 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
 
         FilterButtons(filterState) { viewModel.setFilter(it) }
 
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(displayEntries, key = { it.key }) { entry ->
-                NewTranslationCard(
-                    entry = entry,
-                    onSave = { newText -> viewModel.stageChange(entry.key, newText) },
-                    onDiscard = { viewModel.unstageChange(entry.key) }
-                )
+        if (filterState == FilterState.MISSING) {
+            Column(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = { viewModel.fillMissingEntries() },
+                    enabled = missingEntriesCount > 0
+                ) {
+                    Text("补全缺失字段")
+                }
             }
-        }
 
-        PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(displayEntries, key = { it.key }) { entry ->
+                    NewTranslationCard(
+                        entry = entry,
+                        onSave = { newText -> viewModel.stageChange(entry.key, newText) },
+                        onDiscard = { viewModel.unstageChange(entry.key) }
+                    )
+                }
+            }
+            PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
+        }
 
         Spacer(modifier = Modifier.height(4.dp)) // Bottom padding
     }

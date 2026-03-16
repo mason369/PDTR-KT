@@ -22,6 +22,8 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
     val sourceLangCode by viewModel.sourceLangCode.collectAsState()
     val targetLangCode by viewModel.targetLangCode.collectAsState()
     val isSaveEnabled by viewModel.isSaveEnabled.collectAsState()
+    val filterState by viewModel.filterState.collectAsState()
+    val missingEntriesCount by viewModel.missingEntriesCount.collectAsState()
 
     val zipPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
@@ -62,9 +64,19 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
 
         LanguageGroupSelector(languageGroupNames, selectedGroupName, onSelect = { viewModel.selectGroup(it) })
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LanguageSelector(stringResource(id = R.string.config_source_language), availableLanguages, sourceLangCode, onSelect = { viewModel.selectSourceLanguage(it) })
-            LanguageSelector(stringResource(id = R.string.config_target_language), availableLanguages, targetLangCode, onSelect = { viewModel.selectTargetLanguage(it) })
+        if (filterState == FilterState.MISSING) {
+            Button(
+                onClick = { viewModel.fillMissingEntries() },
+                enabled = missingEntriesCount > 0,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("补全缺失字段")
+            }
+        } else {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                LanguageSelector(stringResource(id = R.string.config_source_language), availableLanguages, sourceLangCode, onSelect = { viewModel.selectSourceLanguage(it) })
+                LanguageSelector(stringResource(id = R.string.config_target_language), availableLanguages, targetLangCode, onSelect = { viewModel.selectTargetLanguage(it) })
+            }
         }
     }
 
