@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun TranslatorScreen(viewModel: TranslatorViewModel) {
-    // State collected from the ViewModel
     val displayEntries by viewModel.displayEntries.collectAsState()
     val filterState by viewModel.filterState.collectAsState()
     val currentPage by viewModel.currentPage.collectAsState()
@@ -37,12 +36,10 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
     ) {
         Spacer(modifier = Modifier.height(4.dp)) // Top padding
 
-        // Search and Replace Card
         AnimatedVisibility(visible = isSearchCardVisible) {
             SearchReplaceControls(viewModel)
         }
 
-        // Info Bar and Filters
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -60,9 +57,9 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
                 modifier = Modifier.clickable { viewModel.toggleSearchCardVisibility() }
             )
         }
+
         FilterButtons(filterState) { viewModel.setFilter(it) }
 
-        // Translation Entries List
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -76,7 +73,6 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
             }
         }
 
-        // Pagination
         PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
 
         Spacer(modifier = Modifier.height(4.dp)) // Bottom padding
@@ -97,13 +93,13 @@ fun SearchReplaceControls(viewModel: TranslatorViewModel) {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { viewModel.setSearchQuery(it) },
-                    label = { Text(\"搜索\") },
+                    label = { Text("搜索") },
                     modifier = Modifier.weight(1f)
                 )
                 OutlinedTextField(
                     value = replaceQuery,
                     onValueChange = { viewModel.setReplaceQuery(it) },
-                    label = { Text(\"替换\") },
+                    label = { Text("替换") },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -116,14 +112,14 @@ fun SearchReplaceControls(viewModel: TranslatorViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(checked = isCaseSensitive, onCheckedChange = { viewModel.setCaseSensitive(it) })
-                    Text(\"区分大小写\")
+                    Text("区分大小写")
                 }
                 Row(
                      Modifier.selectable(selected = isExactMatch, onClick = { viewModel.setExactMatch(!isExactMatch) }),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(checked = isExactMatch, onCheckedChange = { viewModel.setExactMatch(it) })
-                    Text(\"完全匹配\")
+                    Text("完全匹配")
                 }
                 Spacer(modifier = Modifier.weight(1f))
             }
@@ -137,9 +133,7 @@ fun NewTranslationCard(
     onSave: (String) -> Unit,
     onDiscard: () -> Unit
 ) {
-    var currentText by remember(entry.targetValue) {
-        mutableStateOf(entry.targetValue)
-    }
+    var currentText by remember(entry.key, entry.targetValue) { mutableStateOf(entry.targetValue) }
 
     val cardColors = if (entry.isModified) {
         CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
@@ -149,7 +143,6 @@ fun NewTranslationCard(
 
     Card(modifier = Modifier.fillMaxWidth(), colors = cardColors) {
         Column(modifier = Modifier.padding(12.dp)) {
-            // Top row with key and status
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(entry.key, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -162,7 +155,7 @@ fun NewTranslationCard(
                 }
                  if (entry.isMissing) {
                     Text(
-                        text = \"(Missing)\",
+                        text = "(Missing)",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -170,14 +163,11 @@ fun NewTranslationCard(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Source and Target text fields
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Source Text
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier.weight(1f)) {
                      Text(entry.sourceValue, modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(8.dp), maxLines = 1)
                 }
                 
-                // Target TextField
                 OutlinedTextField(
                     value = currentText,
                     onValueChange = { currentText = it },
@@ -185,13 +175,13 @@ fun NewTranslationCard(
                     label = { Text(stringResource(id = R.string.common_translation)) },
                     singleLine = true
                 )
-                 // Save Button
+
                 if (entry.isModified) {
-                    IconButton(onClick = { onDiscard() }) {
+                    IconButton(onClick = onDiscard) {
                         Icon(painter = painterResource(id = R.drawable.ic_discard), contentDescription = "Discard Changes")
                     }
                 } else {
-                    IconButton(onClick = { onSave(currentText) }, enabled = currentText != entry.targetValue) {
+                    IconButton(onClick = { onSave(currentText) }, enabled = currentText != entry.originalTargetValue) {
                         Icon(painter = painterResource(id = R.drawable.ic_save), contentDescription = "Save Changes")
                     }
                 }

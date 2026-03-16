@@ -38,7 +38,7 @@ data class LanguageData(val fileName: String, val properties: Properties)
 
 data class LanguageGroup(
     val name: String,
-    val languages: Map<String, LanguageData> // Key: langCode (e.g., \"en\", \"base\")
+    val languages: Map<String, LanguageData> // Key: langCode (e.g., "en", "base")
 )
 
 enum class FilterState { ALL, UNTRANSLATED, TRANSLATED, MODIFIED, MISSING }
@@ -54,7 +54,6 @@ class TranslatorViewModel : ViewModel() {
     // --- Internal State ---
     private val _languageGroups = MutableStateFlow<List<LanguageGroup>>(emptyList())
     private val _allEntries = MutableStateFlow<List<TranslationEntry>>(emptyList())
-    private val _modifiedEntries = MutableStateFlow<Map<String, Properties>>(emptyMap())
     private val _stagedChanges = MutableStateFlow<Map<String, String>>(emptyMap())
     private val _showAboutDialog = MutableStateFlow(false)
     private val _themeColor = MutableStateFlow(ThemeColor.DEFAULT)
@@ -73,8 +72,8 @@ class TranslatorViewModel : ViewModel() {
     val targetLangCode = MutableStateFlow<String?>(null)
 
     // Search and Replace State
-    val searchQuery = MutableStateFlow(\"\")
-    val replaceQuery = MutableStateFlow(\"\")
+    val searchQuery = MutableStateFlow("")
+    val replaceQuery = MutableStateFlow("")
     val isCaseSensitive = MutableStateFlow(false)
     val isExactMatch = MutableStateFlow(false)
 
@@ -86,7 +85,7 @@ class TranslatorViewModel : ViewModel() {
     val totalPages = MutableStateFlow(1)
 
     // Smart Info Bar State
-    val infoBarText = MutableStateFlow(\"\")
+    val infoBarText = MutableStateFlow("")
 
     val isSaveEnabled = MutableStateFlow(false)
     val showAboutDialog = _showAboutDialog.asStateFlow()
@@ -105,19 +104,19 @@ class TranslatorViewModel : ViewModel() {
                 val page = flows[5] as Int
                 val staged = flows[6] as Map<String, String>
 
-                // --- Filtering Logic ---
-                val filtered = entries.map { entry ->
-                    if (staged.containsKey(entry.key)) {
-                        entry.copy(targetValue = staged[entry.key]!!, isModified = true)
-                    } else {
-                        entry.copy(isModified = false)
-                    }
-                }.filter { entry ->
+                // --- Filtering and Mapping Logic ---
+                val processedEntries = entries.map { entry ->
+                    staged[entry.key]?.let { stagedValue ->
+                        entry.copy(targetValue = stagedValue, isModified = true)
+                    } ?: entry.copy(isModified = false)
+                }
+
+                val filtered = processedEntries.filter { entry ->
                     val matchesFilter = when (filter) {
                         FilterState.ALL -> true
                         FilterState.UNTRANSLATED -> entry.isUntranslated
                         FilterState.TRANSLATED -> !entry.isUntranslated && !entry.isMissing
-                        FilterState.MODIFIED -> entry.isModified
+                        FilterState.MODIFIED -> entry.isModified // Relies on the mapping above
                         FilterState.MISSING -> entry.isMissing
                     }
 
@@ -137,7 +136,7 @@ class TranslatorViewModel : ViewModel() {
 
                 // --- Pagination Logic ---
                 totalPages.value = (filtered.size + pageSize - 1) / pageSize.coerceAtLeast(1)
-                val newPage = if (page > totalPages.value) 1 else page
+                val newPage = page.coerceIn(1, totalPages.value.coerceAtLeast(1))
                 if (page != newPage) currentPage.value = newPage
 
                 displayEntries.value = filtered.chunked(pageSize).getOrElse(newPage - 1) { emptyList() }
@@ -147,9 +146,9 @@ class TranslatorViewModel : ViewModel() {
                     val total = entries.size
                     val translated = total - entries.count { it.isUntranslated }
                     val progress = if (total == 0) 0f else translated.toFloat() / total
-                    infoBarText.value = \"翻译进度: \${(progress * 100).toInt()}%%\"
+                    infoBarText.value = "翻译进度: ${(progress * 100).toInt()}%"
                 } else {
-                    infoBarText.value = \"语言组总条目: \${entries.size}\"
+                    infoBarText.value = "语言组总条目: ${entries.size}"
                 }
             }.collect {}
         }
@@ -167,63 +166,71 @@ class TranslatorViewModel : ViewModel() {
     fun setReplaceQuery(query: String) { replaceQuery.value = query }
     fun setCaseSensitive(isSensitive: Boolean) { isCaseSensitive.value = isSensitive }
     fun setExactMatch(isExact: Boolean) { isExactMatch.value = isExact }
-    fun setFilter(filter: FilterState) { filterState.value = filter }
+    fun setFilter(filter: FilterState) { filterState.value = filter; currentPage.value = 1 }
     fun nextPage() { if (currentPage.value < totalPages.value) currentPage.value++ }
     fun previousPage() { if (currentPage.value > 1) currentPage.value-- }
     fun setShowAboutDialog(show: Boolean) { _showAboutDialog.value = show }
     fun setThemeColor(theme: ThemeColor) { _themeColor.value = theme }
     fun toggleSearchCardVisibility() { _isSearchCardVisible.value = !_isSearchCardVisible.value }
 
-
     fun loadFilesFromUris(resolver: ContentResolver, uris: List<Uri>) {
         viewModelScope.launch(Dispatchers.IO) {
             val groups = mutableMapOf<String, MutableMap<String, LanguageData>>()
-            for (uri in uris) {
-                val fileName = getFileName(resolver, uri) ?: continue
-                if (fileName.endsWith(\".zip\")) {
-                    resolver.openInputStream(uri)?.use { zipInputStream ->
-                        ZipInputStream(zipInputStream).use { zis ->
-                            var zipEntry: ZipEntry?
-                            while (zis.nextEntry.also { zipEntry = it } != null) {
-                                val entryName = zipEntry!!.name
-                                val (baseName, langCode) = parseFileName(entryName.substringAfterLast(\'/\'))
-                                if (langCode != null) {
-                                    val content = BufferedReader(InputStreamReader(zis)).readText()
-                                    val props = Properties().apply { load(StringReader(content)) }
-                                    groups.getOrPut(baseName) { mutableMapOf() }[langCode] = LanguageData(entryName, props)
-                                }
-                            }
-                        }
-                    }
+            uris.forEach { uri ->
+                val fileName = getFileName(resolver, uri) ?: return@forEach
+                if (fileName.endsWith(".zip")) {
+                    loadFromZip(resolver, uri, groups)
                 } else {
-                    val (baseName, langCode) = parseFileName(fileName)
-                    if (langCode != null) {
-                        val content = resolver.openInputStream(uri)?.use { stream ->
-                            BufferedReader(InputStreamReader(stream)).readText()
-                        } ?: continue
-                        
-                        val preprocessedContent = content
-                            .replace(Regex(\"\\\\u(?![0-9a-fA-F]{4})\"), \"\\\\\\\\u\")
-
-                        try {
-                            val props = Properties().apply { load(StringReader(preprocessedContent)) }
-                            groups.getOrPut(baseName) { mutableMapOf() }[langCode] = LanguageData(fileName, props)
-                        } catch (e: Exception) {
-                            // Log or handle the error for the specific file that failed to load
-                            e.printStackTrace()
-                        }
-                    }
+                    loadFile(resolver, uri, fileName, groups)
                 }
             }
             processLoadedGroups(groups)
         }
     }
 
+    private fun loadFromZip(resolver: ContentResolver, uri: Uri, groups: MutableMap<String, MutableMap<String, LanguageData>>) {
+        resolver.openInputStream(uri)?.use { zipInputStream ->
+            ZipInputStream(zipInputStream).use { zis ->
+                var zipEntry: ZipEntry?
+                while (zis.nextEntry.also { zipEntry = it } != null) {
+                    zipEntry?.name?.let { entryName ->
+                         if (!entryName.endsWith("/")) {
+                            val (baseName, langCode) = parseFileName(entryName.substringAfterLast('/'))
+                            if (langCode != null) {
+                                val content = BufferedReader(InputStreamReader(zis)).readText()
+                                val props = Properties().apply { load(StringReader(content)) }
+                                groups.getOrPut(baseName) { mutableMapOf() }[langCode] = LanguageData(entryName, props)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadFile(resolver: ContentResolver, uri: Uri, fileName: String, groups: MutableMap<String, MutableMap<String, LanguageData>>) {
+        val (baseName, langCode) = parseFileName(fileName)
+        if (langCode != null) {
+            resolver.openInputStream(uri)?.use { stream ->
+                val content = BufferedReader(InputStreamReader(stream)).readText()
+                val preprocessedContent = content.replace(Regex("\\u(?![0-9a-fA-F]{4})"), "\\u")
+                try {
+                    val props = Properties().apply { load(StringReader(preprocessedContent)) }
+                    groups.getOrPut(baseName) { mutableMapOf() }[langCode] = LanguageData(fileName, props)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+
     fun selectGroup(name: String) {
         selectedGroupName.value = name
         sourceLangCode.value = null
         targetLangCode.value = null
         _allEntries.value = emptyList()
+        _stagedChanges.value = emptyMap()
         availableLanguages.value = _languageGroups.value.find { it.name == name }
             ?.languages?.keys?.sorted() ?: emptyList()
     }
@@ -245,7 +252,7 @@ class TranslatorViewModel : ViewModel() {
             newStaged
         }
     }
-    
+
     fun unstageChange(key: String) {
         _stagedChanges.update { currentStaged ->
             val newStaged = currentStaged.toMutableMap()
@@ -253,7 +260,6 @@ class TranslatorViewModel : ViewModel() {
             newStaged
         }
     }
-
 
     fun saveChangesToZip(resolver: ContentResolver, uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -267,32 +273,37 @@ class TranslatorViewModel : ViewModel() {
                 ZipOutputStream(it).use { zos ->
                     group.languages.forEach { (langCode, langData) ->
                         val finalProps = Properties()
-                        val originalProps = langData.properties
-                        finalProps.putAll(originalProps as Map<*, *>)
+                        // Put original properties first
+                        finalProps.putAll(langData.properties)
 
+                        // If this is the target language, apply staged changes
                         if (langCode == targetCode) {
                             staged.forEach { (key, value) ->
                                 finalProps.setProperty(key, value)
                             }
                         }
 
+                        // Use the full path for zip entry
                         val entryPath = langData.fileName
                         zos.putNextEntry(ZipEntry(entryPath))
-                        val writer = OutputStreamWriter(zos)
-                        finalProps.store(writer, \"PDTranslator Modified File\")
+                        // Use a writer that can handle UTF-8 and proper escaping
+                        val writer = OutputStreamWriter(zos, "UTF-8")
+                        finalProps.store(writer, "PDTranslator Modified File")
                         writer.flush()
                         zos.closeEntry()
                     }
                 }
             }
+            // Clear staged changes for the current group after successful save
             _stagedChanges.value = emptyMap()
+            // Refresh entries to show original state
             regenerateEntries()
         }
     }
 
     private fun processLoadedGroups(groups: Map<String, Map<String, LanguageData>>) {
-        _languageGroups.value = groups.map { (name, languages) -> LanguageGroup(name, languages) }
-        languageGroupNames.value = _languageGroups.value.map { it.name }.sorted()
+        _languageGroups.value = groups.map { (name, languages) -> LanguageGroup(name, languages) }.sortedBy { it.name }
+        languageGroupNames.value = _languageGroups.value.map { it.name }
         resetAllSelections()
     }
 
@@ -302,7 +313,6 @@ class TranslatorViewModel : ViewModel() {
         targetLangCode.value = null
         availableLanguages.value = emptyList()
         _allEntries.value = emptyList()
-        _modifiedEntries.value = emptyMap()
         _stagedChanges.value = emptyMap()
     }
 
@@ -319,16 +329,14 @@ class TranslatorViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.Default) {
             val sourceProps = group.languages[sourceCode]?.properties ?: Properties()
             val targetProps = group.languages[targetCode]?.properties ?: Properties()
-            val staged = _stagedChanges.value
 
-            val sortedKeys = sourceProps.stringPropertyNames().sorted()
+            val sortedKeys = (sourceProps.keys + targetProps.keys).mapNotNull { it as? String }.distinct().sorted()
 
             val newEntries = sortedKeys.map { key ->
-                val sourceValue = sourceProps.getProperty(key, \"\")
+                val sourceValue = sourceProps.getProperty(key, "")
                 val isMissing = !targetProps.containsKey(key)
-                val originalTargetValue = if (isMissing) \"\" else targetProps.getProperty(key, \"\")
-                val isStaged = staged.containsKey(key)
-                val finalTargetValue = if (isStaged) staged[key]!! else originalTargetValue
+                val originalTargetValue = if (isMissing) "" else targetProps.getProperty(key, "")
+                val finalTargetValue = originalTargetValue
                 val isIdentical = sourceValue == finalTargetValue && finalTargetValue.isNotBlank()
                 val isUntranslated = !isMissing && (finalTargetValue.isBlank() || isIdentical)
 
@@ -338,7 +346,7 @@ class TranslatorViewModel : ViewModel() {
                     targetValue = finalTargetValue,
                     originalTargetValue = originalTargetValue,
                     isUntranslated = isUntranslated,
-                    isModified = isStaged,
+                    isModified = false, // Base state is not modified, UI will derive from staged changes
                     isMissing = isMissing,
                     isIdentical = isIdentical
                 )
@@ -348,14 +356,14 @@ class TranslatorViewModel : ViewModel() {
     }
     
     private fun parseFileName(fileName: String): Pair<String, String?> {
-        val base = fileName.substringBeforeLast(\'.\')
-        val parts = base.split(\'_\')
+        val base = fileName.substringBeforeLast('.')
+        val parts = base.split('_')
         return if (parts.size > 1) {
             val langCode = parts.last()
-            val baseName = parts.dropLast(1).joinToString(\"_\")
+            val baseName = parts.dropLast(1).joinToString("_")
             Pair(baseName, langCode)
         } else {
-            Pair(base, \"base\")
+            Pair(base, "base")
         }
     }
 

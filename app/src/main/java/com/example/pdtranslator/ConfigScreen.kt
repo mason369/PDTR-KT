@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 fun ConfigScreen(viewModel: TranslatorViewModel) {
     val context = LocalContext.current
 
-    // State collected from the ViewModel for configuration
     val languageGroupNames by viewModel.languageGroupNames.collectAsState()
     val selectedGroupName by viewModel.selectedGroupName.collectAsState()
     val availableLanguages by viewModel.availableLanguages.collectAsState()
@@ -24,7 +23,6 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
     val targetLangCode by viewModel.targetLangCode.collectAsState()
     val isSaveEnabled by viewModel.isSaveEnabled.collectAsState()
 
-    // File pickers
     val zipPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri -> uri?.let { viewModel.loadFilesFromUris(context.contentResolver, listOf(it)) } }
@@ -46,7 +44,6 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Top Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -63,17 +60,14 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
             }
         }
 
-        // Language Group Selector
-        LanguageGroupSelector(languageGroupNames, selectedGroupName) { viewModel.selectGroup(it) }
+        LanguageGroupSelector(languageGroupNames, selectedGroupName, onGroupSelected = { viewModel.selectGroup(it) })
 
-        // Language Selectors
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LanguageSelector(stringResource(id = R.string.config_source_language), availableLanguages, sourceLangCode) { viewModel.selectSourceLanguage(it) }
-            LanguageSelector(stringResource(id = R.string.config_target_language), availableLanguages, targetLangCode) { viewModel.selectTargetLanguage(it) }
+            LanguageSelector(stringResource(id = R.string.config_source_language), availableLanguages, sourceLangCode, onLanguageSelected = { viewModel.selectSourceLanguage(it) })
+            LanguageSelector(stringResource(id = R.string.config_target_language), availableLanguages, targetLangCode, onLanguageSelected = { viewModel.selectTargetLanguage(it) })
         }
     }
 
-    // Import Bottom Sheet
     if (showImportSheet) {
         ModalBottomSheet(onDismissRequest = { showImportSheet = false }) {
             Column(Modifier.padding(16.dp)) {
