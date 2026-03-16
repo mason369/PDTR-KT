@@ -25,9 +25,8 @@ PD-Translator 不仅仅是一个文本编辑器。它集成了众多为翻译工
 | **📱 现代化与原生体验** | 基于最新的安卓技术栈构建，为您提供流畅、美观、可靠的原生应用体验。 |
 
 ## 📱 应用截图
+![](/sc/soft.png)
 
-<img src="https://i.imgur.com/your-screenshot-url.png" width="300"> 
-*(请将此处替换为您的应用截图 URL)*
 
 ## 🚀 快速上手
 
