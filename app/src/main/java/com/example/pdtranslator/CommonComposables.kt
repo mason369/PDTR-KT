@@ -1,9 +1,12 @@
 package com.example.pdtranslator
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
@@ -18,37 +21,43 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun FilterButtons(selectedFilter: FilterState, onFilterSelected: (FilterState) -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    val scrollState = rememberScrollState()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(scrollState),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         FilterState.values().forEach { state ->
-            val buttonText = @Composable {
-                Text(stringResource(id = when (state) {
-                    FilterState.ALL -> R.string.filter_all
-                    FilterState.UNTRANSLATED -> R.string.filter_untranslated
-                    FilterState.TRANSLATED -> R.string.filter_translated
-                    FilterState.MODIFIED -> R.string.filter_modified
-                    FilterState.MISSING -> R.string.filter_missing
-                }))
+            val textId = when (state) {
+                FilterState.ALL -> R.string.filter_all
+                FilterState.UNTRANSLATED -> R.string.filter_untranslated
+                FilterState.TRANSLATED -> R.string.filter_translated
+                FilterState.MODIFIED -> R.string.filter_modified
+                FilterState.MISSING -> R.string.filter_missing
             }
             if (state == selectedFilter) {
                 Button(
                     onClick = { onFilterSelected(state) },
-                    modifier = Modifier.weight(1f),
-                    shape = CircleShape,
-                    content = { buttonText() }
-                )
+                    shape = CircleShape
+                ) {
+                    Text(stringResource(id = textId))
+                }
             } else {
                 OutlinedButton(
                     onClick = { onFilterSelected(state) },
-                    modifier = Modifier.weight(1f),
-                    shape = CircleShape,
-                    content = { buttonText() }
-                )
+                    shape = CircleShape
+                ) {
+                    Text(stringResource(id = textId))
+                }
             }
         }
     }
@@ -70,7 +79,9 @@ fun LanguageGroupSelector(
             onValueChange = {},
             label = { Text(stringResource(id = R.string.common_language_group)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -121,7 +132,9 @@ fun LanguageSelector(
             onValueChange = {},
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -137,13 +150,18 @@ fun LanguageSelector(
 fun PaginationControls(currentPage: Int, totalPages: Int, onPrevious: () -> Unit, onNext: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Button(onClick = onPrevious, enabled = currentPage > 1) {
+        Button(onClick = onPrevious, enabled = currentPage > 1, modifier = Modifier.weight(0.3f)) {
             Text(stringResource(id = R.string.pagination_previous))
         }
-        Text(stringResource(id = R.string.pagination_page_info, currentPage, totalPages), modifier = Modifier.weight(1f))
-        Button(onClick = onNext, enabled = currentPage < totalPages) {
+        Text(
+            text = stringResource(id = R.string.pagination_page_info, currentPage, totalPages),
+            modifier = Modifier.weight(0.4f),
+            textAlign = TextAlign.Center
+        )
+        Button(onClick = onNext, enabled = currentPage < totalPages, modifier = Modifier.weight(0.3f)) {
             Text(stringResource(id = R.string.pagination_next))
         }
     }
