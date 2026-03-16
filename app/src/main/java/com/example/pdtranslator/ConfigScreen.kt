@@ -60,11 +60,11 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
             }
         }
 
-        LanguageGroupSelector(languageGroupNames, selectedGroupName, onGroupSelected = { viewModel.selectGroup(it) })
+        LanguageGroupSelector(languageGroupNames, selectedGroupName, onSelect = { viewModel.selectGroup(it) })
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            LanguageSelector(stringResource(id = R.string.config_source_language), availableLanguages, sourceLangCode, onLanguageSelected = { viewModel.selectSourceLanguage(it) })
-            LanguageSelector(stringResource(id = R.string.config_target_language), availableLanguages, targetLangCode, onLanguageSelected = { viewModel.selectTargetLanguage(it) })
+            LanguageSelector(stringResource(id = R.string.config_source_language), availableLanguages, sourceLangCode, onSelect = { viewModel.selectSourceLanguage(it) })
+            LanguageSelector(stringResource(id = R.string.config_target_language), availableLanguages, targetLangCode, onSelect = { viewModel.selectTargetLanguage(it) })
         }
     }
 
