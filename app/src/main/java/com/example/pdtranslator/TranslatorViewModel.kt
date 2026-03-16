@@ -1,4 +1,3 @@
-
 package com.example.pdtranslator
 
 import android.content.ContentResolver
@@ -223,10 +222,13 @@ class TranslatorViewModel : ViewModel() {
         if (langCode != null) {
             resolver.openInputStream(uri)?.use { stream ->
                 val content = BufferedReader(InputStreamReader(stream)).readText()
-                // The original regex had a syntax error because '\u' was interpreted as an invalid
-                // escape sequence by the regex engine. To match a literal backslash, the regex needs '\\',
-                // which requires four backslashes in the Kotlin string literal ("\\u").
-                val preprocessedContent = content.replace(Regex("\\u(?![0-9a-fA-F]{4})"), "\\u")
+                // The Properties parser crashes on malformed \u escape sequences.
+                // A common issue is file paths like C:\Users which contains \u.
+                // This regex finds a literal backslash followed by a 'u' (\\u),
+                // but only if it's NOT followed by four hex digits (a valid Unicode escape).
+                // It then replaces the single backslash with a double backslash (\\),
+                // effectively escaping it for the Properties parser.
+                val preprocessedContent = content.replace(Regex("\\\\u(?![0-9a-fA-F]{4})"), "\\\\u")
                 try {
                     val props = Properties().apply { load(StringReader(preprocessedContent)) }
                     groups.getOrPut(baseName) { mutableMapOf() }[langCode] = LanguageData(fileName, props)
