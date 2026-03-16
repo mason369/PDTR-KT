@@ -55,6 +55,12 @@
     <string name="settings_item_changelog">Changelog</string>
     <string name="settings_item_changelog_subtitle">View the version history and updates of the app</string>
 
+    <!-- Theme Names -->
+    <string name="theme_name_default">Default</string>
+    <string name="theme_name_m3">Material 3</string>
+    <string name="theme_name_green">Green</string>
+    <string name="theme_name_lavender">Lavender</string>
+
     <!-- About Dialog -->
     <string name="about_us_dialog_title">About Us</string>
     <string name="about_us_dialog_content">This app was developed by JDSALing, with specific coding implemented by Gemini AI, referencing Renyunhao's PropertiesLocalizationTool project.\n\nFor learning and communication purposes only. Please do not use for other purposes.</string>
