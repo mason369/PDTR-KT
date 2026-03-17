@@ -242,7 +242,7 @@ class TranslatorViewModel : ViewModel() {
         if (langCode != null) {
             resolver.openInputStream(uri)?.use { stream ->
                 val content = BufferedReader(InputStreamReader(stream)).readText()
-                val preprocessedContent = content.replace(Regex("\\u(?![0-9a-fA-F]{4})"), "\\u")
+                val preprocessedContent = content.replace(Regex("\\\\u(?![0-9a-fA-F]{4})"), "\\u")
                 try {
                     val props = Properties().apply { load(StringReader(preprocessedContent)) }
                     groups.getOrPut(baseName) { mutableMapOf() }[langCode] = LanguageData(fileName, props)
