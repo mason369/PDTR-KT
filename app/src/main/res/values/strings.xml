@@ -124,4 +124,47 @@
     <string name="lib_accompanist_name">Accompanist</string>
     <string name="lib_accompanist_desc">A collection of extension libraries for Jetpack Compose.</string>
     <string name="source_language">Source Language</string>
+
+    <!-- Batch Import -->
+    <string name="import_success_count">Imported %1$d files</string>
+    <string name="import_overwrite_count">overwrote %1$d language files</string>
+    <string name="import_ignore_count">%1$d ignored</string>
+    <string name="import_fail_count">%1$d failed</string>
+
+    <!-- Draft -->
+    <string name="draft_found_title">Draft Found</string>
+    <string name="draft_match_info">A draft from a previous session was found. Would you like to restore it?</string>
+    <string name="draft_mismatch_warning">The draft is from a different version of the file. Restoring may introduce outdated translation keys.</string>
+    <string name="draft_restore">Restore</string>
+    <string name="draft_discard">Discard</string>
+    <string name="draft_force_restore">Restore Anyway</string>
+
+    <!-- Draft (continued) -->
+    <string name="draft_saved_ago">Saved %1$s ago</string>
+    <string name="draft_saved_minutes_ago">%1$d min</string>
+    <string name="draft_saved_hours_ago">%1$d hr</string>
+    <string name="draft_saved_days_ago">%1$d days</string>
+    <string name="draft_changes_count">%1$d staged changes</string>
+
+    <!-- Translation Memory -->
+    <string name="tm_record_fail">Failed to record to Translation Memory</string>
+    <string name="tm_suggestion_label">TM</string>
+
+    <!-- Search / Replace -->
+    <string name="search_label">Search</string>
+    <string name="replace_label">Replace</string>
+    <string name="search_case_sensitive">Case Sensitive</string>
+    <string name="search_exact_match">Exact Match</string>
+
+    <!-- Export -->
+    <string name="export_success">Exported successfully</string>
+    <string name="export_tm_recorded">TM recorded %1$d entries</string>
+
+    <!-- Empty States -->
+    <string name="empty_no_files">Import files to get started</string>
+    <string name="empty_no_entries">No entries match the current filter</string>
+    <string name="empty_select_languages">Select source and target languages to begin</string>
+
+    <!-- Loading -->
+    <string name="loading_importing">Importing…</string>
 </resources>

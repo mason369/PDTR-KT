@@ -20,49 +20,49 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: TranslatorViewModel by viewModels()
+  private val viewModel: TranslatorViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        installSplashScreen()
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    installSplashScreen()
 
-        setContent {
-            val themeColor by viewModel.themeColor.collectAsState()
-            val snackbarHostState = remember { SnackbarHostState() }
-            val scope = rememberCoroutineScope()
+    setContent {
+      val themeColor by viewModel.themeColor.collectAsState()
+      val snackbarHostState = remember { SnackbarHostState() }
+      val scope = rememberCoroutineScope()
 
-            PDTranslatorTheme(themeColor = themeColor) {
-                Scaffold(
-                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-                ) {
-                    AppNavigator(
-                        viewModel = viewModel,
-                        paddingValues = it,
-                        onLanguageSelected = { lang -> setLocale(lang) },
-                        onShowSnackbar = { message ->
-                            scope.launch { snackbarHostState.showSnackbar(message) }
-                        }
-                    )
-                }
+      PDTranslatorTheme(themeColor = themeColor) {
+        Scaffold(
+          snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        ) {
+          AppNavigator(
+            viewModel = viewModel,
+            paddingValues = it,
+            onLanguageSelected = { lang -> setLocale(lang) },
+            onShowSnackbar = { message ->
+              scope.launch { snackbarHostState.showSnackbar(message) }
             }
+          )
         }
+      }
     }
+  }
 
-    override fun attachBaseContext(newBase: Context) {
-        val sharedPreferences = newBase.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-        val lang = sharedPreferences.getString("language", null) ?: newBase.resources.configuration.locales[0].language
-        val locale = Locale(lang)
-        val config = Configuration(newBase.resources.configuration)
-        config.setLocale(locale)
-        super.attachBaseContext(newBase.createConfigurationContext(config))
-    }
+  override fun attachBaseContext(newBase: Context) {
+    val sharedPreferences = newBase.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+    val lang = sharedPreferences.getString("language", null) ?: newBase.resources.configuration.locales[0].language
+    val locale = Locale(lang)
+    val config = Configuration(newBase.resources.configuration)
+    config.setLocale(locale)
+    super.attachBaseContext(newBase.createConfigurationContext(config))
+  }
 
-    fun setLocale(lang: String) {
-        val sharedPreferences = getSharedPreferences("prefs", Context.MODE_PRIVATE)
-        with(sharedPreferences.edit()) {
-            putString("language", lang)
-            apply()
-        }
-        recreate()
+  fun setLocale(lang: String) {
+    val sharedPreferences = getSharedPreferences("prefs", Context.MODE_PRIVATE)
+    with(sharedPreferences.edit()) {
+      putString("language", lang)
+      apply()
     }
+    recreate()
+  }
 }

@@ -6,14 +6,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,142 +34,137 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterButtons(selectedFilter: FilterState, onFilterSelected: (FilterState) -> Unit) {
-    val scrollState = rememberScrollState()
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(scrollState),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        FilterState.values().forEach { state ->
-            val textId = when (state) {
-                FilterState.ALL -> R.string.filter_all
-                FilterState.UNTRANSLATED -> R.string.filter_untranslated
-                FilterState.TRANSLATED -> R.string.filter_translated
-                FilterState.MODIFIED -> R.string.filter_modified
-                FilterState.MISSING -> R.string.filter_missing
-            }
-            if (state == selectedFilter) {
-                Button(
-                    onClick = { onFilterSelected(state) },
-                    shape = CircleShape
-                ) {
-                    Text(stringResource(id = textId))
-                }
-            } else {
-                OutlinedButton(
-                    onClick = { onFilterSelected(state) },
-                    shape = CircleShape
-                ) {
-                    Text(stringResource(id = textId))
-                }
-            }
-        }
+  val scrollState = rememberScrollState()
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .horizontalScroll(scrollState),
+    horizontalArrangement = Arrangement.spacedBy(8.dp)
+  ) {
+    FilterState.values().forEach { state ->
+      val textId = when (state) {
+        FilterState.ALL -> R.string.filter_all
+        FilterState.UNTRANSLATED -> R.string.filter_untranslated
+        FilterState.TRANSLATED -> R.string.filter_translated
+        FilterState.MODIFIED -> R.string.filter_modified
+        FilterState.MISSING -> R.string.filter_missing
+      }
+      val isSelected = state == selectedFilter
+      FilterChip(
+        selected = isSelected,
+        onClick = { onFilterSelected(state) },
+        label = { Text(stringResource(id = textId)) },
+        leadingIcon = if (isSelected) {
+          { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+        } else null
+      )
     }
+  }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageGroupSelector(
-    groupNames: List<String>,
-    selectedGroupName: String?,
-    onGroupSelected: (String) -> Unit
+  groupNames: List<String>,
+  selectedGroupName: String?,
+  onGroupSelected: (String) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+  var expanded by remember { mutableStateOf(false) }
 
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-        OutlinedTextField(
-            readOnly = true,
-            value = selectedGroupName ?: stringResource(id = R.string.common_select_language_group),
-            onValueChange = {},
-            label = { Text(stringResource(id = R.string.common_language_group)) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(),
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
-        )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            groupNames.forEach { name ->
-                DropdownMenuItem(text = { Text(name) }, onClick = { onGroupSelected(name); expanded = false })
-            }
-        }
+  ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+    OutlinedTextField(
+      readOnly = true,
+      value = selectedGroupName ?: stringResource(id = R.string.common_select_language_group),
+      onValueChange = {},
+      label = { Text(stringResource(id = R.string.common_language_group)) },
+      trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+      modifier = Modifier
+        .fillMaxWidth()
+        .menuAnchor(),
+      colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+    )
+    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+      groupNames.forEach { name ->
+        DropdownMenuItem(text = { Text(name) }, onClick = { onGroupSelected(name); expanded = false })
+      }
     }
+  }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageSelectors(
-    availableLanguages: List<String>,
-    sourceLangCode: String?,
-    targetLangCode: String?,
-    onSourceSelected: (String) -> Unit,
-    onTargetSelected: (String) -> Unit,
-    getDisplayName: (String) -> String
+  availableLanguages: List<String>,
+  sourceLangCode: String?,
+  targetLangCode: String?,
+  onSourceSelected: (String) -> Unit,
+  onTargetSelected: (String) -> Unit,
+  getDisplayName: (String) -> String
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        Box(modifier = Modifier.weight(1f)) {
-            LanguageSelector(availableLanguages, sourceLangCode, stringResource(id = R.string.config_source_language), onSourceSelected, getDisplayName)
-        }
-        Box(modifier = Modifier.weight(1f)) {
-            LanguageSelector(availableLanguages, targetLangCode, stringResource(id = R.string.config_target_language), onTargetSelected, getDisplayName)
-        }
+  Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+    Box(modifier = Modifier.weight(1f)) {
+      LanguageSelector(availableLanguages, sourceLangCode, stringResource(id = R.string.config_source_language), onSourceSelected, getDisplayName)
     }
+    Box(modifier = Modifier.weight(1f)) {
+      LanguageSelector(availableLanguages, targetLangCode, stringResource(id = R.string.config_target_language), onTargetSelected, getDisplayName)
+    }
+  }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageSelector(
-    languages: List<String>,
-    selectedLanguage: String?,
-    label: String,
-    onLanguageSelected: (String) -> Unit,
-    getDisplayName: (String) -> String
+  languages: List<String>,
+  selectedLanguage: String?,
+  label: String,
+  onLanguageSelected: (String) -> Unit,
+  getDisplayName: (String) -> String
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    val selectedText = selectedLanguage?.let { getDisplayName(it) + " ($it)" } ?: ""
+  var expanded by remember { mutableStateOf(false) }
+  val selectedText = selectedLanguage?.let { getDisplayName(it) + " ($it)" } ?: ""
 
-
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-        OutlinedTextField(
-            readOnly = true,
-            value = selectedText,
-            onValueChange = {},
-            label = { Text(label) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(),
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-        )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            languages.forEach { lang ->
-                val text = getDisplayName(lang) + " ($lang)"
-                DropdownMenuItem(text = { Text(text) }, onClick = { onLanguageSelected(lang); expanded = false })
-            }
-        }
+  ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+    OutlinedTextField(
+      readOnly = true,
+      value = selectedText,
+      onValueChange = {},
+      label = { Text(label) },
+      trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+      modifier = Modifier
+        .fillMaxWidth()
+        .menuAnchor(),
+      colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+    )
+    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+      languages.forEach { lang ->
+        val text = getDisplayName(lang) + " ($lang)"
+        DropdownMenuItem(text = { Text(text) }, onClick = { onLanguageSelected(lang); expanded = false })
+      }
     }
+  }
 }
 
 @Composable
 fun PaginationControls(currentPage: Int, totalPages: Int, onPrevious: () -> Unit, onNext: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Button(onClick = onPrevious, enabled = currentPage > 1, modifier = Modifier.weight(0.3f)) {
-            Text(stringResource(id = R.string.pagination_previous))
-        }
-        Text(
-            text = stringResource(id = R.string.pagination_page_info, currentPage, totalPages),
-            modifier = Modifier.weight(0.4f),
-            textAlign = TextAlign.Center
-        )
-        Button(onClick = onNext, enabled = currentPage < totalPages, modifier = Modifier.weight(0.3f)) {
-            Text(stringResource(id = R.string.pagination_next))
-        }
+  Row(
+    modifier = Modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.Center
+  ) {
+    IconButton(onClick = onPrevious, enabled = currentPage > 1) {
+      Icon(Icons.Default.ChevronLeft, contentDescription = stringResource(id = R.string.pagination_previous))
     }
+    Text(
+      text = stringResource(id = R.string.pagination_page_info, currentPage, totalPages),
+      style = MaterialTheme.typography.bodyMedium,
+      textAlign = TextAlign.Center,
+      modifier = Modifier.padding(horizontal = 16.dp)
+    )
+    IconButton(onClick = onNext, enabled = currentPage < totalPages) {
+      Icon(Icons.Default.ChevronRight, contentDescription = stringResource(id = R.string.pagination_next))
+    }
+  }
 }
