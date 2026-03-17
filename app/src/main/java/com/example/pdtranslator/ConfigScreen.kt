@@ -53,10 +53,14 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
     val targetLangCode by viewModel.targetLangCode.collectAsState()
     val isSaveEnabled by viewModel.isSaveEnabled.collectAsState()
 
-    // Launcher for single file import
-    val importLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(),
-        onResult = { uri: Uri? -> uri?.let { viewModel.loadFilesFromUris(contentResolver, listOf(it)) } }
+    // Launcher for multiple .properties file import
+    val importPropertiesLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenMultipleDocuments(),
+        onResult = { uris: List<Uri> ->
+            if (uris.isNotEmpty()) {
+                viewModel.loadFilesFromUris(contentResolver, uris)
+            }
+        }
     )
 
     // Launcher for ZIP file import
@@ -86,7 +90,7 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
                     OutlinedButton(onClick = { importZipLauncher.launch(arrayOf("application/zip")) }) {
                         Text(stringResource(id = R.string.config_import_from_zip))
                     }
-                    OutlinedButton(onClick = { importLauncher.launch(arrayOf("text/plain", "application/properties")) }) {
+                    OutlinedButton(onClick = { importPropertiesLauncher.launch(arrayOf("*/*")) }) {
                         Text(stringResource(id = R.string.config_import_from_properties))
                     }
                 }
