@@ -12,8 +12,8 @@ android {
         applicationId = "com.example.pdtranslator"
         minSdk = 24
         targetSdk = 34
-        versionCode = 12
-        versionName = "0.1.8"
+        versionCode = 13
+        versionName = "0.1.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -56,6 +56,9 @@ android {
 }
 
 dependencies {
+    // Gson
+    implementation("com.google.code.gson:gson:2.10.1")
+
     // Crash Reporting
     implementation("cat.ereza:customactivityoncrash:2.4.0")
 
