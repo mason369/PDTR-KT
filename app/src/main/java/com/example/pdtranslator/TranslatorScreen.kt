@@ -19,11 +19,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -59,10 +63,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.flowlayout.FlowRow
 import androidx.compose.ui.platform.LocalContext
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun TranslatorScreen(viewModel: TranslatorViewModel, onShowSnackbar: suspend (String) -> Unit) {
+fun TranslatorScreen(viewModel: TranslatorViewModel) {
   val displayEntries by viewModel.displayEntries.collectAsState()
   val filterState by viewModel.filterState.collectAsState()
   val currentPage by viewModel.currentPage.collectAsState()
@@ -72,20 +75,14 @@ fun TranslatorScreen(viewModel: TranslatorViewModel, onShowSnackbar: suspend (St
   val missingEntriesCount by viewModel.missingEntriesCount.collectAsState()
   val highlightKeywords by viewModel.highlightKeywords.collectAsState()
   val tmSuggestions by viewModel.tmSuggestions.collectAsState()
+  val networkSuggestion by viewModel.networkSuggestion.collectAsState()
+  val deletedItems by viewModel.deletedItems.collectAsState()
   val languageGroupNames by viewModel.languageGroupNames.collectAsState()
   val selectedGroupName by viewModel.selectedGroupName.collectAsState()
   val sourceLangCode by viewModel.sourceLangCode.collectAsState()
   val targetLangCode by viewModel.targetLangCode.collectAsState()
   val availableLanguages by viewModel.availableLanguages.collectAsState()
   val context = LocalContext.current
-
-  LaunchedEffect(key1 = true) {
-    viewModel.uiEvents.collectLatest {
-      when (it) {
-        is UiEvent.ShowSnackbar -> onShowSnackbar(it.message)
-      }
-    }
-  }
 
   // Empty state: no files loaded
   if (languageGroupNames.isEmpty()) {
@@ -157,46 +154,134 @@ fun TranslatorScreen(viewModel: TranslatorViewModel, onShowSnackbar: suspend (St
 
     FilterButtons(filterState) { viewModel.setFilter(it) }
 
-    if (filterState == FilterState.MISSING) {
-      Column(
-        modifier = Modifier
-          .weight(1f)
-          .fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-      ) {
-        Button(
-          onClick = { viewModel.fillMissingEntries() },
-          enabled = missingEntriesCount > 0
+    when {
+      filterState == FilterState.MISSING -> {
+        Column(
+          modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth(),
+          verticalArrangement = Arrangement.Center,
+          horizontalAlignment = Alignment.CenterHorizontally
         ) {
-          Text(stringResource(id = R.string.translator_complete_missing))
+          Button(
+            onClick = { viewModel.fillMissingEntries() },
+            enabled = missingEntriesCount > 0
+          ) {
+            Text(stringResource(id = R.string.translator_complete_missing))
+          }
         }
       }
-    } else if (displayEntries.isEmpty()) {
-      // Empty filter result
-      EmptyState(
-        icon = null,
-        message = stringResource(R.string.empty_no_entries)
-      )
-    } else {
-      LazyColumn(
-        modifier = Modifier.weight(1f),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-      ) {
-        items(displayEntries, key = { it.key }) { entry ->
-          NewTranslationCard(
-            entry = entry,
-            highlightKeywords = highlightKeywords,
-            tmSuggestions = tmSuggestions,
-            onSave = { newText -> viewModel.stageChange(entry.key, newText) },
-            onDiscard = { viewModel.unstageChange(entry.key) },
-            onFocused = { viewModel.requestTmSuggestions(entry.sourceValue) },
-            onUnfocused = { viewModel.clearTmSuggestions() },
-            onApplyTm = { targetText -> viewModel.applyTmSuggestion(entry.key, targetText) }
+      filterState == FilterState.DELETED -> {
+        // A3: Use deletedItems (includes both staged and unstaged)
+        val unstagedCount = deletedItems.count { !it.isStagedForDeletion }
+        if (deletedItems.isNotEmpty() && unstagedCount > 0) {
+          Button(
+            onClick = { viewModel.deleteAllDeletedEntries() },
+            colors = ButtonDefaults.buttonColors(
+              containerColor = MaterialTheme.colorScheme.error
+            ),
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Icon(Icons.Default.DeleteSweep, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.deleted_delete_all, unstagedCount))
+          }
+        }
+        if (deletedItems.isEmpty()) {
+          EmptyState(
+            icon = null,
+            message = stringResource(R.string.deleted_empty)
           )
+        } else {
+          // A3: Own pagination for deletedItems
+          val deletedPageSize = 20
+          val deletedTotalPages = ((deletedItems.size + deletedPageSize - 1) / deletedPageSize).coerceAtLeast(1)
+          val deletedPage = currentPage.coerceIn(1, deletedTotalPages)
+          val pagedDeletedItems = deletedItems.chunked(deletedPageSize).getOrElse(deletedPage - 1) { emptyList() }
+
+          LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+          ) {
+            items(pagedDeletedItems, key = { it.key }) { item ->
+              if (item.isStagedForDeletion) {
+                StagedDeletedCard(
+                  item = item,
+                  onUndo = { viewModel.unstageDeleteEntry(item.key) }
+                )
+              } else {
+                DeletedTranslationCard(
+                  entry = TranslationEntry(
+                    key = item.key,
+                    sourceValue = "",
+                    targetValue = item.targetValue,
+                    originalTargetValue = item.targetValue,
+                    isUntranslated = false,
+                    isDeleted = true
+                  ),
+                  onDelete = { viewModel.stageDeleteEntry(item.key) }
+                )
+              }
+            }
+          }
+          PaginationControls(deletedPage, deletedTotalPages, viewModel::previousPage, viewModel::nextPage)
         }
       }
-      PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
+      filterState == FilterState.DIFF -> {
+        if (displayEntries.isEmpty()) {
+          EmptyState(
+            icon = null,
+            message = stringResource(R.string.diff_empty)
+          )
+        } else {
+          LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+          ) {
+            items(displayEntries, key = { it.key }) { entry ->
+              DiffTranslationCard(
+                entry = entry,
+                highlightKeywords = highlightKeywords,
+                onSave = { newText -> viewModel.stageChange(entry.key, newText) },
+                onRevertToDict = {
+                  entry.dictValue?.let { viewModel.stageChange(entry.key, it) }
+                }
+              )
+            }
+          }
+          PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
+        }
+      }
+      displayEntries.isEmpty() -> {
+        EmptyState(
+          icon = null,
+          message = stringResource(R.string.empty_no_entries)
+        )
+      }
+      else -> {
+        LazyColumn(
+          modifier = Modifier.weight(1f),
+          verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          items(displayEntries, key = { it.key }) { entry ->
+            NewTranslationCard(
+              entry = entry,
+              highlightKeywords = highlightKeywords,
+              tmSuggestions = tmSuggestions,
+              networkSuggestion = networkSuggestion,
+              onSave = { newText -> viewModel.stageChange(entry.key, newText) },
+              onDiscard = { viewModel.unstageChange(entry.key) },
+              onFocused = { viewModel.requestTmSuggestions(entry.sourceValue) },
+              onUnfocused = { viewModel.clearTmSuggestions() },
+              onApplyTm = { targetText -> viewModel.applyTmSuggestion(entry.key, targetText) },
+              onTranslate = { viewModel.translateEntry(entry.key, entry.sourceValue) },
+              onApplyNetwork = { text -> viewModel.applyNetworkSuggestion(entry.key, text) },
+              hasEngine = viewModel.engineManager.getSelectedEngineId().isNotBlank()
+            )
+          }
+        }
+        PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
+      }
     }
 
     Spacer(modifier = Modifier.height(4.dp))
@@ -284,11 +369,15 @@ fun NewTranslationCard(
   entry: TranslationEntry,
   highlightKeywords: Set<String>,
   tmSuggestions: List<TmSuggestion>,
+  networkSuggestion: NetworkSuggestionState?,
   onSave: (String) -> Unit,
   onDiscard: () -> Unit,
   onFocused: () -> Unit,
   onUnfocused: () -> Unit,
-  onApplyTm: (String) -> Unit
+  onApplyTm: (String) -> Unit,
+  onTranslate: () -> Unit = {},
+  onApplyNetwork: (String) -> Unit = {},
+  hasEngine: Boolean = false
 ) {
   var currentText by remember(entry.key, entry.targetValue) { mutableStateOf(entry.targetValue) }
   var isFocused by remember { mutableStateOf(false) }
@@ -325,6 +414,14 @@ fun NewTranslationCard(
             text = "Missing",
             color = MaterialTheme.colorScheme.error,
             background = MaterialTheme.colorScheme.errorContainer
+          )
+        }
+        if (entry.isDiff) {
+          Spacer(Modifier.width(6.dp))
+          BadgeLabel(
+            text = stringResource(R.string.diff_badge),
+            color = MaterialTheme.colorScheme.tertiary,
+            background = MaterialTheme.colorScheme.tertiaryContainer
           )
         }
       }
@@ -420,6 +517,318 @@ fun NewTranslationCard(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
               )
             )
+          }
+        }
+      }
+
+      // Network translation suggestion
+      if (networkSuggestion != null && networkSuggestion.entryKey == entry.key && networkSuggestion.results.isNotEmpty()) {
+        FlowRow(
+          mainAxisSpacing = 6.dp,
+          crossAxisSpacing = 4.dp
+        ) {
+          networkSuggestion.results.forEach { result ->
+            SuggestionChip(
+              onClick = {
+                currentText = result.translatedText
+                onApplyNetwork(result.translatedText)
+              },
+              label = {
+                Text(
+                  "${result.engineName}: ${result.translatedText}",
+                  style = MaterialTheme.typography.labelSmall,
+                  maxLines = 2,
+                  overflow = TextOverflow.Ellipsis
+                )
+              },
+              colors = SuggestionChipDefaults.suggestionChipColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+              )
+            )
+          }
+        }
+      }
+
+      // Translate button
+      if (hasEngine && entry.sourceValue.isNotBlank()) {
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.End
+        ) {
+          SuggestionChip(
+            onClick = onTranslate,
+            label = {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Translate, contentDescription = null, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.engine_translate_button), style = MaterialTheme.typography.labelSmall)
+              }
+            }
+          )
+        }
+      }
+    }
+  }
+}
+
+// --- Deleted Entry Card ---
+@Composable
+fun DeletedTranslationCard(
+  entry: TranslationEntry,
+  onDelete: () -> Unit
+) {
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+    )
+  ) {
+    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+          text = entry.key,
+          style = MaterialTheme.typography.labelSmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+          modifier = Modifier.weight(1f)
+        )
+        Spacer(Modifier.width(6.dp))
+        BadgeLabel(
+          text = stringResource(R.string.deleted_badge),
+          color = MaterialTheme.colorScheme.error,
+          background = MaterialTheme.colorScheme.errorContainer
+        )
+      }
+
+      // Target value (the orphaned translation)
+      Box(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(8.dp))
+          .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+          .padding(horizontal = 10.dp, vertical = 8.dp)
+      ) {
+        Text(
+          text = entry.originalTargetValue,
+          style = MaterialTheme.typography.bodyMedium
+        )
+      }
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+      ) {
+        Button(
+          onClick = onDelete,
+          colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.error
+          )
+        ) {
+          Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
+          Spacer(Modifier.width(4.dp))
+          Text(stringResource(R.string.deleted_delete_single), style = MaterialTheme.typography.labelMedium)
+        }
+      }
+    }
+  }
+}
+
+// --- Staged Deleted Card (A3: undo support) ---
+@Composable
+fun StagedDeletedCard(
+  item: DeletedItem,
+  onUndo: () -> Unit
+) {
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+    )
+  ) {
+    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+          text = item.key,
+          style = MaterialTheme.typography.labelSmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+          modifier = Modifier.weight(1f)
+        )
+        Spacer(Modifier.width(6.dp))
+        BadgeLabel(
+          text = stringResource(R.string.deleted_staged_badge),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          background = MaterialTheme.colorScheme.surfaceVariant
+        )
+      }
+
+      Box(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(8.dp))
+          .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+          .padding(horizontal = 10.dp, vertical = 8.dp)
+      ) {
+        Text(
+          text = item.targetValue,
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      }
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+      ) {
+        Button(
+          onClick = onUndo,
+          colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondary
+          )
+        ) {
+          Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = null, modifier = Modifier.size(16.dp))
+          Spacer(Modifier.width(4.dp))
+          Text(stringResource(R.string.deleted_undo), style = MaterialTheme.typography.labelMedium)
+        }
+      }
+    }
+  }
+}
+
+// --- Diff Entry Card ---
+// Shows entries where the source text changed since the dictionary was saved.
+// Displays: old source (from dict), new source (current), dict translation, and editable current translation.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DiffTranslationCard(
+  entry: TranslationEntry,
+  highlightKeywords: Set<String>,
+  onSave: (String) -> Unit,
+  onRevertToDict: () -> Unit
+) {
+  var currentText by remember(entry.key, entry.targetValue) { mutableStateOf(entry.targetValue) }
+
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
+    )
+  ) {
+    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+      // Key row
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+          text = entry.key,
+          style = MaterialTheme.typography.labelSmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+          modifier = Modifier.weight(1f)
+        )
+        Spacer(Modifier.width(6.dp))
+        BadgeLabel(
+          text = stringResource(R.string.diff_badge),
+          color = MaterialTheme.colorScheme.tertiary,
+          background = MaterialTheme.colorScheme.tertiaryContainer
+        )
+      }
+
+      // Old source text (from dictionary)
+      if (entry.dictSourceValue != null) {
+        Text(
+          text = stringResource(R.string.diff_old_source),
+          style = MaterialTheme.typography.labelSmall,
+          color = MaterialTheme.colorScheme.error
+        )
+        Box(
+          modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f))
+            .padding(horizontal = 10.dp, vertical = 8.dp)
+        ) {
+          Text(
+            text = entry.dictSourceValue,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onErrorContainer
+          )
+        }
+      }
+
+      // New source text (current)
+      Text(
+        text = stringResource(R.string.diff_new_source),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.primary
+      )
+      Box(
+        modifier = Modifier
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(8.dp))
+          .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+          .padding(horizontal = 10.dp, vertical = 8.dp)
+      ) {
+        HighlightedText(text = entry.sourceValue, keywords = highlightKeywords)
+      }
+
+      // Dictionary translation (for reference)
+      if (entry.dictValue != null) {
+        Text(
+          text = stringResource(R.string.diff_dict_value),
+          style = MaterialTheme.typography.labelSmall,
+          color = MaterialTheme.colorScheme.tertiary
+        )
+        Box(
+          modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f))
+            .padding(horizontal = 10.dp, vertical = 8.dp)
+        ) {
+          Text(
+            text = entry.dictValue,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onTertiaryContainer
+          )
+        }
+      }
+
+      // Current translation input
+      OutlinedTextField(
+        value = currentText,
+        onValueChange = { currentText = it },
+        modifier = Modifier
+          .fillMaxWidth()
+          .onFocusChanged { focusState ->
+            if (!focusState.isFocused && currentText != entry.targetValue) {
+              onSave(currentText)
+            }
+          },
+        label = { Text(stringResource(R.string.diff_current_value)) },
+        visualTransformation = keywordHighlightVisualTransformation(
+          keywords = highlightKeywords,
+          highlightColor = Color.Yellow
+        )
+      )
+
+      // Revert to dictionary button
+      if (entry.dictValue != null) {
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.End
+        ) {
+          Button(
+            onClick = {
+              currentText = entry.dictValue
+              onRevertToDict()
+            },
+            colors = ButtonDefaults.buttonColors(
+              containerColor = MaterialTheme.colorScheme.tertiary
+            )
+          ) {
+            Text(stringResource(R.string.diff_revert_to_dict), style = MaterialTheme.typography.labelMedium)
           }
         }
       }

@@ -168,6 +168,8 @@
 
     <!-- Export -->
     <string name="export_success">导出成功</string>
+    <string name="export_fail_no_stream">导出失败：无法打开输出文件</string>
+    <string name="export_fail_write">导出失败：写入 ZIP 文件时出错</string>
     <string name="export_tm_recorded">TM 已录入 %1$d 条</string>
 
     <!-- Empty States -->
@@ -183,6 +185,97 @@
     <string name="fill_missing_done">已补全 %1$d 个缺失字段，视图已切换至"未翻译"。</string>
     <string name="fill_missing_already_staged">所有缺失字段已在暂存区，视图已切换至"未翻译"。</string>
 
+    <!-- Filter States (new) -->
+    <string name="filter_diff">差异</string>
+    <string name="filter_deleted">已删除</string>
+
+    <!-- Dictionary -->
+    <string name="dict_title">字典</string>
+    <string name="dict_subtitle">保存翻译内容，版本更新后可快速复用。</string>
+    <string name="dict_count">字典条目数: %1$d</string>
+    <string name="dict_save">保存到字典</string>
+    <string name="dict_apply">应用字典</string>
+    <string name="dict_clear">清空字典</string>
+    <string name="dict_save_done">已保存 %1$d 条到字典</string>
+    <string name="dict_apply_done">已从字典应用 %1$d 条翻译</string>
+    <string name="dict_apply_none">字典中没有找到匹配的条目</string>
+    <string name="dict_clear_done">字典已清空</string>
+
+    <!-- Deleted Entries -->
+    <string name="deleted_badge">已删除</string>
+    <string name="deleted_delete_all">一键删除 (%1$d)</string>
+    <string name="deleted_delete_single">删除</string>
+    <string name="deleted_all_done">已暂存 %1$d 条待删除</string>
+    <string name="deleted_empty">没有发现已删除的条目</string>
+    <string name="deleted_staged_badge">待删除</string>
+    <string name="deleted_undo">撤销</string>
+
+    <!-- Diff Entries -->
+    <string name="diff_badge">差异</string>
+    <string name="diff_old_source">旧原文（字典记录）：</string>
+    <string name="diff_new_source">新原文（当前版本）：</string>
+    <string name="diff_dict_value">字典翻译：</string>
+    <string name="diff_current_value">当前翻译</string>
+    <string name="diff_revert_to_dict">恢复为字典值</string>
+    <string name="diff_empty">与字典相比未检测到原文变更</string>
+
+    <!-- Create Language -->
+    <string name="create_lang_invalid">无效的语言代码：%1$s</string>
+    <string name="create_lang_title">创建语言</string>
+    <string name="create_lang_subtitle">为当前语言组创建新的目标语言文件。</string>
+    <string name="create_lang_code_label">语言代码</string>
+    <string name="create_lang_done">语言「%1$s」创建成功</string>
+    <string name="create_lang_exists">语言「%1$s」已存在</string>
+    <string name="create_lang_no_group">请先选择一个语言组</string>
+    <string name="create_lang_copy_from">从已有语言复制</string>
+    <string name="create_lang_copy_none">空白（不复制）</string>
+
+    <!-- Translation Engine -->
+    <string name="engine_not_configured">翻译引擎未配置</string>
+    <string name="engine_google_cloud">Google Cloud 翻译</string>
+    <string name="engine_deepl">DeepL API</string>
+    <string name="engine_deeplx">DeepLX（自建）</string>
+    <string name="engine_baidu">百度翻译</string>
+    <string name="engine_youdao_api">有道 API</string>
+    <string name="engine_microsoft">微软翻译</string>
+    <string name="engine_google_web">Google 翻译 Web（实验性）</string>
+    <string name="engine_youdao_web">有道 Web（实验性）</string>
+    <string name="engine_bing_web">必应翻译 Web（实验性）</string>
+    <string name="engine_experimental_tag">实验</string>
+    <string name="engine_select_title">翻译引擎</string>
+    <string name="engine_select_none">无</string>
+    <string name="engine_api_key_label">API 密钥</string>
+    <string name="engine_api_key_hint_baidu">AppID|SecretKey</string>
+    <string name="engine_api_key_hint_youdao">AppKey|AppSecret</string>
+    <string name="engine_endpoint_label">端点 URL</string>
+    <string name="engine_endpoint_hint_deeplx">http://localhost:1188</string>
+    <string name="engine_deeplx_http_note">支持 HTTP/HTTPS</string>
+    <string name="engine_test_connection">测试连接</string>
+    <string name="engine_testing">测试中…</string>
+    <string name="engine_test_success">连接成功：%1$s</string>
+    <string name="engine_test_success_short">成功：</string>
+    <string name="engine_test_fail">连接失败：%1$s</string>
+    <string name="engine_test_fail_short">失败：</string>
+    <string name="engine_error_unknown">未知错误</string>
+    <string name="engine_error_network">网络不可用，请检查连接</string>
+    <string name="engine_error_timeout">连接超时</string>
+    <string name="engine_error_refused">连接被拒绝，请检查端点地址</string>
+    <string name="engine_error_server">服务器返回了非预期的响应</string>
+    <string name="engine_error_auth">认证失败，请检查 API 密钥</string>
+    <string name="engine_error_forbidden">访问被拒绝，请检查 API 密钥权限</string>
+    <string name="engine_error_no_key">请先填写 API 密钥</string>
+    <string name="engine_error_no_endpoint">请先填写端点 URL</string>
+    <string name="engine_translate_fail">翻译失败：%1$s</string>
+    <string name="engine_batch_done">批量翻译了 %1$d 条</string>
+    <string name="engine_translate_button">翻译</string>
+    <string name="engine_base_lang_override">引擎基准语言</string>
+    <string name="engine_base_lang_override_hint">留空则使用源语言</string>
+
+    <!-- Pixel Dungeon Easter Egg -->
+    <string name="pd_dungeon_section">地牢状态</string>
+    <string name="pd_current_zone">当前区域：%1$s</string>
+    <string name="pd_depth">深度：第 %1$d 层</string>
+
     <!-- Language Display -->
     <string name="lang_base">基准</string>
 
@@ -192,5 +285,9 @@
 
     <!-- Changelog 0.1.9 -->
     <string name="changelog_version_0_1_9">v0.1.9</string>
+    <!-- Changelog 0.2.0 -->
+    <string name="changelog_version_0_2_0">v0.2.0</string>
+    <string name="changelog_content_0_2_0">- 新增翻译引擎集成：Google Cloud、DeepL、DeepLX、百度、有道、微软 + 3 个实验性 Web 引擎。\n- 字典键新增语言组维度，多组字典不再互相覆盖。\n- 导出失败处理：ZIP 写入异常不再静默清空暂存区。\n- 已删除视图支持撤销：已暂存的删除显示为灰色卡片，可一键撤回。\n- 创建语言时自动校验语言代码并标准化。\n- 草稿校验新增源文内容摘要，检测更严格。\n- 无实际修改的暂存不再启用保存按钮或触发自动保存。\n- 像素地牢主题大幅升级：真像素字体、砖墙背景、动态火把动画、24小时区域色彩变幻、像素风图标。\n- Snackbar 事件全局可用，所有页面均可显示。\n- UI 优化：ElevatedCard 分区、统一图标标题栏、引擎配置对话框可滚动。</string>
+
     <string name="changelog_content_0_1_9">- 新增批量导入多个 .properties 文件。\n- 新增自动保存草稿系统，支持 SHA-256 校验恢复。\n- 新增翻译记忆（TM）系统，支持模糊匹配建议。\n- 优化语言选择器：通过 Locale API 显示本地化语言名称。\n- 支持混合文件命名格式（下划线/连字符/脚本标签）。\n- 筛选按钮升级为 Material 3 FilterChip。\n- 翻页控件改为紧凑图标按钮。\n- 翻译页新增空状态引导提示。\n- 所有硬编码文案迁移至字符串资源，完善国际化支持。\n- 导出完成后新增 Snackbar 成功反馈。</string>
 </resources>
