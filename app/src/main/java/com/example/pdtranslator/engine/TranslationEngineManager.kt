@@ -28,17 +28,18 @@ class TranslationEngineManager(private val context: Context) {
     }
   }
 
-  // All available engines, official first, experimental last
+  // All available engines: web (free, no key) first, then API engines
   val availableEngines: List<EngineConfig> = listOf(
+    GoogleWebEngine.CONFIG,
+    BingWebEngine.CONFIG,
+    YoudaoWebEngine.CONFIG,
+    BaiduWebEngine.CONFIG,
+    DeepLXEngine.CONFIG,
     GoogleCloudEngine.CONFIG,
     DeepLEngine.CONFIG,
-    DeepLXEngine.CONFIG,
     BaiduEngine.CONFIG,
     YoudaoApiEngine.CONFIG,
-    MicrosoftEngine.CONFIG,
-    GoogleWebEngine.CONFIG,
-    YoudaoWebEngine.CONFIG,
-    BingWebEngine.CONFIG
+    MicrosoftEngine.CONFIG
   )
 
   private var currentEngine: TranslationEngine? = null
@@ -107,6 +108,7 @@ class TranslationEngineManager(private val context: Context) {
       "google_web" -> GoogleWebEngine(httpClient)
       "youdao_web" -> YoudaoWebEngine(httpClient)
       "bing_web" -> BingWebEngine(httpClient)
+      "baidu_web" -> BaiduWebEngine(httpClient)
       else -> null
     }
   }

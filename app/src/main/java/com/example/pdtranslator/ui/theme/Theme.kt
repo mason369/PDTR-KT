@@ -12,7 +12,6 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -113,7 +112,7 @@ fun PDTranslatorTheme(
       if (darkTheme) ModernThemeColors.darkColorScheme else ModernThemeColors.lightColorScheme
     }
     ThemeColor.PIXEL_DUNGEON -> {
-      // Always dark. Each 4-hour zone has its own distinct palette — no blending.
+      // Always dark. Each hour has its own distinct palette — 24 unique dungeon zones.
       val tick = rememberTimeTick()
       val palette = currentZonePalette()
       val base = PixelDungeonThemeColors.darkColorScheme

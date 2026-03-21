@@ -185,6 +185,7 @@
     <string name="engine_google_web">Google Translate Web (Experimental)</string>
     <string name="engine_youdao_web">Youdao Web (Experimental)</string>
     <string name="engine_bing_web">Bing Translate Web (Experimental)</string>
+    <string name="engine_baidu_web">Baidu Translate Web (Experimental)</string>
     <string name="engine_experimental_tag">Experimental</string>
     <string name="engine_select_title">Translation Engine</string>
     <string name="engine_select_none">None</string>

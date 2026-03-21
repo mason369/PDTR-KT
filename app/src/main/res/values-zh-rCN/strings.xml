@@ -243,6 +243,7 @@
     <string name="engine_google_web">Google 翻译 Web（实验性）</string>
     <string name="engine_youdao_web">有道 Web（实验性）</string>
     <string name="engine_bing_web">必应翻译 Web（实验性）</string>
+    <string name="engine_baidu_web">百度翻译 Web（实验性）</string>
     <string name="engine_experimental_tag">实验</string>
     <string name="engine_select_title">翻译引擎</string>
     <string name="engine_select_none">无</string>
