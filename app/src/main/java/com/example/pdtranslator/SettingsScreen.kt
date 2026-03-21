@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.pdtranslator.engine.EngineConfig
 import com.example.pdtranslator.ui.theme.currentZoneName
+import com.example.pdtranslator.ui.theme.rememberTimeTick
 
 @Composable
 fun SettingsScreen(
@@ -98,9 +99,10 @@ fun SettingsScreen(
             item { Spacer(modifier = Modifier.padding(vertical = 8.dp)) }
             item { SectionTitle(stringResource(R.string.pd_dungeon_section)) }
             item {
-                val zoneName = remember { currentZoneName() }
-                val hour = remember { java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY) }
-                val depth = remember { (hour + 1).coerceIn(1, 26) }
+                val tick = rememberTimeTick()
+                val zoneName = currentZoneName()
+                val hour = tick / 60
+                val depth = (hour + 1).coerceIn(1, 26)
                 SettingItemPd(
                     iconRes = R.drawable.ic_pd_map,
                     title = stringResource(R.string.pd_current_zone, zoneName),

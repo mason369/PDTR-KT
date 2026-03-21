@@ -114,16 +114,25 @@ fun PDTranslatorTheme(
     }
     ThemeColor.PIXEL_DUNGEON -> {
       // Always dark — the dungeon has no daylight
-      // Apply time-of-day tint to the base dark scheme
+      // rememberTimeTick() makes this recompose every 60s so colors shift
+      val tick = rememberTimeTick()
       val tint = currentTimeTint()
       val base = PixelDungeonThemeColors.darkColorScheme
       base.copy(
-        // Tint tertiary with the current zone accent for subtle time variation
-        tertiary = lerp(base.tertiary, tint.accent1, 0.35f),
+        // Tint primary with zone accent — buttons, titles shift color
+        primary = lerp(base.primary, tint.accent2, 0.15f),
+        // Tint secondary (cyan) with zone accent
+        secondary = lerp(base.secondary, tint.accent1, 0.2f),
+        secondaryContainer = lerp(base.secondaryContainer, tint.surfaceTint, 0.25f),
+        // Tint tertiary with the current zone accent
+        tertiary = lerp(base.tertiary, tint.accent1, 0.4f),
         tertiaryContainer = lerp(base.tertiaryContainer, tint.surfaceTint, 0.3f),
         // Tint outline with zone color for brick-edge feel
-        outline = lerp(base.outline, tint.accent1, 0.15f),
-        outlineVariant = lerp(base.outlineVariant, tint.accent1, 0.1f),
+        outline = lerp(base.outline, tint.accent1, 0.2f),
+        outlineVariant = lerp(base.outlineVariant, tint.accent1, 0.15f),
+        // Tint primaryContainer (bottom nav bar) with zone
+        primaryContainer = lerp(base.primaryContainer, tint.accent1, 0.12f),
+        onPrimaryContainer = lerp(base.onPrimaryContainer, tint.accent2, 0.1f),
       )
     }
   }

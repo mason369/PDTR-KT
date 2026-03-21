@@ -33,6 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.pdtranslator.ui.theme.PixelBrickBackground
 import com.example.pdtranslator.ui.theme.TorchGlowOverlay
 import com.example.pdtranslator.ui.theme.pdNavIcons
+import com.example.pdtranslator.ui.theme.rememberTimeTick
 
 sealed class Screen(val route: String, val title: Int, val icon: ImageVector) {
     object Config : Screen("config", R.string.screen_title_config, Icons.Default.Build)
@@ -54,7 +55,8 @@ fun MainScreen(
     val isPixelDungeon = themeColor == ThemeColor.PIXEL_DUNGEON
 
     val items = listOf(Screen.Config, Screen.Translator, Screen.Settings)
-    // PD: nav icons change with time of day
+    // PD: nav icons change with time of day (tick triggers recomposition)
+    val tick = if (isPixelDungeon) rememberTimeTick() else 0
     val (pdIcon0, pdIcon1, pdIcon2) = if (isPixelDungeon) pdNavIcons() else Triple(0, 0, 0)
     val pdIcons = listOf(pdIcon0, pdIcon1, pdIcon2)
 

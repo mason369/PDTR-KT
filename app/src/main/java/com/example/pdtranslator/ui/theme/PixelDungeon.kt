@@ -13,8 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -56,6 +60,24 @@ fun getTimeSegment(): Pair<Int, Float> {
   val seg = (totalMin / 240).coerceIn(0, 5)
   val frac = (totalMin - seg * 240) / 240f
   return Pair(seg, frac)
+}
+
+/**
+ * Composable state that ticks every 60s, triggering recomposition.
+ * Returns current totalMinutes as an observable int.
+ */
+@Composable
+fun rememberTimeTick(): Int {
+  val cal = Calendar.getInstance()
+  var tick by remember { mutableIntStateOf(cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)) }
+  LaunchedEffect(Unit) {
+    while (true) {
+      delay(60_000L)
+      val now = Calendar.getInstance()
+      tick = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+    }
+  }
+  return tick
 }
 
 fun currentZonePalette(): ZonePalette {
@@ -162,7 +184,9 @@ fun PixelBrickBackground(modifier: Modifier = Modifier) {
   val density = LocalDensity.current
   val widthPx = with(density) { config.screenWidthDp.dp.toPx().toInt() }.coerceAtLeast(1)
   val heightPx = with(density) { config.screenHeightDp.dp.toPx().toInt() }.coerceAtLeast(1)
-  val (seg, _) = getTimeSegment()
+  val tick = rememberTimeTick()
+  // Regenerate when time segment (4hr block) changes
+  val seg = (tick / 240).coerceIn(0, 5)
 
   val brickBitmap = remember(seg, widthPx, heightPx) {
     generateBrickBitmap(widthPx, heightPx, currentZonePalette())
@@ -260,7 +284,8 @@ fun TorchGlowOverlay(modifier: Modifier = Modifier) {
     infiniteRepeatable(tween(1500, easing = LinearEasing), RepeatMode.Reverse),
     label = "flicker"
   )
-  val (seg, _) = getTimeSegment()
+  val tick = rememberTimeTick()
+  val seg = (tick / 240).coerceIn(0, 5)
   // Torch color shifts with zone
   val torchColor = when (seg) {
     0, 5 -> Color(0xFFFF4400) // Halls — deep red fire
