@@ -62,8 +62,7 @@
 
     <!-- Translator Screen -->
     <string name="translator_complete_missing">Complete Missing Fields</string>
-    <string name="translator_progress_info">Total entries in language group: %1$d</string>
-    <string name="translator_translation_progress">Translation Progress: %1$d%%</string>
+    <string name="translator_translation_progress">%1$s%% (%2$d entries)</string>
     <string name="translator_identical_warning">(Source and target text are identical)</string>
 
     <!-- Common Composables -->
@@ -109,6 +108,9 @@
     <string name="replace_label">Replace</string>
     <string name="search_case_sensitive">Case Sensitive</string>
     <string name="search_exact_match">Exact Match</string>
+    <string name="search_find_btn">Find</string>
+    <string name="search_replace_btn">Replace All</string>
+    <string name="search_replace_done">Replaced %1$d entries</string>
 
     <!-- Export -->
     <string name="export_success">Exported successfully</string>

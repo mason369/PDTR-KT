@@ -25,8 +25,7 @@
     <string name="translator_search_placeholder">搜索（键或原文）</string>
     <string name="translator_complete_missing">补全缺失字段</string>
     <string name="translator_progress">翻译进度</string>
-    <string name="translator_progress_info">语言组总条目: %1$d</string>
-    <string name="translator_translation_progress">翻译进度: %1$d%%</string>
+    <string name="translator_translation_progress">%1$s%% (%2$d 条)</string>
     <string name="translator_identical_warning">（源文和译文相同）</string>
 
     <!-- Common Composables -->
@@ -167,6 +166,9 @@
     <string name="replace_label">替换</string>
     <string name="search_case_sensitive">区分大小写</string>
     <string name="search_exact_match">完全匹配</string>
+    <string name="search_find_btn">查找</string>
+    <string name="search_replace_btn">全部替换</string>
+    <string name="search_replace_done">已替换 %1$d 条</string>
 
     <!-- Export -->
     <string name="export_success">导出成功</string>

@@ -15,35 +15,55 @@ import kotlinx.serialization.json.put
 
 class DeepLXEngine(
   private val client: HttpClient,
-  private val endpoint: String
+  private val endpoint: String = ""
 ) : TranslationEngine {
 
   companion object {
     val CONFIG = EngineConfig(
       id = "deeplx",
       nameResId = R.string.engine_deeplx,
-      isExperimental = false,
+      isExperimental = true,
       requiresApiKey = false,
-      requiresEndpoint = true
+      requiresEndpoint = false  // optional — uses public endpoint by default
+    )
+    private val PUBLIC_ENDPOINTS = listOf(
+      "https://api.deeplx.org",
+      "https://deeplx.missuo.ru"
     )
   }
 
   override val config = CONFIG
 
   private val baseUrl: String
-    get() = endpoint.trimEnd('/')
+    get() = if (endpoint.isNotBlank()) endpoint.trimEnd('/') else ""
 
   override suspend fun translate(text: String, sourceLang: String, targetLang: String): Result<TranslationResult> {
-    return try {
-      val body = buildJsonObject {
-        put("text", text)
-        put("source_lang", mapLang(sourceLang))
-        put("target_lang", mapLang(targetLang))
-      }
+    val body = buildJsonObject {
+      put("text", text)
+      put("source_lang", mapLang(sourceLang))
+      put("target_lang", mapLang(targetLang))
+    }
 
-      val response: String = client.post("$baseUrl/translate") {
+    // If user provided a custom endpoint, try that first
+    if (baseUrl.isNotBlank()) {
+      val result = tryTranslate(baseUrl, body.toString())
+      if (result.isSuccess) return result
+    }
+
+    // Try public endpoints
+    for (pub in PUBLIC_ENDPOINTS) {
+      val result = tryTranslate(pub, body.toString())
+      if (result.isSuccess) return result
+    }
+
+    return Result.failure(Exception("All DeepLX endpoints unavailable"))
+  }
+
+  private suspend fun tryTranslate(endpoint: String, bodyJson: String): Result<TranslationResult> {
+    return try {
+      val response: String = client.post("$endpoint/translate") {
         contentType(ContentType.Application.Json)
-        setBody(body.toString())
+        setBody(bodyJson)
       }.body()
 
       val json = Json.parseToJsonElement(response)

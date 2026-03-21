@@ -61,6 +61,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.LinearProgressIndicator
 import com.google.accompanist.flowlayout.FlowRow
 import androidx.compose.ui.platform.LocalContext
 
@@ -71,6 +72,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
   val currentPage by viewModel.currentPage.collectAsState()
   val totalPages by viewModel.totalPages.collectAsState()
   val infoBarText by viewModel.infoBarText.collectAsState()
+  val translationProgress by viewModel.translationProgress.collectAsState()
   val isSearchCardVisible by viewModel.isSearchCardVisible.collectAsState()
   val missingEntriesCount by viewModel.missingEntriesCount.collectAsState()
   val highlightKeywords by viewModel.highlightKeywords.collectAsState()
@@ -131,25 +133,36 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
       SearchReplaceControls(viewModel)
     }
 
-    // Info bar + toggle
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-      Text(
-        text = infoBarText,
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.weight(1f)
-      )
-      IconButton(onClick = { viewModel.toggleSearchCardVisibility() }, modifier = Modifier.size(32.dp)) {
-        Icon(
-          imageVector = if (isSearchCardVisible) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-          contentDescription = if (isSearchCardVisible) "Collapse Search" else "Expand Search",
-          modifier = Modifier.size(20.dp)
+    // Progress bar + percentage info + toggle
+    Column(modifier = Modifier.fillMaxWidth()) {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+      ) {
+        Text(
+          text = infoBarText,
+          style = MaterialTheme.typography.labelMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.weight(1f)
         )
+        IconButton(onClick = { viewModel.toggleSearchCardVisibility() }, modifier = Modifier.size(32.dp)) {
+          Icon(
+            imageVector = if (isSearchCardVisible) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+            contentDescription = if (isSearchCardVisible) "Collapse Search" else "Expand Search",
+            modifier = Modifier.size(20.dp)
+          )
+        }
       }
+      LinearProgressIndicator(
+        progress = { translationProgress },
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(6.dp)
+          .clip(RoundedCornerShape(3.dp)),
+        color = MaterialTheme.colorScheme.primary,
+        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+      )
     }
 
     FilterButtons(filterState) { viewModel.setFilter(it) }
@@ -316,6 +329,7 @@ fun SearchReplaceControls(viewModel: TranslatorViewModel) {
   val replaceQuery by viewModel.replaceQuery.collectAsState()
   val isCaseSensitive by viewModel.isCaseSensitive.collectAsState()
   val isExactMatch by viewModel.isExactMatch.collectAsState()
+  val context = LocalContext.current
 
   Card {
     Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -337,7 +351,7 @@ fun SearchReplaceControls(viewModel: TranslatorViewModel) {
       }
       Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
       ) {
         Row(
           Modifier.selectable(
@@ -358,6 +372,31 @@ fun SearchReplaceControls(viewModel: TranslatorViewModel) {
           Text(stringResource(R.string.search_exact_match), style = MaterialTheme.typography.bodySmall)
         }
         Spacer(modifier = Modifier.weight(1f))
+        // Find button — triggers search filter
+        Button(
+          onClick = { viewModel.setFilter(FilterState.ALL) },
+          modifier = Modifier.height(32.dp),
+          contentPadding = ButtonDefaults.TextButtonContentPadding,
+          enabled = searchQuery.isNotBlank()
+        ) {
+          Text(stringResource(R.string.search_find_btn), style = MaterialTheme.typography.labelSmall)
+        }
+        // Replace All button
+        Button(
+          onClick = {
+            val count = viewModel.replaceAllMatching()
+            android.widget.Toast.makeText(
+              context,
+              context.getString(R.string.search_replace_done, count),
+              android.widget.Toast.LENGTH_SHORT
+            ).show()
+          },
+          modifier = Modifier.height(32.dp),
+          contentPadding = ButtonDefaults.TextButtonContentPadding,
+          enabled = searchQuery.isNotBlank() && replaceQuery.isNotEmpty()
+        ) {
+          Text(stringResource(R.string.search_replace_btn), style = MaterialTheme.typography.labelSmall)
+        }
       }
     }
   }

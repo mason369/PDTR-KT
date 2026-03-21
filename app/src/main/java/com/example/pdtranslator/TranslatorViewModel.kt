@@ -90,6 +90,14 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
     private val isoLanguages: Set<String> by lazy {
       java.util.Locale.getISOLanguages().toSet()
     }
+    // Legacy ISO 639 codes that Locale.forLanguageTag() cannot parse (BCP 47 replacements)
+    private val legacyLangCodes = mapOf(
+      "in" to "id",  // Indonesian: in → id
+      "iw" to "he",  // Hebrew: iw → he
+      "ji" to "yi",  // Yiddish: ji → yi
+      "jw" to "jv",  // Javanese: jw → jv
+      "mo" to "ro",  // Moldavian: mo → ro
+    )
   }
 
   private val app get() = getApplication<Application>()
@@ -177,6 +185,7 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
 
   // Smart Info Bar State
   val infoBarText = MutableStateFlow("")
+  val translationProgress = MutableStateFlow(0f) // 0..1 progress ratio
 
   val isSaveEnabled = MutableStateFlow(false)
   val showAboutDialog = _showAboutDialog.asStateFlow()
@@ -246,14 +255,12 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
 
         displayEntries.value = filtered.chunked(pageSize).getOrElse(newPage - 1) { emptyList() }
 
-        if (filter == FilterState.UNTRANSLATED) {
-          val total = entries.count { !it.isDeleted }
-          val translated = total - entries.count { it.isUntranslated && !it.isDeleted }
-          val progress = if (total == 0) 0f else translated.toFloat() / total
-          infoBarText.value = app.getString(R.string.translator_translation_progress, (progress * 100).toInt())
-        } else {
-          infoBarText.value = app.getString(R.string.translator_progress_info, entries.count { !it.isDeleted })
-        }
+        val total = entries.count { !it.isDeleted }
+        val translated = total - entries.count { it.isUntranslated && !it.isDeleted }
+        val progress = if (total == 0) 0f else translated.toFloat() / total
+        translationProgress.value = progress
+        val pct = "%.2f".format(progress * 100)
+        infoBarText.value = app.getString(R.string.translator_translation_progress, pct, total)
       }.collect {}
     }
 
@@ -339,6 +346,48 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   fun setShowAboutDialog(show: Boolean) { _showAboutDialog.value = show }
   fun setThemeColor(theme: ThemeColor) { _themeColor.value = theme }
   fun toggleSearchCardVisibility() { _isSearchCardVisible.value = !_isSearchCardVisible.value }
+
+  /** Replace all occurrences of searchQuery in target values of displayed entries with replaceQuery */
+  fun replaceAllMatching(): Int {
+    val search = searchQuery.value
+    val replace = replaceQuery.value
+    if (search.isBlank()) return 0
+    val caseSensitive = isCaseSensitive.value
+    val exact = isExactMatch.value
+    val entries = _allEntries.value
+    var count = 0
+
+    _stagedChanges.update { currentStaged ->
+      val newStaged = currentStaged.toMutableMap()
+      for (entry in entries) {
+        if (entry.isDeleted) continue
+        val current = newStaged[entry.key] ?: entry.targetValue
+        if (current.isBlank()) continue
+
+        val matches = if (exact) {
+          current.equals(search, ignoreCase = !caseSensitive)
+        } else {
+          current.contains(search, ignoreCase = !caseSensitive)
+        }
+
+        if (matches) {
+          val replaced = if (exact) {
+            replace
+          } else if (caseSensitive) {
+            current.replace(search, replace)
+          } else {
+            current.replace(Regex(Regex.escape(search), RegexOption.IGNORE_CASE), replace)
+          }
+          newStaged[entry.key] = replaced
+          count++
+        }
+      }
+      newStaged
+    }
+
+    if (count > 0) regenerateEntries()
+    return count
+  }
 
   fun loadFilesFromUris(resolver: ContentResolver, uris: List<Uri>) {
     viewModelScope.launch(Dispatchers.IO) {
@@ -593,9 +642,11 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
       val group = _languageGroups.value.find { it.name == groupName }
       if (group == null) return@launch
 
-      // A4: Validate language code
-      val locale = java.util.Locale.forLanguageTag(langCode)
-      if (locale.language.isEmpty() || !isoLanguages.contains(locale.language)) {
+      // A4: Validate language code (with legacy code support)
+      val normalizedCode = legacyLangCodes[langCode.lowercase()] ?: langCode
+      val locale = java.util.Locale.forLanguageTag(normalizedCode)
+      if (locale.language.isEmpty() || locale.language == "und" ||
+          (!isoLanguages.contains(locale.language) && !isoLanguages.contains(langCode.lowercase()))) {
         _uiEvents.send(UiEvent.ShowSnackbar(app.getString(R.string.create_lang_invalid, langCode)))
         return@launch
       }
@@ -1166,8 +1217,11 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
 
     for (take in minOf(3, tokens.size - 1) downTo 1) {
       val candidate = tokens.takeLast(take).joinToString("-")
-      val locale = java.util.Locale.forLanguageTag(candidate)
-      if (locale.language.isNotEmpty() && isoLanguages.contains(locale.language)) {
+      // Handle legacy ISO 639 codes (e.g., "in" → "id" for Indonesian)
+      val normalized = legacyLangCodes[candidate.lowercase()] ?: candidate
+      val locale = java.util.Locale.forLanguageTag(normalized)
+      if (locale.language.isNotEmpty() && locale.language != "und" &&
+          (isoLanguages.contains(locale.language) || isoLanguages.contains(candidate.lowercase()))) {
         val baseName = reconstructBaseName(nameWithoutExt, take)
         if (baseName.isNotEmpty()) {
           val langCode = locale.toLanguageTag()

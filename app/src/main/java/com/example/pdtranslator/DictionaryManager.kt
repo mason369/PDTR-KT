@@ -29,6 +29,11 @@ class DictionaryManager(private val context: Context) {
     return "$srcLang|$tgtLang|$propKey"
   }
 
+  /** Suffix used for cross-group matching: "srcLang|tgtLang|propKey" */
+  private fun globalSuffix(srcLang: String, tgtLang: String, propKey: String): String {
+    return "|$srcLang|$tgtLang|$propKey"
+  }
+
   fun addEntry(groupName: String, srcLang: String, tgtLang: String, propKey: String, sourceText: String, translation: String) {
     if (translation.isBlank()) return
     val nk = newKey(groupName, srcLang, tgtLang, propKey)
@@ -41,13 +46,25 @@ class DictionaryManager(private val context: Context) {
     )
   }
 
+  /**
+   * Global entry lookup:
+   * 1. Try exact match with current groupName
+   * 2. Fallback to old 3-segment key
+   * 3. Search across ALL groups for matching srcLang|tgtLang|propKey (global)
+   */
   fun getEntry(groupName: String, srcLang: String, tgtLang: String, propKey: String): DictEntry? {
-    // Try new key (4 segments) first
+    // 1. Exact match with current group
     val nk = newKey(groupName, srcLang, tgtLang, propKey)
     entries[nk]?.let { return it }
-    // Fallback to old key (3 segments)
+    // 2. Fallback to old key format
     val ok = oldKey(srcLang, tgtLang, propKey)
-    return entries[ok]
+    entries[ok]?.let { return it }
+    // 3. Global: search all groups for this language pair + property key
+    val suffix = globalSuffix(srcLang, tgtLang, propKey)
+    return entries.entries
+      .filter { it.key.endsWith(suffix) && it.key.count { c -> c == '|' } == 3 }
+      .maxByOrNull { it.value.timestamp }  // prefer most recently saved
+      ?.value
   }
 
   fun getTranslation(groupName: String, srcLang: String, tgtLang: String, propKey: String): String? {
@@ -76,6 +93,9 @@ class DictionaryManager(private val context: Context) {
     return count
   }
 
+  /**
+   * Apply dictionary globally — searches across all groups for matching translations.
+   */
   fun applyToEntries(
     entries: List<TranslationEntry>,
     groupName: String,
