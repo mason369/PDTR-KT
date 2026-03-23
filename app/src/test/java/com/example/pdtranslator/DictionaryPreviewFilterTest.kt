@@ -16,8 +16,8 @@ class DictionaryPreviewFilterTest {
       )
     )
 
-    assertEquals(listOf("item.magic"), DictionaryPreviewFilter.filter(dictionary, "item").map { it.key })
-    assertEquals(listOf("item.magic"), DictionaryPreviewFilter.filter(dictionary, "wand").map { it.key })
-    assertEquals(listOf("boss.king"), DictionaryPreviewFilter.filter(dictionary, "矮人").map { it.key })
+    assertEquals(listOf("item.magic"), DictionaryPreviewFilter.filter(dictionary, "item").map { it.rawKey })
+    assertEquals(listOf("item.magic"), DictionaryPreviewFilter.filter(dictionary, "wand").map { it.rawKey })
+    assertEquals(listOf("boss.king"), DictionaryPreviewFilter.filter(dictionary, "矮人").map { it.rawKey })
   }
 }

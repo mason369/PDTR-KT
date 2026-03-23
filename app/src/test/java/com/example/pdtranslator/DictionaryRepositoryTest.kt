@@ -109,7 +109,7 @@ class DictionaryRepositoryTest {
         .renameDictionary(selectedOnly = true, newName = "Shared Terms")
         .putEntry(
           "items|base|zh-CN|item.magic",
-          DictEntry(sourceText = "Magic", translation = "榄旀硶", timestamp = 1L)
+          DictEntry(sourceText = "Magic", translation = "魔法", timestamp = 1L)
         )
       val targetStore = DictionaryStore.empty()
         .renameDictionary(selectedOnly = true, newName = "Shared Terms")
@@ -171,7 +171,7 @@ class DictionaryRepositoryTest {
         .createDictionary("Boss Terms")
         .putEntry(
           "bosses|base|zh-CN|boss.king",
-          DictEntry(sourceText = "King", translation = "鍥界帇", timestamp = 2L)
+          DictEntry(sourceText = "King", translation = "国王", timestamp = 2L)
         )
       val targetStore = DictionaryStore.empty()
         .createDictionary("Boss Terms")
