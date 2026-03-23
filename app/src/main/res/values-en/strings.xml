@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="app_name">PD-Translator</string>
 
     <!-- Screen Titles -->
@@ -36,7 +36,7 @@
 
     <!-- Language Dialog -->
     <string name="language_dialog_title">Select Language</string>
-    <string name="language_chinese">简体中文</string>
+    <string name="language_chinese">绠€浣撲腑鏂?</string>
     <string name="language_english">English</string>
 
     <!-- Changelog Screen -->
@@ -130,7 +130,7 @@
     <string name="empty_select_languages">Select source and target languages to begin</string>
 
     <!-- Loading -->
-    <string name="loading_importing">Importing…</string>
+    <string name="loading_importing">Importing鈥?</string>
 
     <!-- Fill Missing -->
     <string name="fill_missing_none">No missing fields found.</string>
@@ -166,6 +166,24 @@
     <string name="dict_delete_last_blocked">Keep at least one dictionary</string>
     <string name="dict_name_exists">A dictionary with this name already exists</string>
     <string name="dict_name_invalid">Dictionary name cannot be empty</string>
+    <string name="dict_preview">Preview</string>
+    <string name="dict_import">Import Dict</string>
+    <string name="dict_export_current">Export Current</string>
+    <string name="dict_export_all">Export All</string>
+    <string name="dict_export_current_done">Current dictionary exported</string>
+    <string name="dict_export_all_done">All dictionaries exported</string>
+    <string name="dict_export_fail">Dictionary export failed</string>
+    <string name="dict_import_done">Imported %1$d dictionaries</string>
+    <string name="dict_import_fail">Dictionary import failed</string>
+    <string name="dict_import_invalid">Invalid dictionary file or package</string>
+    <string name="dict_import_conflict_title">Import Conflict</string>
+    <string name="dict_import_conflict_message">This import contains %2$d conflicting dictionary names across %1$d incoming dictionaries. The recommended action is to import renamed copies.</string>
+    <string name="dict_import_rename_all">Rename All Conflicts</string>
+    <string name="dict_import_cancel">Cancel Import</string>
+    <string name="dict_import_conflict_more">...and %1$d more</string>
+    <string name="dict_preview_title">Dictionary Preview</string>
+    <string name="dict_preview_search_label">Search Dictionary</string>
+    <string name="dict_preview_empty">No dictionary entries found</string>
 
     <!-- Deleted Entries -->
     <string name="deleted_badge">Deleted</string>
@@ -220,7 +238,7 @@
     <string name="engine_endpoint_hint_deeplx">http://localhost:1188</string>
     <string name="engine_deeplx_http_note">Supports HTTP/HTTPS</string>
     <string name="engine_test_connection">Test Connection</string>
-    <string name="engine_testing">Testing…</string>
+    <string name="engine_testing">Testing鈥?</string>
     <string name="engine_test_success">Connection successful: %1$s</string>
     <string name="engine_test_success_short">Success:</string>
     <string name="engine_test_fail">Connection failed: %1$s</string>
@@ -264,7 +282,7 @@
     <string name="changelog_version_0_1_9">v0.1.9</string>
     <!-- Changelog 0.2.0 -->
     <string name="changelog_version_0_2_0">v0.2.0</string>
-    <string name="changelog_content_0_2_0">[New Features]\n- Translation engines: 10 engines supported (5 free web engines + 5 official API engines).\n- New Baidu Web Translate engine (BaiduWebEngine): uses fanyi.baidu.com web API with full token/gtk signing, no API key needed.\n- DeepLX zero-config: built-in public endpoints (api.deeplx.org), works without any user configuration.\n- Engine reordering: 5 free web engines listed first, start translating immediately without setup.\n- Global dictionary: cross-group translation lookup — searches current group → legacy format → all groups globally (most recent timestamp wins).\n- Translation progress bar: LinearProgressIndicator + percentage (2 decimal places, e.g. 56.78%), always visible.\n- Search and Replace buttons: new Find and Replace All buttons, supports case-sensitive and exact match modes.\n- Dungeon-themed search buttons: scroll/wand pixel icons + dungeon accent colors in PD theme.\n- One-click translate per entry via current engine, results shown as chips.\n- Per-group base language override for engine source language.\n- DELETED view supports undo: staged deletions shown as grey cards with undo button.\n\n[Pixel Dungeon Theme]\n- Default theme changed to Pixel Dungeon — dungeon experience from first launch.\n- 24-hour color system: expanded from 6 time zones to 24 hourly zones, each with unique dungeon scene colors.\n- All colors sourced from real MLPD game data (Window.java / CharSprite.java / FistSprite / Level sources).\n- Scenes include: Sewers, Goo, Garden, Prison, Tengu, Caves, Crystal Caves, Dwarf City, Dwarf King, Demon Halls, Evil Eyes, Scorpio Nest, Yog-Dzewa, all Fists, Last Level.\n- Enhanced brick wall textures: moss, blood stains, crystal deposits based on zone color2.\n- 24 unique flame color palettes (hellfire red, toxic green, lantern yellow, crystal blue, arcane purple, etc.).\n- Bottom magic pool glow varies by chapter (lava, sewer water, candlelight, crystal reflection, MLPD cyan magic, blood pool).\n- Navigation icons: 6 icon sets covering all 24 hours.\n- Real pixel fonts (fusion_pixel.ttf + pixel_font.ttf).\n- 13 pixel vector icons (16×16 viewport, pixel-perfect).\n- Easter egg: dungeon zone name and depth shown in settings.\n\n[Improvements]\n- Dictionary keys include group name dimension — multi-group dictionaries no longer conflict.\n- Snackbar events work globally across all screens.\n- UI polish: ElevatedCard sections, unified icon headers, scrollable engine config dialog.\n- Search/Replace button layout: checkboxes and buttons on separate rows, buttons equal-width.\n- Import button uses FilledTonalButton, export button in dedicated card.\n\n[Bug Fixes]\n- Fixed legacy language code recognition: _in (Indonesian), _iw (Hebrew), _ji (Yiddish) etc. now correctly join language groups.\n- Export failure protection: ZIP write errors no longer silently clear staged changes.\n- Language code validation and auto-normalization, invalid codes (e.g. xxx) are blocked.\n- Draft validation includes source text SHA-256 digest for stricter mismatch detection.\n- No-op staged changes no longer enable save button or trigger auto-save.\n- Fixed LinearProgressIndicator parameter type error.\n- Fixed normalizedCode variable name conflict causing compilation error.</string>
+    <string name="changelog_content_0_2_0">[New Features]\n- Translation engines: 10 engines supported (5 free web engines + 5 official API engines).\n- New Baidu Web Translate engine (BaiduWebEngine): uses fanyi.baidu.com web API with full token/gtk signing, no API key needed.\n- DeepLX zero-config: built-in public endpoints (api.deeplx.org), works without any user configuration.\n- Engine reordering: 5 free web engines listed first, start translating immediately without setup.\n- Global dictionary: cross-group translation lookup 鈥?searches current group 鈫?legacy format 鈫?all groups globally (most recent timestamp wins).\n- Translation progress bar: LinearProgressIndicator + percentage (2 decimal places, e.g. 56.78%), always visible.\n- Search and Replace buttons: new Find and Replace All buttons, supports case-sensitive and exact match modes.\n- Dungeon-themed search buttons: scroll/wand pixel icons + dungeon accent colors in PD theme.\n- One-click translate per entry via current engine, results shown as chips.\n- Per-group base language override for engine source language.\n- DELETED view supports undo: staged deletions shown as grey cards with undo button.\n\n[Pixel Dungeon Theme]\n- Default theme changed to Pixel Dungeon 鈥?dungeon experience from first launch.\n- 24-hour color system: expanded from 6 time zones to 24 hourly zones, each with unique dungeon scene colors.\n- All colors sourced from real MLPD game data (Window.java / CharSprite.java / FistSprite / Level sources).\n- Scenes include: Sewers, Goo, Garden, Prison, Tengu, Caves, Crystal Caves, Dwarf City, Dwarf King, Demon Halls, Evil Eyes, Scorpio Nest, Yog-Dzewa, all Fists, Last Level.\n- Enhanced brick wall textures: moss, blood stains, crystal deposits based on zone color2.\n- 24 unique flame color palettes (hellfire red, toxic green, lantern yellow, crystal blue, arcane purple, etc.).\n- Bottom magic pool glow varies by chapter (lava, sewer water, candlelight, crystal reflection, MLPD cyan magic, blood pool).\n- Navigation icons: 6 icon sets covering all 24 hours.\n- Real pixel fonts (fusion_pixel.ttf + pixel_font.ttf).\n- 13 pixel vector icons (16脳16 viewport, pixel-perfect).\n- Easter egg: dungeon zone name and depth shown in settings.\n\n[Improvements]\n- Dictionary keys include group name dimension 鈥?multi-group dictionaries no longer conflict.\n- Snackbar events work globally across all screens.\n- UI polish: ElevatedCard sections, unified icon headers, scrollable engine config dialog.\n- Search/Replace button layout: checkboxes and buttons on separate rows, buttons equal-width.\n- Import button uses FilledTonalButton, export button in dedicated card.\n\n[Bug Fixes]\n- Fixed legacy language code recognition: _in (Indonesian), _iw (Hebrew), _ji (Yiddish) etc. now correctly join language groups.\n- Export failure protection: ZIP write errors no longer silently clear staged changes.\n- Language code validation and auto-normalization, invalid codes (e.g. xxx) are blocked.\n- Draft validation includes source text SHA-256 digest for stricter mismatch detection.\n- No-op staged changes no longer enable save button or trigger auto-save.\n- Fixed LinearProgressIndicator parameter type error.\n- Fixed normalizedCode variable name conflict causing compilation error.</string>
 
     <string name="changelog_content_0_1_9">- Added batch import for multiple .properties files.\n- Added auto-save draft system with SHA-256 validation.\n- Added Translation Memory (TM) with fuzzy matching suggestions.\n- Improved language selector: displays localized names via Locale API.\n- Supports mixed filename formats (underscore/hyphen/script tags).\n- Filter buttons upgraded to Material 3 FilterChip.\n- Pagination controls compacted with icon buttons.\n- Added empty state guidance for translator screen.\n- All hardcoded strings moved to resources for full i18n support.\n- Export now shows success Snackbar feedback.</string>
     <string name="lib_gson_name">Gson</string>

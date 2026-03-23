@@ -1,333 +1,353 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PD-Translator</string>
 
     <!-- Screen Titles -->
-    <string name="screen_title_config">基础配置</string>
-    <string name="screen_title_translator">翻译</string>
-    <string name="screen_title_settings">通用设置</string>
+    <string name="screen_title_config">鍩虹閰嶇疆</string>
+    <string name="screen_title_translator">缈昏瘧</string>
+    <string name="screen_title_settings">閫氱敤璁剧疆</string>
 
     <!-- Config Screen -->
-    <string name="config_import_files">导入文件</string>
-    <string name="config_export">导出</string>
-    <string name="config_source_language">源语言</string>
-    <string name="config_target_language">目标语言</string>
-    <string name="config_import_dialog_title">您希望如何导入？</string>
-    <string name="config_import_from_zip">从 ZIP 文件导入</string>
-    <string name="config_import_from_properties">从 .properties 文件导入</string>
-    <string name="config_keyword_highlighting_title">关键词高亮</string>
-    <string name="config_keyword_highlighting_subtitle">添加的关键词将在翻译器中高亮显示。</string>
-    <string name="config_add_keyword_label">添加关键词</string>
-    <string name="config_add_keyword_button">添加</string>
-    <string name="config_remove_keyword_desc">移除 %1$s</string>
+    <string name="config_import_files">瀵煎叆鏂囦欢</string>
+    <string name="config_export">瀵煎嚭</string>
+    <string name="config_source_language">婧愯瑷€</string>
+    <string name="config_target_language">鐩爣璇█</string>
+    <string name="config_import_dialog_title">鎮ㄥ笇鏈涘浣曞鍏ワ紵</string>
+    <string name="config_import_from_zip">浠?ZIP 鏂囦欢瀵煎叆</string>
+    <string name="config_import_from_properties">浠?.properties 鏂囦欢瀵煎叆</string>
+    <string name="config_keyword_highlighting_title">鍏抽敭璇嶉珮浜?</string>
+    <string name="config_keyword_highlighting_subtitle">娣诲姞鐨勫叧閿瘝灏嗗湪缈昏瘧鍣ㄤ腑楂樹寒鏄剧ず銆?</string>
+    <string name="config_add_keyword_label">娣诲姞鍏抽敭璇?</string>
+    <string name="config_add_keyword_button">娣诲姞</string>
+    <string name="config_remove_keyword_desc">绉婚櫎 %1$s</string>
 
     <!-- Translator Screen -->
-    <string name="translator_search_placeholder">搜索（键或原文）</string>
-    <string name="translator_complete_missing">补全缺失字段</string>
-    <string name="translator_progress">翻译进度</string>
-    <string name="translator_translation_progress">%1$s%% (%2$d 条)</string>
-    <string name="translator_identical_warning">（源文和译文相同）</string>
+    <string name="translator_search_placeholder">鎼滅储锛堥敭鎴栧師鏂囷級</string>
+    <string name="translator_complete_missing">琛ュ叏缂哄け瀛楁</string>
+    <string name="translator_progress">缈昏瘧杩涘害</string>
+    <string name="translator_translation_progress">%1$s%% (%2$d 鏉?</string>
+    <string name="translator_identical_warning">锛堟簮鏂囧拰璇戞枃鐩稿悓锛?</string>
 
     <!-- Common Composables -->
-    <string name="common_select_language_group">请选择一个语言组</string>
-    <string name="common_language_group">语言组</string>
-    <string name="common_translation">翻译</string>
-    <string name="pagination_previous">上一页</string>
-    <string name="pagination_next">下一页</string>
-    <string name="pagination_page_info">第 %1$d / %2$d 页</string>
+    <string name="common_select_language_group">璇烽€夋嫨涓€涓瑷€缁?</string>
+    <string name="common_language_group">璇█缁?</string>
+    <string name="common_translation">缈昏瘧</string>
+    <string name="pagination_previous">涓婁竴椤?</string>
+    <string name="pagination_next">涓嬩竴椤?</string>
+    <string name="pagination_page_info">绗?%1$d / %2$d 椤?</string>
 
     <!-- Filter States -->
-    <string name="filter_all">全部</string>
-    <string name="filter_untranslated">未翻译</string>
-    <string name="filter_translated">已翻译</string>
-    <string name="filter_modified">已修改</string>
-    <string name="filter_missing">缺失</string>
+    <string name="filter_all">鍏ㄩ儴</string>
+    <string name="filter_untranslated">鏈炕璇?</string>
+    <string name="filter_translated">宸茬炕璇?</string>
+    <string name="filter_modified">宸蹭慨鏀?</string>
+    <string name="filter_missing">缂哄け</string>
 
     <!-- Settings Screen -->
-    <string name="settings_section_general">通用</string>
-    <string name="settings_section_about">关于</string>
-    <string name="settings_item_language">语言</string>
-    <string name="settings_item_language_subtitle">更改应用的显示语言</string>
-    <string name="settings_item_theme_color">主题色</string>
-    <string name="settings_item_theme_color_subtitle">自定义应用的主题颜色</string>
-    <string name="settings_item_translation_engine">翻译引擎</string>
-    <string name="settings_item_translation_engine_subtitle">选择用于在线翻译的服务</string>
-    <string name="settings_item_source_code_license">源代码与许可</string>
-    <string name="settings_item_source_code_license_subtitle">查看应用使用的开源库</string>
-    <string name="settings_item_about_us">关于我们</string>
-    <string name="settings_item_about_us_subtitle">了解此应用背后的故事</string>
-    <string name="settings_item_changelog">更新日志</string>
-    <string name="settings_item_changelog_subtitle">查看应用的版本历史和更新</string>
+    <string name="settings_section_general">閫氱敤</string>
+    <string name="settings_section_about">鍏充簬</string>
+    <string name="settings_item_language">璇█</string>
+    <string name="settings_item_language_subtitle">鏇存敼搴旂敤鐨勬樉绀鸿瑷€</string>
+    <string name="settings_item_theme_color">涓婚鑹?</string>
+    <string name="settings_item_theme_color_subtitle">鑷畾涔夊簲鐢ㄧ殑涓婚棰滆壊</string>
+    <string name="settings_item_translation_engine">缈昏瘧寮曟搸</string>
+    <string name="settings_item_translation_engine_subtitle">閫夋嫨鐢ㄤ簬鍦ㄧ嚎缈昏瘧鐨勬湇鍔?</string>
+    <string name="settings_item_source_code_license">婧愪唬鐮佷笌璁稿彲</string>
+    <string name="settings_item_source_code_license_subtitle">鏌ョ湅搴旂敤浣跨敤鐨勫紑婧愬簱</string>
+    <string name="settings_item_about_us">鍏充簬鎴戜滑</string>
+    <string name="settings_item_about_us_subtitle">浜嗚В姝ゅ簲鐢ㄨ儗鍚庣殑鏁呬簨</string>
+    <string name="settings_item_changelog">鏇存柊鏃ュ織</string>
+    <string name="settings_item_changelog_subtitle">鏌ョ湅搴旂敤鐨勭増鏈巻鍙插拰鏇存柊</string>
 
     <!-- Theme Names -->
-    <string name="theme_name_default">默认</string>
+    <string name="theme_name_default">榛樿</string>
     <string name="theme_name_m3">Material 3</string>
-    <string name="theme_name_green">绿色</string>
-    <string name="theme_name_lavender">薰衣草紫</string>
-    <string name="theme_name_modern">现代</string>
-    <string name="theme_name_pixel_dungeon">像素地牢</string>
+    <string name="theme_name_green">缁胯壊</string>
+    <string name="theme_name_lavender">钖拌。鑽夌传</string>
+    <string name="theme_name_modern">鐜颁唬</string>
+    <string name="theme_name_pixel_dungeon">鍍忕礌鍦扮墷</string>
 
     <!-- About Dialog -->
-    <string name="about_us_dialog_title">关于我们</string>
-    <string name="about_us_dialog_content">本应用由 JDSALing 开发，具体编码由 Gemini AI 实现，参考了 Renyunhao 的 PropertiesLocalizationTool 项目。
+    <string name="about_us_dialog_title">鍏充簬鎴戜滑</string>
+    <string name="about_us_dialog_content">鏈簲鐢ㄧ敱 JDSALing 寮€鍙戯紝鍏蜂綋缂栫爜鐢?Gemini AI 瀹炵幇锛屽弬鑰冧簡 Renyunhao 鐨?PropertiesLocalizationTool 椤圭洰銆?
 
-仅供学习交流，请勿用于其他用途。</string>
-    <string name="about_us_dialog_repo_link">我们的 GitHub 仓库</string>
-    <string name="about_us_dialog_visit_repo_button">访问仓库</string>
-    <string name="dialog_close_button">关闭</string>
+浠呬緵瀛︿範浜ゆ祦锛岃鍕跨敤浜庡叾浠栫敤閫斻€?</string>
+    <string name="about_us_dialog_repo_link">鎴戜滑鐨?GitHub 浠撳簱</string>
+    <string name="about_us_dialog_visit_repo_button">璁块棶浠撳簱</string>
+    <string name="dialog_close_button">鍏抽棴</string>
 
     <!-- Dependency Screen -->
-    <string name="source_code_license_title">源代码和许可</string>
-    <string name="back_button_description">返回</string>
-    <string name="visit_link_description">访问链接</string>
+    <string name="source_code_license_title">婧愪唬鐮佸拰璁稿彲</string>
+    <string name="back_button_description">杩斿洖</string>
+    <string name="visit_link_description">璁块棶閾炬帴</string>
 
     <!-- Language Dialog -->
-    <string name="language_dialog_title">选择语言</string>
-    <string name="language_chinese">简体中文</string>
+    <string name="language_dialog_title">閫夋嫨璇█</string>
+    <string name="language_chinese">绠€浣撲腑鏂?</string>
     <string name="language_english">English</string>
 
 
     <!-- Changelog Screen -->
-    <string name="changelog_title">更新日志</string>
-    <string name="changelog_version_0_1_0">v0.1.0 - 基础构建</string>
-    <string name="changelog_content_0_1_0">- 在 Firebase Studio 中，通过 Gemini AI 的引导，使用 Kotlin 创建了基础框架。</string>
-    <string name="changelog_version_1_0_0">v0.1.1 - 主要更新</string>
-    <string name="changelog_content_1_0_0">- 完成了基础的翻译功能。</string>
-    <string name="changelog_version_1_0_1">v0.1.2 - 布局优化</string>
-    <string name="changelog_content_1_0_1">- 优化了设置页面的布局。</string>
-    <string name="changelog_version_1_0_2">v0.1.3 - 导入修复</string>
-    <string name="changelog_content_1_0_2">- 修复了当文件位于子目录中时 ZIP 导入不工作的问题。
-- 修复了更改语言组时语言选择不会被重置的问题。
-- 修复了未加载文件时信息栏显示不正确的问题。</string>
-    <string name="changelog_version_1_1_0">v0.1.4 - 初次发布</string>
-    <string name="changelog_content_1_1_0">- 添加了可折叠的搜索栏。
-- 添加了暂存更改的功能。
-- 修复了若干 Bug。</string>
+    <string name="changelog_title">鏇存柊鏃ュ織</string>
+    <string name="changelog_version_0_1_0">v0.1.0 - 鍩虹鏋勫缓</string>
+    <string name="changelog_content_0_1_0">- 鍦?Firebase Studio 涓紝閫氳繃 Gemini AI 鐨勫紩瀵硷紝浣跨敤 Kotlin 鍒涘缓浜嗗熀纭€妗嗘灦銆?</string>
+    <string name="changelog_version_1_0_0">v0.1.1 - 涓昏鏇存柊</string>
+    <string name="changelog_content_1_0_0">- 瀹屾垚浜嗗熀纭€鐨勭炕璇戝姛鑳姐€?</string>
+    <string name="changelog_version_1_0_1">v0.1.2 - 甯冨眬浼樺寲</string>
+    <string name="changelog_content_1_0_1">- 浼樺寲浜嗚缃〉闈㈢殑甯冨眬銆?</string>
+    <string name="changelog_version_1_0_2">v0.1.3 - 瀵煎叆淇</string>
+    <string name="changelog_content_1_0_2">- 淇浜嗗綋鏂囦欢浣嶄簬瀛愮洰褰曚腑鏃?ZIP 瀵煎叆涓嶅伐浣滅殑闂銆?
+- 淇浜嗘洿鏀硅瑷€缁勬椂璇█閫夋嫨涓嶄細琚噸缃殑闂銆?
+- 淇浜嗘湭鍔犺浇鏂囦欢鏃朵俊鎭爮鏄剧ず涓嶆纭殑闂銆?</string>
+    <string name="changelog_version_1_1_0">v0.1.4 - 鍒濇鍙戝竷</string>
+    <string name="changelog_content_1_1_0">- 娣诲姞浜嗗彲鎶樺彔鐨勬悳绱㈡爮銆?
+- 娣诲姞浜嗘殏瀛樻洿鏀圭殑鍔熻兘銆?
+- 淇浜嗚嫢骞?Bug銆?</string>
     <string name="changelog_version_0_1_5">v0.1.5</string>
-    <string name="changelog_content_0_1_5">- 添加了交互式翻译器。</string>
+    <string name="changelog_content_0_1_5">- 娣诲姞浜嗕氦浜掑紡缈昏瘧鍣ㄣ€?</string>
     <string name="changelog_version_0_1_6">v0.1.6</string>
-    <string name="changelog_content_0_1_6">- 修复了编译错误。
-- 将闪屏图标替换为应用图标。
-- 将版本代码更新为 10，版本名更新为 0.1.6。</string>
+    <string name="changelog_content_0_1_6">- 淇浜嗙紪璇戦敊璇€?
+- 灏嗛棯灞忓浘鏍囨浛鎹负搴旂敤鍥炬爣銆?
+- 灏嗙増鏈唬鐮佹洿鏂颁负 10锛岀増鏈悕鏇存柊涓?0.1.6銆?</string>
     <string name="changelog_version_0_1_7">v0.1.7</string>
-    <string name="changelog_content_0_1_7">- 添加了关键词高亮功能。
-- 优化了编辑体验。</string>
+    <string name="changelog_content_0_1_7">- 娣诲姞浜嗗叧閿瘝楂樹寒鍔熻兘銆?
+- 浼樺寲浜嗙紪杈戜綋楠屻€?</string>
 
     <!-- Libraries -->
     <string name="lib_kotlin_name">Kotlin</string>
-    <string name="lib_kotlin_desc">一门让开发者更快乐的现代编程语言。</string>
+    <string name="lib_kotlin_desc">涓€闂ㄨ寮€鍙戣€呮洿蹇箰鐨勭幇浠ｇ紪绋嬭瑷€銆?</string>
     <string name="lib_crash_name">CustomActivityOnCrash</string>
-    <string name="lib_crash_desc">一个安卓库，允许在你的应用崩溃时启动一个自定义活动。</string>
-    <string name="lib_ktor_name">Ktor 客户端</string>
-    <string name="lib_ktor_desc">一个用于发出请求的异步客户端。</string>
+    <string name="lib_crash_desc">涓€涓畨鍗撳簱锛屽厑璁稿湪浣犵殑搴旂敤宕╂簝鏃跺惎鍔ㄤ竴涓嚜瀹氫箟娲诲姩銆?</string>
+    <string name="lib_ktor_name">Ktor 瀹㈡埛绔?</string>
+    <string name="lib_ktor_desc">涓€涓敤浜庡彂鍑鸿姹傜殑寮傛瀹㈡埛绔€?</string>
     <string name="lib_nav_compose_name">AndroidX Navigation Compose</string>
-    <string name="lib_nav_compose_desc">为 Jetpack Compose 提供导航组件。</string>
+    <string name="lib_nav_compose_desc">涓?Jetpack Compose 鎻愪緵瀵艰埅缁勪欢銆?</string>
     <string name="lib_core_ktx_name">AndroidX Core KTX</string>
-    <string name="lib_core_ktx_desc">为安卓核心功能提供 Kotlin 扩展。</string>
+    <string name="lib_core_ktx_desc">涓哄畨鍗撴牳蹇冨姛鑳芥彁渚?Kotlin 鎵╁睍銆?</string>
     <string name="lib_splashscreen_name">AndroidX Core Splashscreen</string>
-    <string name="lib_splashscreen_desc">为 Android 12+ 提供 SplashScreen API 并向后兼容。</string>
+    <string name="lib_splashscreen_desc">涓?Android 12+ 鎻愪緵 SplashScreen API 骞跺悜鍚庡吋瀹广€?</string>
     <string name="lib_lifecycle_name">AndroidX Lifecycle</string>
-    <string name="lib_lifecycle_desc">用于构建生命周期感知应用的组件。</string>
+    <string name="lib_lifecycle_desc">鐢ㄤ簬鏋勫缓鐢熷懡鍛ㄦ湡鎰熺煡搴旂敤鐨勭粍浠躲€?</string>
     <string name="lib_activity_compose_name">AndroidX Activity Compose</string>
-    <string name="lib_activity_compose_desc">在 Activity 中集成 Jetpack Compose。</string>
+    <string name="lib_activity_compose_desc">鍦?Activity 涓泦鎴?Jetpack Compose銆?</string>
     <string name="lib_compose_name">Jetpack Compose</string>
-    <string name="lib_compose_desc">安卓用于构建原生 UI 的现代工具包。</string>
+    <string name="lib_compose_desc">瀹夊崜鐢ㄤ簬鏋勫缓鍘熺敓 UI 鐨勭幇浠ｅ伐鍏峰寘銆?</string>
     <string name="lib_accompanist_name">Accompanist</string>
-    <string name="lib_accompanist_desc">Jetpack Compose 的扩展库集合。</string>
-    <string name="source_language">源语言</string>
+    <string name="lib_accompanist_desc">Jetpack Compose 鐨勬墿灞曞簱闆嗗悎銆?</string>
+    <string name="source_language">婧愯瑷€</string>
 
     <!-- Batch Import -->
-    <string name="import_success_count">已导入 %1$d 个文件</string>
-    <string name="import_overwrite_count">覆盖 %1$d 个语言文件</string>
-    <string name="import_ignore_count">%1$d 个忽略</string>
-    <string name="import_fail_count">%1$d 个失败</string>
-    <string name="import_empty">未找到 .properties 文件</string>
+    <string name="import_success_count">宸插鍏?%1$d 涓枃浠?</string>
+    <string name="import_overwrite_count">瑕嗙洊 %1$d 涓瑷€鏂囦欢</string>
+    <string name="import_ignore_count">%1$d 涓拷鐣?</string>
+    <string name="import_fail_count">%1$d 涓け璐?</string>
+    <string name="import_empty">鏈壘鍒?.properties 鏂囦欢</string>
 
     <!-- Draft -->
-    <string name="draft_found_title">发现草稿</string>
-    <string name="draft_match_info">发现上次会话的草稿，是否恢复？</string>
-    <string name="draft_mismatch_warning">草稿来自不同版本的文件，恢复可能引入过期的翻译键。</string>
-    <string name="draft_restore">恢复</string>
-    <string name="draft_discard">丢弃</string>
-    <string name="draft_force_restore">仍然恢复</string>
+    <string name="draft_found_title">鍙戠幇鑽夌</string>
+    <string name="draft_match_info">鍙戠幇涓婃浼氳瘽鐨勮崏绋匡紝鏄惁鎭㈠锛?</string>
+    <string name="draft_mismatch_warning">鑽夌鏉ヨ嚜涓嶅悓鐗堟湰鐨勬枃浠讹紝鎭㈠鍙兘寮曞叆杩囨湡鐨勭炕璇戦敭銆?</string>
+    <string name="draft_restore">鎭㈠</string>
+    <string name="draft_discard">涓㈠純</string>
+    <string name="draft_force_restore">浠嶇劧鎭㈠</string>
 
     <!-- Draft (continued) -->
-    <string name="draft_saved_ago">%1$s 前保存</string>
-    <string name="draft_saved_minutes_ago">%1$d 分钟</string>
-    <string name="draft_saved_hours_ago">%1$d 小时</string>
-    <string name="draft_saved_days_ago">%1$d 天</string>
-    <string name="draft_changes_count">%1$d 条暂存修改</string>
+    <string name="draft_saved_ago">%1$s 鍓嶄繚瀛?</string>
+    <string name="draft_saved_minutes_ago">%1$d 鍒嗛挓</string>
+    <string name="draft_saved_hours_ago">%1$d 灏忔椂</string>
+    <string name="draft_saved_days_ago">%1$d 澶?</string>
+    <string name="draft_changes_count">%1$d 鏉℃殏瀛樹慨鏀?</string>
 
     <!-- Translation Memory -->
-    <string name="tm_record_fail">录入翻译记忆失败</string>
+    <string name="tm_record_fail">褰曞叆缈昏瘧璁板繂澶辫触</string>
     <string name="tm_suggestion_label">TM</string>
 
     <!-- Search / Replace -->
-    <string name="search_label">搜索</string>
-    <string name="replace_label">替换</string>
-    <string name="search_case_sensitive">区分大小写</string>
-    <string name="search_exact_match">完全匹配</string>
-    <string name="search_find_btn">查找</string>
-    <string name="search_prev_btn">上一条</string>
-    <string name="search_next_btn">下一条</string>
-    <string name="search_replace_current_btn">替换当前</string>
-    <string name="search_replace_btn">全部替换</string>
-    <string name="search_result_status">第 %1$d / %2$d 个结果</string>
-    <string name="search_replace_current_done">已替换当前 %1$d 条</string>
-    <string name="search_replace_done">已替换 %1$d 条</string>
+    <string name="search_label">鎼滅储</string>
+    <string name="replace_label">鏇挎崲</string>
+    <string name="search_case_sensitive">鍖哄垎澶у皬鍐?</string>
+    <string name="search_exact_match">瀹屽叏鍖归厤</string>
+    <string name="search_find_btn">鏌ユ壘</string>
+    <string name="search_prev_btn">涓婁竴鏉?</string>
+    <string name="search_next_btn">涓嬩竴鏉?</string>
+    <string name="search_replace_current_btn">鏇挎崲褰撳墠</string>
+    <string name="search_replace_btn">鍏ㄩ儴鏇挎崲</string>
+    <string name="search_result_status">绗?%1$d / %2$d 涓粨鏋?</string>
+    <string name="search_replace_current_done">宸叉浛鎹㈠綋鍓?%1$d 鏉?</string>
+    <string name="search_replace_done">宸叉浛鎹?%1$d 鏉?</string>
 
     <!-- Export -->
-    <string name="export_success">导出成功</string>
-    <string name="export_fail_no_stream">导出失败：无法打开输出文件</string>
-    <string name="export_fail_write">导出失败：写入 ZIP 文件时出错</string>
-    <string name="export_tm_recorded">TM 已录入 %1$d 条</string>
+    <string name="export_success">瀵煎嚭鎴愬姛</string>
+    <string name="export_fail_no_stream">瀵煎嚭澶辫触锛氭棤娉曟墦寮€杈撳嚭鏂囦欢</string>
+    <string name="export_fail_write">瀵煎嚭澶辫触锛氬啓鍏?ZIP 鏂囦欢鏃跺嚭閿?</string>
+    <string name="export_tm_recorded">TM 宸插綍鍏?%1$d 鏉?</string>
 
     <!-- Empty States -->
-    <string name="empty_no_files">导入文件以开始使用</string>
-    <string name="empty_no_entries">没有匹配当前筛选条件的条目</string>
-    <string name="empty_select_languages">请选择源语言和目标语言</string>
+    <string name="empty_no_files">瀵煎叆鏂囦欢浠ュ紑濮嬩娇鐢?</string>
+    <string name="empty_no_entries">娌℃湁鍖归厤褰撳墠绛涢€夋潯浠剁殑鏉＄洰</string>
+    <string name="empty_select_languages">璇烽€夋嫨婧愯瑷€鍜岀洰鏍囪瑷€</string>
 
     <!-- Loading -->
-    <string name="loading_importing">正在导入…</string>
+    <string name="loading_importing">姝ｅ湪瀵煎叆鈥?</string>
 
     <!-- Fill Missing -->
-    <string name="fill_missing_none">没有发现缺失的字段。</string>
-    <string name="fill_missing_done">已补全 %1$d 个缺失字段，视图已切换至"未翻译"。</string>
-    <string name="fill_missing_already_staged">所有缺失字段已在暂存区，视图已切换至"未翻译"。</string>
+    <string name="fill_missing_none">娌℃湁鍙戠幇缂哄け鐨勫瓧娈点€?</string>
+    <string name="fill_missing_done">宸茶ˉ鍏?%1$d 涓己澶卞瓧娈碉紝瑙嗗浘宸插垏鎹㈣嚦"鏈炕璇?銆?</string>
+    <string name="fill_missing_already_staged">鎵€鏈夌己澶卞瓧娈靛凡鍦ㄦ殏瀛樺尯锛岃鍥惧凡鍒囨崲鑷?鏈炕璇?銆?</string>
 
     <!-- Filter States (new) -->
-    <string name="filter_diff">差异</string>
-    <string name="filter_deleted">已删除</string>
+    <string name="filter_diff">宸紓</string>
+    <string name="filter_deleted">宸插垹闄?</string>
 
     <!-- Dictionary -->
-    <string name="dict_title">字典</string>
-    <string name="dict_subtitle">保存翻译内容，版本更新后可快速复用。</string>
-    <string name="dict_default_name">默认字典</string>
-    <string name="dict_select_label">当前字典</string>
-    <string name="dict_count">字典条目数: %1$d</string>
-    <string name="dict_count_short">%1$d 条</string>
-    <string name="dict_total">字典数量: %1$d</string>
-    <string name="dict_name_label">字典名称</string>
-    <string name="dict_create">新建字典</string>
-    <string name="dict_rename">重命名</string>
-    <string name="dict_delete">删除字典</string>
-    <string name="dict_save">保存到字典</string>
-    <string name="dict_apply">应用字典</string>
-    <string name="dict_clear">清空字典</string>
-    <string name="dict_save_done">已保存 %1$d 条到字典</string>
-    <string name="dict_apply_done">已从字典应用 %1$d 条翻译</string>
-    <string name="dict_apply_none">字典中没有找到匹配的条目</string>
-    <string name="dict_clear_done">字典已清空</string>
-    <string name="dict_create_done">已创建并切换到字典「%1$s」</string>
-    <string name="dict_rename_done">字典已重命名为「%1$s」</string>
-    <string name="dict_delete_done">字典已删除</string>
-    <string name="dict_delete_last_blocked">至少保留一个字典</string>
-    <string name="dict_name_exists">已存在同名字典</string>
-    <string name="dict_name_invalid">字典名称不能为空</string>
+    <string name="dict_title">瀛楀吀</string>
+    <string name="dict_subtitle">淇濆瓨缈昏瘧鍐呭锛岀増鏈洿鏂板悗鍙揩閫熷鐢ㄣ€?</string>
+    <string name="dict_default_name">榛樿瀛楀吀</string>
+    <string name="dict_select_label">褰撳墠瀛楀吀</string>
+    <string name="dict_count">瀛楀吀鏉＄洰鏁? %1$d</string>
+    <string name="dict_count_short">%1$d 鏉?</string>
+    <string name="dict_total">瀛楀吀鏁伴噺: %1$d</string>
+    <string name="dict_name_label">瀛楀吀鍚嶇О</string>
+    <string name="dict_create">鏂板缓瀛楀吀</string>
+    <string name="dict_rename">閲嶅懡鍚?</string>
+    <string name="dict_delete">鍒犻櫎瀛楀吀</string>
+    <string name="dict_save">淇濆瓨鍒板瓧鍏?</string>
+    <string name="dict_apply">搴旂敤瀛楀吀</string>
+    <string name="dict_clear">娓呯┖瀛楀吀</string>
+    <string name="dict_save_done">宸蹭繚瀛?%1$d 鏉″埌瀛楀吀</string>
+    <string name="dict_apply_done">宸蹭粠瀛楀吀搴旂敤 %1$d 鏉＄炕璇?</string>
+    <string name="dict_apply_none">瀛楀吀涓病鏈夋壘鍒板尮閰嶇殑鏉＄洰</string>
+    <string name="dict_clear_done">瀛楀吀宸叉竻绌?</string>
+    <string name="dict_create_done">宸插垱寤哄苟鍒囨崲鍒板瓧鍏搞€?1$s銆?</string>
+    <string name="dict_rename_done">瀛楀吀宸查噸鍛藉悕涓恒€?1$s銆?</string>
+    <string name="dict_delete_done">瀛楀吀宸插垹闄?</string>
+    <string name="dict_delete_last_blocked">鑷冲皯淇濈暀涓€涓瓧鍏?</string>
+    <string name="dict_name_exists">宸插瓨鍦ㄥ悓鍚嶅瓧鍏?</string>
+    <string name="dict_name_invalid">瀛楀吀鍚嶇О涓嶈兘涓虹┖</string>
+    <string name="dict_preview">棰勮瀛楀吀</string>
+    <string name="dict_import">瀵煎叆瀛楀吀</string>
+    <string name="dict_export_current">瀵煎嚭褰撳墠</string>
+    <string name="dict_export_all">瀵煎嚭鍏ㄩ儴</string>
+    <string name="dict_export_current_done">褰撳墠瀛楀吀宸插鍑?</string>
+    <string name="dict_export_all_done">鍏ㄩ儴瀛楀吀宸插鍑?</string>
+    <string name="dict_export_fail">瀛楀吀瀵煎嚭澶辫触</string>
+    <string name="dict_import_done">宸插鍏?%1$d 涓瓧鍏?</string>
+    <string name="dict_import_fail">瀛楀吀瀵煎叆澶辫触</string>
+    <string name="dict_import_invalid">瀛楀吀鏂囦欢鎴栧瓧鍏稿寘鏃犳晥</string>
+    <string name="dict_import_conflict_title">导入冲突</string>
+    <string name="dict_import_conflict_message">本次导入共包含 %1$d 个字典，其中有 %2$d 个字典名称与本地重复。建议将所有冲突字典自动重命名后继续导入。</string>
+    <string name="dict_import_rename_all">重命名全部冲突</string>
+    <string name="dict_import_cancel">取消导入</string>
+    <string name="dict_import_conflict_more">以及另外 %1$d 个</string>
+    <string name="dict_preview_title">瀛楀吀棰勮</string>
+    <string name="dict_preview_search_label">鎼滅储瀛楀吀鍐呭</string>
+    <string name="dict_preview_empty">娌℃湁鎵惧埌瀛楀吀鏉＄洰</string>
+    <string name="dict_preview_source_label">源</string>
+    <string name="dict_preview_translation_label">译</string>
 
     <!-- Deleted Entries -->
-    <string name="deleted_badge">已删除</string>
-    <string name="deleted_delete_all">一键删除 (%1$d)</string>
-    <string name="deleted_delete_single">删除</string>
-    <string name="deleted_all_done">已暂存 %1$d 条待删除</string>
-    <string name="deleted_empty">没有发现已删除的条目</string>
-    <string name="deleted_staged_badge">待删除</string>
-    <string name="deleted_undo">撤销</string>
+    <string name="deleted_badge">宸插垹闄?</string>
+    <string name="deleted_delete_all">涓€閿垹闄?(%1$d)</string>
+    <string name="deleted_delete_single">鍒犻櫎</string>
+    <string name="deleted_all_done">宸叉殏瀛?%1$d 鏉″緟鍒犻櫎</string>
+    <string name="deleted_empty">娌℃湁鍙戠幇宸插垹闄ょ殑鏉＄洰</string>
+    <string name="deleted_staged_badge">寰呭垹闄?</string>
+    <string name="deleted_undo">鎾ら攢</string>
 
     <!-- Diff Entries -->
-    <string name="diff_badge">差异</string>
-    <string name="diff_old_source">旧原文（字典记录）：</string>
-    <string name="diff_new_source">新原文（当前版本）：</string>
-    <string name="diff_dict_value">字典翻译：</string>
-    <string name="diff_current_value">当前翻译</string>
-    <string name="diff_revert_to_dict">恢复为字典值</string>
-    <string name="diff_empty">与字典相比未检测到原文变更</string>
+    <string name="diff_badge">宸紓</string>
+    <string name="diff_old_source">鏃у師鏂囷紙瀛楀吀璁板綍锛夛細</string>
+    <string name="diff_new_source">鏂板師鏂囷紙褰撳墠鐗堟湰锛夛細</string>
+    <string name="diff_dict_value">瀛楀吀缈昏瘧锛?</string>
+    <string name="diff_current_value">褰撳墠缈昏瘧</string>
+    <string name="diff_revert_to_dict">鎭㈠涓哄瓧鍏稿€?</string>
+    <string name="diff_empty">涓庡瓧鍏哥浉姣旀湭妫€娴嬪埌鍘熸枃鍙樻洿</string>
 
     <!-- Create Language -->
-    <string name="create_lang_invalid">无效的语言代码：%1$s</string>
-    <string name="create_lang_title">创建语言</string>
-    <string name="create_lang_subtitle">为当前语言组创建新的目标语言文件。</string>
-    <string name="create_lang_code_label">语言代码</string>
+    <string name="create_lang_invalid">鏃犳晥鐨勮瑷€浠ｇ爜锛?1$s</string>
+    <string name="create_lang_title">鍒涘缓璇█</string>
+    <string name="create_lang_subtitle">涓哄綋鍓嶈瑷€缁勫垱寤烘柊鐨勭洰鏍囪瑷€鏂囦欢銆?</string>
+    <string name="create_lang_code_label">璇█浠ｇ爜</string>
     <string name="create_lang_code_placeholder">zh-CN, fr, ja...</string>
-    <string name="create_lang_done">语言「%1$s」创建成功</string>
-    <string name="create_lang_exists">语言「%1$s」已存在</string>
-    <string name="create_lang_no_group">请先选择一个语言组</string>
-    <string name="create_lang_copy_from">从已有语言复制</string>
-    <string name="create_lang_copy_none">空白（不复制）</string>
+    <string name="create_lang_done">璇█銆?1$s銆嶅垱寤烘垚鍔?</string>
+    <string name="create_lang_exists">璇█銆?1$s銆嶅凡瀛樺湪</string>
+    <string name="create_lang_no_group">璇峰厛閫夋嫨涓€涓瑷€缁?</string>
+    <string name="create_lang_copy_from">浠庡凡鏈夎瑷€澶嶅埗</string>
+    <string name="create_lang_copy_none">绌虹櫧锛堜笉澶嶅埗锛?</string>
 
     <!-- Translation Engine -->
-    <string name="engine_not_configured">翻译引擎未配置</string>
-    <string name="engine_google_cloud">Google Cloud 翻译</string>
+    <string name="engine_not_configured">缈昏瘧寮曟搸鏈厤缃?</string>
+    <string name="engine_google_cloud">Google Cloud 缈昏瘧</string>
     <string name="engine_deepl">DeepL API</string>
-    <string name="engine_deeplx">DeepLX（自建）</string>
-    <string name="engine_baidu">百度翻译</string>
-    <string name="engine_youdao_api">有道 API</string>
-    <string name="engine_microsoft">微软翻译</string>
-    <string name="engine_google_web">Google 翻译 Web（实验性）</string>
-    <string name="engine_youdao_web">有道 Web（实验性）</string>
-    <string name="engine_bing_web">必应翻译 Web（实验性）</string>
-    <string name="engine_baidu_web">百度翻译 Web（实验性）</string>
-    <string name="engine_experimental_tag">实验</string>
-    <string name="engine_select_title">翻译引擎</string>
-    <string name="engine_select_none">无</string>
-    <string name="engine_api_key_label">API 密钥</string>
+    <string name="engine_deeplx">DeepLX锛堣嚜寤猴級</string>
+    <string name="engine_baidu">鐧惧害缈昏瘧</string>
+    <string name="engine_youdao_api">鏈夐亾 API</string>
+    <string name="engine_microsoft">寰蒋缈昏瘧</string>
+    <string name="engine_google_web">Google 缈昏瘧 Web锛堝疄楠屾€э級</string>
+    <string name="engine_youdao_web">鏈夐亾 Web锛堝疄楠屾€э級</string>
+    <string name="engine_bing_web">蹇呭簲缈昏瘧 Web锛堝疄楠屾€э級</string>
+    <string name="engine_baidu_web">鐧惧害缈昏瘧 Web锛堝疄楠屾€э級</string>
+    <string name="engine_experimental_tag">瀹為獙</string>
+    <string name="engine_select_title">缈昏瘧寮曟搸</string>
+    <string name="engine_select_none">鏃?</string>
+    <string name="engine_api_key_label">API 瀵嗛挜</string>
     <string name="engine_api_key_hint_baidu">AppID|SecretKey</string>
     <string name="engine_api_key_hint_youdao">AppKey|AppSecret</string>
-    <string name="engine_api_key_hint_microsoft">密钥|区域（区域可选）</string>
-    <string name="engine_endpoint_label">端点 URL</string>
+    <string name="engine_api_key_hint_microsoft">瀵嗛挜|鍖哄煙锛堝尯鍩熷彲閫夛級</string>
+    <string name="engine_endpoint_label">绔偣 URL</string>
     <string name="engine_endpoint_hint_deeplx">http://localhost:1188</string>
-    <string name="engine_deeplx_http_note">支持 HTTP/HTTPS</string>
-    <string name="engine_test_connection">测试连接</string>
-    <string name="engine_testing">测试中…</string>
-    <string name="engine_test_success">连接成功：%1$s</string>
-    <string name="engine_test_success_short">成功：</string>
-    <string name="engine_test_fail">连接失败：%1$s</string>
-    <string name="engine_test_fail_short">失败：</string>
-    <string name="engine_status_untested">未验证</string>
-    <string name="engine_status_verified">已验证</string>
-    <string name="engine_status_failed">失败</string>
-    <string name="engine_error_unknown">未知错误</string>
-    <string name="engine_error_network">网络不可用，请检查连接</string>
-    <string name="engine_error_timeout">连接超时</string>
-    <string name="engine_error_refused">连接被拒绝，请检查端点地址</string>
-    <string name="engine_error_server">服务器返回了非预期的响应</string>
-    <string name="engine_error_auth">认证失败，请检查 API 密钥</string>
-    <string name="engine_error_forbidden">访问被拒绝，请检查 API 密钥权限</string>
-    <string name="engine_error_no_key">请先填写 API 密钥</string>
-    <string name="engine_error_no_endpoint">请先填写端点 URL</string>
-    <string name="engine_translate_fail">翻译失败：%1$s</string>
-    <string name="engine_batch_done">批量翻译了 %1$d 条</string>
-    <string name="engine_translate_button">翻译</string>
-    <string name="engine_base_lang_override">引擎基准语言</string>
-    <string name="engine_base_lang_override_hint">留空则使用源语言</string>
+    <string name="engine_deeplx_http_note">鏀寔 HTTP/HTTPS</string>
+    <string name="engine_test_connection">娴嬭瘯杩炴帴</string>
+    <string name="engine_testing">娴嬭瘯涓€?</string>
+    <string name="engine_test_success">杩炴帴鎴愬姛锛?1$s</string>
+    <string name="engine_test_success_short">鎴愬姛锛?</string>
+    <string name="engine_test_fail">杩炴帴澶辫触锛?1$s</string>
+    <string name="engine_test_fail_short">澶辫触锛?</string>
+    <string name="engine_status_untested">鏈獙璇?</string>
+    <string name="engine_status_verified">宸查獙璇?</string>
+    <string name="engine_status_failed">澶辫触</string>
+    <string name="engine_error_unknown">鏈煡閿欒</string>
+    <string name="engine_error_network">缃戠粶涓嶅彲鐢紝璇锋鏌ヨ繛鎺?</string>
+    <string name="engine_error_timeout">杩炴帴瓒呮椂</string>
+    <string name="engine_error_refused">杩炴帴琚嫆缁濓紝璇锋鏌ョ鐐瑰湴鍧€</string>
+    <string name="engine_error_server">鏈嶅姟鍣ㄨ繑鍥炰簡闈為鏈熺殑鍝嶅簲</string>
+    <string name="engine_error_auth">璁よ瘉澶辫触锛岃妫€鏌?API 瀵嗛挜</string>
+    <string name="engine_error_forbidden">璁块棶琚嫆缁濓紝璇锋鏌?API 瀵嗛挜鏉冮檺</string>
+    <string name="engine_error_no_key">璇峰厛濉啓 API 瀵嗛挜</string>
+    <string name="engine_error_no_endpoint">璇峰厛濉啓绔偣 URL</string>
+    <string name="engine_translate_fail">缈昏瘧澶辫触锛?1$s</string>
+    <string name="engine_batch_done">鎵归噺缈昏瘧浜?%1$d 鏉?</string>
+    <string name="engine_translate_button">缈昏瘧</string>
+    <string name="engine_base_lang_override">寮曟搸鍩哄噯璇█</string>
+    <string name="engine_base_lang_override_hint">鐣欑┖鍒欎娇鐢ㄦ簮璇█</string>
     <string name="engine_base_lang_override_placeholder">en, zh-CN...</string>
 
     <!-- Pixel Dungeon Easter Egg -->
-    <string name="pd_dungeon_section">地牢状态</string>
-    <string name="pd_current_zone">当前区域：%1$s</string>
-    <string name="pd_depth">深度：第 %1$d 层</string>
+    <string name="pd_dungeon_section">鍦扮墷鐘舵€?</string>
+    <string name="pd_current_zone">褰撳墠鍖哄煙锛?1$s</string>
+    <string name="pd_depth">娣卞害锛氱 %1$d 灞?</string>
 
     <!-- Language Display -->
-    <string name="lang_base">基准</string>
+    <string name="lang_base">鍩哄噯</string>
 
     <!-- Changelog 0.1.8 -->
     <string name="changelog_version_0_1_8">v0.1.8</string>
-    <string name="changelog_content_0_1_8">- 修复了 `_chk` 后缀无法被识别为繁体中文的问题。\n- 修复了在特定情况下语言文件解析会崩溃的问题。\n- 新增了对 Accompanist Flow Layout 的依赖。\n- 优化了翻译页面过滤器的 UI。\n- 将关键词高亮颜色更改为黄色底纹。</string>
+    <string name="changelog_content_0_1_8">- 淇浜?`_chk` 鍚庣紑鏃犳硶琚瘑鍒负绻佷綋涓枃鐨勯棶棰樸€俓n- 淇浜嗗湪鐗瑰畾鎯呭喌涓嬭瑷€鏂囦欢瑙ｆ瀽浼氬穿婧冪殑闂銆俓n- 鏂板浜嗗 Accompanist Flow Layout 鐨勪緷璧栥€俓n- 浼樺寲浜嗙炕璇戦〉闈㈣繃婊ゅ櫒鐨?UI銆俓n- 灏嗗叧閿瘝楂樹寒棰滆壊鏇存敼涓洪粍鑹插簳绾广€?</string>
 
     <!-- Changelog 0.1.9 -->
     <string name="changelog_version_0_1_9">v0.1.9</string>
     <!-- Changelog 0.2.0 -->
     <string name="changelog_version_0_2_0">v0.2.0</string>
-    <string name="changelog_content_0_2_0">【新功能】\n- 翻译引擎：支持 10 个引擎（5 个免 API 网页引擎 + 5 个官方 API 引擎）。\n- 新增百度网页翻译引擎（BaiduWebEngine）：使用 fanyi.baidu.com 网页接口，完整实现 token/gtk 签名算法，无需 API 密钥。\n- DeepLX 免配置：内置公共端点（api.deeplx.org），无需用户手动填写即可使用，自定义端点优先。\n- 翻译引擎排序优化：5 个免费网页引擎排在列表最前方，用户无需任何配置即可开始翻译。\n- 字典全局化：跨语言组查询翻译记录，优先当前组 → 旧格式 → 其他组全局搜索（最近时间戳优先），大幅提升字典复用率。\n- 翻译进度条：改为 LinearProgressIndicator + 百分比（精确到两位小数，如 56.78%），始终显示。\n- 搜索替换按钮：新增「查找」和「全部替换」按钮，支持区分大小写和完全匹配模式。\n- 搜索替换地牢主题适配：地牢主题下按钮带卷轴/魔杖像素图标 + 地牢配色。\n- 每条翻译条目支持一键调用当前引擎翻译，结果以芯片形式显示。\n- 支持按语言组单独指定引擎源语言代码（base_lang_override）。\n- 已删除视图支持撤销：已暂存的删除显示为灰色卡片，可一键撤回。\n\n【像素地牢主题】\n- 默认主题改为像素地牢主题，应用启动即进入地牢体验。\n- 24小时制色彩系统：从 6 个时段扩展为 24 个小时段，每小时一个独特地牢场景配色。\n- 颜色全部取自 MLPD 真实游戏数据（Window.java / CharSprite.java / FistSprite / Level sources 等）。\n- 包含：下水道、Goo、花园、监狱、天狗、洞穴、水晶洞窟、矮人城、矮人国王、恶魔大厅、魔眼层、蝎子巢穴、犹格索托斯、各拳魔、最终之厅等场景。\n- 增强砖墙细节：苔藓、血迹、水晶污渍等基于区域 color2 的随机纹理。\n- 24种独特火焰配色（地狱红/毒绿/灯笼黄/水晶蓝/魔法紫等）。\n- 底部魔法池光效根据章节变化（熔岩池/绿水池/烛光/水晶反射/MLPD青色魔法/血池）。\n- 导航图标 6 组变化覆盖 24 小时。\n- 真像素字体（fusion_pixel.ttf + pixel_font.ttf）。\n- 13 个像素矢量图标（16×16 逐像素定义）。\n- 地牢彩蛋：设置页底部显示当前区域名和深度。\n\n【优化】\n- 字典键新增语言组维度，多组字典不再互相覆盖。\n- Snackbar 事件全局可用，所有页面均可显示。\n- UI 优化：ElevatedCard 分区、统一图标标题栏、引擎配置对话框可滚动。\n- 搜索替换按钮布局优化：checkbox 与按钮分行，按钮等宽排列。\n- 导入按钮改用 FilledTonalButton，导出按钮收入独立卡片。\n\n【修复】\n- 修复旧语言代码识别：_in（印尼语）、_iw（希伯来语）、_ji（意第绪语）等旧 ISO-639 代码现在能正确归入语言组。\n- 导出失败保护：ZIP 写入异常不再静默清空暂存区。\n- 创建语言时自动校验语言代码并标准化，无效码（如 xxx）被拦截。\n- 草稿校验新增源文内容 SHA-256 摘要，检测更严格。\n- 无实际修改的暂存不再启用保存按钮或触发自动保存。\n- 修复 LinearProgressIndicator 参数类型错误。\n- 修复 normalizedCode 变量重名导致的编译错误。</string>
+    <string name="changelog_content_0_2_0">銆愭柊鍔熻兘銆慭n- 缈昏瘧寮曟搸锛氭敮鎸?10 涓紩鎿庯紙5 涓厤 API 缃戦〉寮曟搸 + 5 涓畼鏂?API 寮曟搸锛夈€俓n- 鏂板鐧惧害缃戦〉缈昏瘧寮曟搸锛圔aiduWebEngine锛夛細浣跨敤 fanyi.baidu.com 缃戦〉鎺ュ彛锛屽畬鏁村疄鐜?token/gtk 绛惧悕绠楁硶锛屾棤闇€ API 瀵嗛挜銆俓n- DeepLX 鍏嶉厤缃細鍐呯疆鍏叡绔偣锛坅pi.deeplx.org锛夛紝鏃犻渶鐢ㄦ埛鎵嬪姩濉啓鍗冲彲浣跨敤锛岃嚜瀹氫箟绔偣浼樺厛銆俓n- 缈昏瘧寮曟搸鎺掑簭浼樺寲锛? 涓厤璐圭綉椤靛紩鎿庢帓鍦ㄥ垪琛ㄦ渶鍓嶆柟锛岀敤鎴锋棤闇€浠讳綍閰嶇疆鍗冲彲寮€濮嬬炕璇戙€俓n- 瀛楀吀鍏ㄥ眬鍖栵細璺ㄨ瑷€缁勬煡璇㈢炕璇戣褰曪紝浼樺厛褰撳墠缁?鈫?鏃ф牸寮?鈫?鍏朵粬缁勫叏灞€鎼滅储锛堟渶杩戞椂闂存埑浼樺厛锛夛紝澶у箙鎻愬崌瀛楀吀澶嶇敤鐜囥€俓n- 缈昏瘧杩涘害鏉★細鏀逛负 LinearProgressIndicator + 鐧惧垎姣旓紙绮剧‘鍒颁袱浣嶅皬鏁帮紝濡?56.78%锛夛紝濮嬬粓鏄剧ず銆俓n- 鎼滅储鏇挎崲鎸夐挳锛氭柊澧炪€屾煡鎵俱€嶅拰銆屽叏閮ㄦ浛鎹€嶆寜閽紝鏀寔鍖哄垎澶у皬鍐欏拰瀹屽叏鍖归厤妯″紡銆俓n- 鎼滅储鏇挎崲鍦扮墷涓婚閫傞厤锛氬湴鐗富棰樹笅鎸夐挳甯﹀嵎杞?榄旀潠鍍忕礌鍥炬爣 + 鍦扮墷閰嶈壊銆俓n- 姣忔潯缈昏瘧鏉＄洰鏀寔涓€閿皟鐢ㄥ綋鍓嶅紩鎿庣炕璇戯紝缁撴灉浠ヨ姱鐗囧舰寮忔樉绀恒€俓n- 鏀寔鎸夎瑷€缁勫崟鐙寚瀹氬紩鎿庢簮璇█浠ｇ爜锛坆ase_lang_override锛夈€俓n- 宸插垹闄よ鍥炬敮鎸佹挙閿€锛氬凡鏆傚瓨鐨勫垹闄ゆ樉绀轰负鐏拌壊鍗＄墖锛屽彲涓€閿挙鍥炪€俓n\n銆愬儚绱犲湴鐗富棰樸€慭n- 榛樿涓婚鏀逛负鍍忕礌鍦扮墷涓婚锛屽簲鐢ㄥ惎鍔ㄥ嵆杩涘叆鍦扮墷浣撻獙銆俓n- 24灏忔椂鍒惰壊褰╃郴缁燂細浠?6 涓椂娈垫墿灞曚负 24 涓皬鏃舵锛屾瘡灏忔椂涓€涓嫭鐗瑰湴鐗㈠満鏅厤鑹层€俓n- 棰滆壊鍏ㄩ儴鍙栬嚜 MLPD 鐪熷疄娓告垙鏁版嵁锛圵indow.java / CharSprite.java / FistSprite / Level sources 绛夛級銆俓n- 鍖呭惈锛氫笅姘撮亾銆丟oo銆佽姳鍥€佺洃鐙便€佸ぉ鐙椼€佹礊绌淬€佹按鏅舵礊绐熴€佺煯浜哄煄銆佺煯浜哄浗鐜嬨€佹伓榄斿ぇ鍘呫€侀瓟鐪煎眰銆佽潕瀛愬发绌淬€佺姽鏍肩储鎵樻柉銆佸悇鎷抽瓟銆佹渶缁堜箣鍘呯瓑鍦烘櫙銆俓n- 澧炲己鐮栧缁嗚妭锛氳嫈钘撱€佽杩广€佹按鏅舵薄娓嶇瓑鍩轰簬鍖哄煙 color2 鐨勯殢鏈虹汗鐞嗐€俓n- 24绉嶇嫭鐗圭伀鐒伴厤鑹诧紙鍦扮嫳绾?姣掔豢/鐏榛?姘存櫠钃?榄旀硶绱瓑锛夈€俓n- 搴曢儴榄旀硶姹犲厜鏁堟牴鎹珷鑺傚彉鍖栵紙鐔斿博姹?缁挎按姹?鐑涘厜/姘存櫠鍙嶅皠/MLPD闈掕壊榄旀硶/琛€姹狅級銆俓n- 瀵艰埅鍥炬爣 6 缁勫彉鍖栬鐩?24 灏忔椂銆俓n- 鐪熷儚绱犲瓧浣擄紙fusion_pixel.ttf + pixel_font.ttf锛夈€俓n- 13 涓儚绱犵煝閲忓浘鏍囷紙16脳16 閫愬儚绱犲畾涔夛級銆俓n- 鍦扮墷褰╄泲锛氳缃〉搴曢儴鏄剧ず褰撳墠鍖哄煙鍚嶅拰娣卞害銆俓n\n銆愪紭鍖栥€慭n- 瀛楀吀閿柊澧炶瑷€缁勭淮搴︼紝澶氱粍瀛楀吀涓嶅啀浜掔浉瑕嗙洊銆俓n- Snackbar 浜嬩欢鍏ㄥ眬鍙敤锛屾墍鏈夐〉闈㈠潎鍙樉绀恒€俓n- UI 浼樺寲锛欵levatedCard 鍒嗗尯銆佺粺涓€鍥炬爣鏍囬鏍忋€佸紩鎿庨厤缃璇濇鍙粴鍔ㄣ€俓n- 鎼滅储鏇挎崲鎸夐挳甯冨眬浼樺寲锛歝heckbox 涓庢寜閽垎琛岋紝鎸夐挳绛夊鎺掑垪銆俓n- 瀵煎叆鎸夐挳鏀圭敤 FilledTonalButton锛屽鍑烘寜閽敹鍏ョ嫭绔嬪崱鐗囥€俓n\n銆愪慨澶嶃€慭n- 淇鏃ц瑷€浠ｇ爜璇嗗埆锛歘in锛堝嵃灏艰锛夈€乢iw锛堝笇浼潵璇級銆乢ji锛堟剰绗华璇級绛夋棫 ISO-639 浠ｇ爜鐜板湪鑳芥纭綊鍏ヨ瑷€缁勩€俓n- 瀵煎嚭澶辫触淇濇姢锛歓IP 鍐欏叆寮傚父涓嶅啀闈欓粯娓呯┖鏆傚瓨鍖恒€俓n- 鍒涘缓璇█鏃惰嚜鍔ㄦ牎楠岃瑷€浠ｇ爜骞舵爣鍑嗗寲锛屾棤鏁堢爜锛堝 xxx锛夎鎷︽埅銆俓n- 鑽夌鏍￠獙鏂板婧愭枃鍐呭 SHA-256 鎽樿锛屾娴嬫洿涓ユ牸銆俓n- 鏃犲疄闄呬慨鏀圭殑鏆傚瓨涓嶅啀鍚敤淇濆瓨鎸夐挳鎴栬Е鍙戣嚜鍔ㄤ繚瀛樸€俓n- 淇 LinearProgressIndicator 鍙傛暟绫诲瀷閿欒銆俓n- 淇 normalizedCode 鍙橀噺閲嶅悕瀵艰嚧鐨勭紪璇戦敊璇€?</string>
 
-    <string name="changelog_content_0_1_9">- 新增批量导入多个 .properties 文件。\n- 新增自动保存草稿系统，支持 SHA-256 校验恢复。\n- 新增翻译记忆（TM）系统，支持模糊匹配建议。\n- 优化语言选择器：通过 Locale API 显示本地化语言名称。\n- 支持混合文件命名格式（下划线/连字符/脚本标签）。\n- 筛选按钮升级为 Material 3 FilterChip。\n- 翻页控件改为紧凑图标按钮。\n- 翻译页新增空状态引导提示。\n- 所有硬编码文案迁移至字符串资源，完善国际化支持。\n- 导出完成后新增 Snackbar 成功反馈。</string>
+    <string name="changelog_content_0_1_9">- 鏂板鎵归噺瀵煎叆澶氫釜 .properties 鏂囦欢銆俓n- 鏂板鑷姩淇濆瓨鑽夌绯荤粺锛屾敮鎸?SHA-256 鏍￠獙鎭㈠銆俓n- 鏂板缈昏瘧璁板繂锛圱M锛夌郴缁燂紝鏀寔妯＄硦鍖归厤寤鸿銆俓n- 浼樺寲璇█閫夋嫨鍣細閫氳繃 Locale API 鏄剧ず鏈湴鍖栬瑷€鍚嶇О銆俓n- 鏀寔娣峰悎鏂囦欢鍛藉悕鏍煎紡锛堜笅鍒掔嚎/杩炲瓧绗?鑴氭湰鏍囩锛夈€俓n- 绛涢€夋寜閽崌绾т负 Material 3 FilterChip銆俓n- 缈婚〉鎺т欢鏀逛负绱у噾鍥炬爣鎸夐挳銆俓n- 缈昏瘧椤垫柊澧炵┖鐘舵€佸紩瀵兼彁绀恒€俓n- 鎵€鏈夌‖缂栫爜鏂囨杩佺Щ鑷冲瓧绗︿覆璧勬簮锛屽畬鍠勫浗闄呭寲鏀寔銆俓n- 瀵煎嚭瀹屾垚鍚庢柊澧?Snackbar 鎴愬姛鍙嶉銆?</string>
     <string name="lib_gson_name">Gson</string>
-    <string name="lib_gson_desc">用于 JSON 序列化与反序列化的 Java 库。</string>
+    <string name="lib_gson_desc">鐢ㄤ簬 JSON 搴忓垪鍖栦笌鍙嶅簭鍒楀寲鐨?Java 搴撱€?</string>
     <string name="lib_kotlinx_serialization_name">kotlinx.serialization</string>
-    <string name="lib_kotlinx_serialization_desc">用于 JSON 解析的 Kotlin 多平台序列化库。</string>
+    <string name="lib_kotlinx_serialization_desc">鐢ㄤ簬 JSON 瑙ｆ瀽鐨?Kotlin 澶氬钩鍙板簭鍒楀寲搴撱€?</string>
     <string name="lib_kotlinx_coroutines_name">kotlinx.coroutines</string>
-    <string name="lib_kotlinx_coroutines_desc">为 Kotlin 提供协程、Flow 与结构化并发支持。</string>
+    <string name="lib_kotlinx_coroutines_desc">涓?Kotlin 鎻愪緵鍗忕▼銆丗low 涓庣粨鏋勫寲骞跺彂鏀寔銆?</string>
     <string name="lib_material3_name">Material 3</string>
-    <string name="lib_material3_desc">Compose 对 Material Design 3 的组件与主题实现。</string>
-    <string name="engine_error_youdao_web_unsupported">有道 Web 当前不支持这个语言对。请尝试将源语言改为自动识别，或切换其他引擎。</string>
+    <string name="lib_material3_desc">Compose 瀵?Material Design 3 鐨勭粍浠朵笌涓婚瀹炵幇銆?</string>
+    <string name="engine_error_youdao_web_unsupported">鏈夐亾 Web 褰撳墠涓嶆敮鎸佽繖涓瑷€瀵广€傝灏濊瘯灏嗘簮璇█鏀逛负鑷姩璇嗗埆锛屾垨鍒囨崲鍏朵粬寮曟搸銆?</string>
 </resources>
