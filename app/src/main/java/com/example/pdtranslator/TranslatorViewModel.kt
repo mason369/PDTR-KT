@@ -172,7 +172,6 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   val selectedDictionaryName = MutableStateFlow("")
   val dictionaryCount = MutableStateFlow(0)
   val canDeleteDictionary = MutableStateFlow(false)
-  val isDictionaryPreviewVisible = MutableStateFlow(false)
   val dictionaryPreviewQuery = MutableStateFlow("")
   val dictionaryPreviewEntries = MutableStateFlow<List<DictionaryPreviewItem>>(emptyList())
   val pendingDictionaryImport = MutableStateFlow<PendingDictionaryImport?>(null)
@@ -1071,11 +1070,9 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   fun showDictionaryPreview() {
     dictionaryPreviewQuery.value = ""
     dictionaryPreviewEntries.value = dictionaryManager.getPreviewEntries("")
-    isDictionaryPreviewVisible.value = true
   }
 
   fun hideDictionaryPreview() {
-    isDictionaryPreviewVisible.value = false
     dictionaryPreviewQuery.value = ""
   }
 
