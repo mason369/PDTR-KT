@@ -169,6 +169,7 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   val dictionaryPreviewQuery = MutableStateFlow("")
   val dictionaryPreviewEntries = MutableStateFlow<List<DictionaryPreviewItem>>(emptyList())
   val pendingDictionaryImport = MutableStateFlow<PendingDictionaryImport?>(null)
+  val dictionaryPreviewTab = MutableStateFlow(0) // 0=待校对, 1=已校对
 
   // --- Created Languages (for export even without staged changes) ---
   private val _createdLanguages = MutableStateFlow<Set<String>>(emptySet())
@@ -1017,6 +1018,26 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   fun hideDictionaryPreview() {
     isDictionaryPreviewVisible.value = false
     dictionaryPreviewQuery.value = ""
+  }
+
+  fun setDictionaryPreviewTab(tab: Int) {
+    dictionaryPreviewTab.value = tab
+  }
+
+  fun reviewDictionaryEntry(rawKey: String) {
+    viewModelScope.launch(Dispatchers.IO) {
+      dictionaryManager.reviewPreviewEntry(rawKey)
+      dictionaryManager.save()
+      dictionaryPreviewEntries.value = dictionaryManager.getPreviewEntries(dictionaryPreviewQuery.value)
+    }
+  }
+
+  fun unreviewDictionaryEntry(rawKey: String) {
+    viewModelScope.launch(Dispatchers.IO) {
+      dictionaryManager.unreviewPreviewEntry(rawKey)
+      dictionaryManager.save()
+      dictionaryPreviewEntries.value = dictionaryManager.getPreviewEntries(dictionaryPreviewQuery.value)
+    }
   }
 
   fun setDictionaryPreviewQuery(query: String) {
