@@ -179,7 +179,9 @@ fun ConfigScreen(viewModel: TranslatorViewModel, onNavigateToDictionaryPreview: 
           val json = stream.bufferedReader().readText()
           viewModel.importCalibrations(json)
         }
-      } catch (_: Exception) { }
+      } catch (_: Exception) {
+        viewModel.notifyCalibrationImportFailed()
+      }
     }
   }
 
@@ -193,6 +195,7 @@ fun ConfigScreen(viewModel: TranslatorViewModel, onNavigateToDictionaryPreview: 
         resolver.openOutputStream(uri)?.use { stream ->
           stream.write(viewModel.exportCalibrations())
         }
+        viewModel.notifyCalibrationExported()
       } catch (_: Exception) { }
     }
   }
@@ -329,7 +332,11 @@ fun ConfigScreen(viewModel: TranslatorViewModel, onNavigateToDictionaryPreview: 
     // ── Source Calibration ──
     CalibrationCard(
       calibrationCount = calibrationCount,
-      onImport = { importCalibrationLauncher.launch(arrayOf("application/json")) },
+      onImport = {
+        importCalibrationLauncher.launch(
+          arrayOf("application/json", "text/csv", "text/comma-separated-values", "text/*")
+        )
+      },
       onExport = { exportCalibrationLauncher.launch("calibrations.json") },
       onClear = { viewModel.clearCalibrations() },
       isPD = isPD

@@ -373,6 +373,7 @@
     <string name="calibration_save_done">校准已保存</string>
     <string name="calibration_clear_done">校准库已清空</string>
     <string name="calibration_import_done">已导入校准：%d 条</string>
+    <string name="calibration_import_failed">校准导入失败</string>
     <string name="calibration_export_done">校准库已导出</string>
     <string name="calibration_badge">已校准</string>
     <string name="calibration_card_title">原文校准库</string>

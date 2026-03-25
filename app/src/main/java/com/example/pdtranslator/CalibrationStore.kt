@@ -7,6 +7,23 @@ data class CalibrationStore(
 
     fun get(propKey: String): CalibrationEntry? = entries[propKey]
 
+    fun upsert(
+        propKey: String,
+        originalText: String,
+        calibratedText: String,
+        timestamp: Long = System.currentTimeMillis()
+    ): CalibrationStore {
+        val preservedOriginalText = entries[propKey]?.originalText ?: originalText
+        return put(
+            propKey,
+            CalibrationEntry(
+                originalText = preservedOriginalText,
+                calibratedText = calibratedText,
+                timestamp = timestamp
+            )
+        )
+    }
+
     fun put(propKey: String, entry: CalibrationEntry): CalibrationStore {
         return copy(entries = LinkedHashMap(entries).apply { put(propKey, entry) })
     }

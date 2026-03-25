@@ -50,4 +50,17 @@ class CalibrationStoreTest {
         assertEquals("new_cal", store.get("key1")!!.calibratedText)
         assertEquals("b", store.get("key2")!!.calibratedText)
     }
+
+    @Test
+    fun `upsert preserves first original text when recalibrating same key`() {
+        var store = CalibrationStore()
+        store = store.upsert("key1", "wrong text", "fixed text", 1L)
+        store = store.upsert("key1", "fixed text", "fixed again", 2L)
+
+        val entry = store.get("key1")
+        assertNotNull(entry)
+        assertEquals("wrong text", entry!!.originalText)
+        assertEquals("fixed again", entry.calibratedText)
+        assertEquals(2L, entry.timestamp)
+    }
 }

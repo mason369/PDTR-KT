@@ -207,6 +207,7 @@
     <string name="calibration_save_done">Calibration saved</string>
     <string name="calibration_clear_done">Calibration library cleared</string>
     <string name="calibration_import_done">Calibration imported: %d entries</string>
+    <string name="calibration_import_failed">Calibration import failed</string>
     <string name="calibration_export_done">Calibration exported</string>
     <string name="calibration_badge">Calibrated</string>
     <string name="calibration_card_title">Source Calibration Library</string>
