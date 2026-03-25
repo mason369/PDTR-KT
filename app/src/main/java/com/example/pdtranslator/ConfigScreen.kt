@@ -7,18 +7,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,7 +53,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -76,10 +71,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.google.accompanist.flowlayout.FlowRow
-import java.text.DateFormat
-import java.util.Date
 import java.util.Locale
 
 // ─────────────── Shared card section header ───────────────
@@ -114,7 +106,7 @@ private fun SectionHeader(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConfigScreen(viewModel: TranslatorViewModel) {
+fun ConfigScreen(viewModel: TranslatorViewModel, onNavigateToDictionaryPreview: () -> Unit = {}) {
   val context = LocalContext.current
   val contentResolver = context.contentResolver
   val themeColor by viewModel.themeColor.collectAsState()
@@ -134,9 +126,6 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
   val selectedDictionaryName by viewModel.selectedDictionaryName.collectAsState()
   val dictionaryCount by viewModel.dictionaryCount.collectAsState()
   val canDeleteDictionary by viewModel.canDeleteDictionary.collectAsState()
-  val isDictionaryPreviewVisible by viewModel.isDictionaryPreviewVisible.collectAsState()
-  val dictionaryPreviewQuery by viewModel.dictionaryPreviewQuery.collectAsState()
-  val dictionaryPreviewEntries by viewModel.dictionaryPreviewEntries.collectAsState()
   val pendingDictionaryImport by viewModel.pendingDictionaryImport.collectAsState()
   val createLanguageSuccessSerial by viewModel.createLanguageSuccessSerial.collectAsState()
   val selectedEngineId = viewModel.engineManager.getSelectedEngineId()
@@ -297,7 +286,7 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
       onSave = { viewModel.saveToDictionary() },
       onApply = { viewModel.applyDictionary() },
       onClear = { viewModel.clearDictionary() },
-      onPreview = viewModel::showDictionaryPreview,
+      onPreview = onNavigateToDictionaryPreview,
       onImport = { importDictionaryLauncher.launch(arrayOf("*/*")) },
       onExportCurrent = { exportCurrentDictionaryLauncher.launch(viewModel.currentDictionaryExportFileName()) },
       onExportAll = { exportAllDictionariesLauncher.launch(viewModel.allDictionariesExportFileName()) },
@@ -320,19 +309,6 @@ fun ConfigScreen(viewModel: TranslatorViewModel) {
     KeywordHighlightingCard(viewModel, isPD)
 
     Spacer(Modifier.height(8.dp))
-  }
-
-  if (isDictionaryPreviewVisible) {
-    DictionaryPreviewDialog(
-      dictionaryName = selectedDictionaryName,
-      totalCount = dictEntryCount,
-      query = dictionaryPreviewQuery,
-      entries = dictionaryPreviewEntries,
-      onQueryChange = viewModel::setDictionaryPreviewQuery,
-      onSaveEntry = viewModel::updateDictionaryPreviewEntry,
-      onDismiss = viewModel::hideDictionaryPreview,
-      isPD = isPD
-    )
   }
 
   pendingDictionaryImport?.let { pendingImport ->
@@ -616,279 +592,6 @@ private fun DictionaryCard(
           Text(stringResource(R.string.dict_clear), maxLines = 1)
         }
       }
-    }
-  }
-}
-
-@Composable
-private fun DictionaryPreviewDialog(
-  dictionaryName: String,
-  totalCount: Int,
-  query: String,
-  entries: List<DictionaryPreviewItem>,
-  onQueryChange: (String) -> Unit,
-  onSaveEntry: (String, String, String) -> Unit,
-  onDismiss: () -> Unit,
-  isPD: Boolean = false
-) {
-  val formatter = remember {
-    DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-  }
-
-  Dialog(onDismissRequest = onDismiss) {
-    Surface(
-      modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight(0.88f),
-      shape = MaterialTheme.shapes.extraLarge,
-      color = MaterialTheme.colorScheme.surface
-    ) {
-      Column(
-        modifier = Modifier
-          .fillMaxSize()
-          .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-      ) {
-        // Header
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          Box(
-            modifier = Modifier
-              .size(36.dp)
-              .clip(if (isPD) MaterialTheme.shapes.small else CircleShape)
-              .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
-          ) {
-            if (isPD) Icon(
-              painterResource(R.drawable.ic_pd_scroll),
-              null,
-              Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            else Icon(
-              Icons.Default.RemoveRedEye,
-              null,
-              Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-          }
-          Spacer(Modifier.width(12.dp))
-          Column(modifier = Modifier.weight(1f)) {
-            Text(
-              text = stringResource(R.string.dict_preview_title),
-              style = MaterialTheme.typography.titleLarge,
-              fontWeight = FontWeight.SemiBold,
-              color = if (isPD) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-              text = if (query.isBlank()) "$dictionaryName · $totalCount"
-                     else "$dictionaryName · ${entries.size} / $totalCount",
-              style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-          }
-          IconButton(onClick = onDismiss) {
-            Icon(Icons.Default.Close, contentDescription = null)
-          }
-        }
-
-        // Search
-        OutlinedTextField(
-          value = query,
-          onValueChange = onQueryChange,
-          modifier = Modifier.fillMaxWidth(),
-          label = { Text(stringResource(R.string.dict_preview_search_label)) },
-          singleLine = true
-        )
-
-        if (entries.isEmpty()) {
-          Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .heightIn(min = 200.dp),
-            contentAlignment = Alignment.Center
-          ) {
-            Text(
-              text = stringResource(R.string.dict_preview_empty),
-              color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-          }
-        } else {
-          LazyColumn(
-            modifier = Modifier
-              .fillMaxWidth()
-              .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-          ) {
-            items(entries, key = { it.rawKey }) { entry ->
-              DictionaryPreviewEntry(
-                entry = entry,
-                formatter = formatter,
-                isPD = isPD,
-                onSaveEntry = onSaveEntry
-              )
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-@Composable
-private fun DictionaryPreviewEntry(
-  entry: DictionaryPreviewItem,
-  formatter: DateFormat,
-  isPD: Boolean,
-  onSaveEntry: (String, String, String) -> Unit
-) {
-  val context = LocalContext.current
-  var isEditing by remember(entry.rawKey) { mutableStateOf(false) }
-  var editedSource by remember(entry.rawKey, entry.sourceText) { mutableStateOf(entry.sourceText.orEmpty()) }
-  var editedTranslation by remember(entry.rawKey, entry.translation) { mutableStateOf(entry.translation) }
-
-  Card(
-    modifier = Modifier.fillMaxWidth(),
-    shape = MaterialTheme.shapes.medium,
-    colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.surfaceVariant
-    )
-  ) {
-    Column(
-      modifier = Modifier.padding(12.dp),
-      verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-      // Key + metadata badges
-      Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-      ) {
-        Text(
-          text = entry.propKey,
-          style = MaterialTheme.typography.labelLarge,
-          fontWeight = FontWeight.SemiBold,
-          color = if (isPD) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-          modifier = Modifier.weight(1f, fill = false)
-        )
-        if (entry.langPair != null) {
-          PreviewBadge(
-            text = entry.langPair,
-            containerColor = if (isPD) MaterialTheme.colorScheme.tertiaryContainer
-                             else MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = if (isPD) MaterialTheme.colorScheme.onTertiaryContainer
-                           else MaterialTheme.colorScheme.onSecondaryContainer
-          )
-        }
-      }
-
-      if (entry.groupName != null) {
-        Text(
-          text = entry.groupName,
-          style = MaterialTheme.typography.labelSmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-      }
-
-      if (isEditing) {
-        OutlinedTextField(
-          value = editedSource,
-          onValueChange = { editedSource = it },
-          label = { Text(stringResource(R.string.dict_preview_source_label)) },
-          modifier = Modifier.fillMaxWidth(),
-          minLines = 2
-        )
-        OutlinedTextField(
-          value = editedTranslation,
-          onValueChange = { editedTranslation = it },
-          label = { Text(stringResource(R.string.dict_preview_translation_label)) },
-          modifier = Modifier.fillMaxWidth(),
-          minLines = 2
-        )
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.End
-        ) {
-          OutlinedButton(onClick = { copyTextToClipboard(context, entry.propKey, editedTranslation) }, enabled = editedTranslation.isNotBlank()) {
-            Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(4.dp))
-            Text(stringResource(R.string.common_copy))
-          }
-          Spacer(Modifier.width(8.dp))
-          OutlinedButton(onClick = {
-            editedSource = entry.sourceText.orEmpty()
-            editedTranslation = entry.translation
-            isEditing = false
-          }) {
-            Text(stringResource(R.string.common_cancel))
-          }
-          Spacer(Modifier.width(8.dp))
-          Button(
-            onClick = {
-              onSaveEntry(entry.rawKey, editedSource, editedTranslation)
-              isEditing = false
-            },
-            enabled = editedTranslation.isNotBlank()
-          ) {
-            Text(stringResource(R.string.common_save))
-          }
-        }
-      } else {
-        // Source text
-        if (!entry.sourceText.isNullOrBlank()) {
-          Row(verticalAlignment = Alignment.Top) {
-            PreviewBadge(
-              text = stringResource(R.string.dict_preview_source_label),
-              containerColor = if (isPD) MaterialTheme.colorScheme.primaryContainer
-                               else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-              contentColor = if (isPD) MaterialTheme.colorScheme.onPrimaryContainer
-                             else MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.width(6.dp))
-            Text(
-              text = entry.sourceText,
-              style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-          }
-        }
-
-        // Translation
-        Row(verticalAlignment = Alignment.Top) {
-          PreviewBadge(
-            text = stringResource(R.string.dict_preview_translation_label),
-            containerColor = if (isPD) MaterialTheme.colorScheme.secondaryContainer
-                             else MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f),
-            contentColor = if (isPD) MaterialTheme.colorScheme.onSecondaryContainer
-                           else MaterialTheme.colorScheme.tertiary
-          )
-          Spacer(Modifier.width(6.dp))
-          Text(
-            text = entry.translation,
-            style = MaterialTheme.typography.bodyMedium
-          )
-        }
-
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.End
-        ) {
-          OutlinedButton(onClick = { copyTextToClipboard(context, entry.propKey, entry.translation) }) {
-            Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(4.dp))
-            Text(stringResource(R.string.common_copy))
-          }
-          Spacer(Modifier.width(8.dp))
-          Button(onClick = { isEditing = true }) {
-            Text(stringResource(R.string.common_edit))
-          }
-        }
-      }
-
-      // Timestamp
-      Text(
-        text = formatter.format(Date(entry.timestamp)),
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.outline
-      )
     }
   }
 }
