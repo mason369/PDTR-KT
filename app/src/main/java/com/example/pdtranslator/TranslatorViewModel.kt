@@ -51,7 +51,9 @@ data class TranslationEntry(
   val isDeleted: Boolean = false,
   val isDiff: Boolean = false,
   val dictValue: String? = null,
-  val dictSourceValue: String? = null
+  val dictSourceValue: String? = null,
+  val isCalibrated: Boolean = false,
+  val originalSourceValue: String? = null
 )
 
 // A3: UI data class for DELETED view
@@ -156,6 +158,11 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   private val _tmSuggestions = MutableStateFlow<List<TmSuggestion>>(emptyList())
   val tmSuggestions = _tmSuggestions.asStateFlow()
   private var tmQueryJob: Job? = null
+
+  // --- Calibration State ---
+  private val calibrationRepository = CalibrationRepository(app.filesDir)
+  private var calibrationStore = CalibrationStore()
+  val calibrationCount = MutableStateFlow(0)
 
   // --- Dictionary State ---
   private val _dictEntryCount = MutableStateFlow(0)
@@ -347,6 +354,12 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    // Load Calibration on start
+    viewModelScope.launch(Dispatchers.IO) {
+      calibrationStore = calibrationRepository.load()
+      calibrationCount.value = calibrationStore.count
+    }
+
     // Load TM and Dictionary on start
     viewModelScope.launch {
       translationMemory.load()
@@ -363,6 +376,52 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
         _draftData.value = draft
       }
     }
+  }
+
+  // --- Calibration Methods ---
+
+  fun calibrateSource(propKey: String, originalText: String, calibratedText: String) {
+    if (calibratedText.isBlank()) return
+    viewModelScope.launch(Dispatchers.IO) {
+      calibrationStore = calibrationStore.put(
+        propKey,
+        CalibrationEntry(originalText, calibratedText, System.currentTimeMillis())
+      )
+      calibrationRepository.save(calibrationStore)
+      calibrationCount.value = calibrationStore.count
+      regenerateEntries()
+    }
+  }
+
+  fun getCalibration(propKey: String): CalibrationEntry? {
+    return calibrationStore.get(propKey)
+  }
+
+  fun clearCalibrations() {
+    viewModelScope.launch(Dispatchers.IO) {
+      calibrationStore = calibrationStore.clear()
+      calibrationRepository.save(calibrationStore)
+      calibrationCount.value = 0
+      regenerateEntries()
+      _uiEvents.send(UiEvent.ShowSnackbar(app.getString(R.string.calibration_clear_done)))
+    }
+  }
+
+  fun importCalibrations(json: String) {
+    viewModelScope.launch(Dispatchers.IO) {
+      val imported = calibrationRepository.importJson(json)
+      calibrationStore = calibrationStore.merge(imported)
+      calibrationRepository.save(calibrationStore)
+      calibrationCount.value = calibrationStore.count
+      regenerateEntries()
+      _uiEvents.send(UiEvent.ShowSnackbar(
+        app.getString(R.string.calibration_import_done, imported.size)
+      ))
+    }
+  }
+
+  fun exportCalibrations(): ByteArray {
+    return calibrationRepository.exportJson(calibrationStore)
   }
 
   // A6: Check if staged changes have any effective difference from original
@@ -1608,7 +1667,11 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
       val deletedItemList = mutableListOf<DeletedItem>()
 
       val newEntries = sortedKeys.map { key ->
-        val sourceValue = sourceProps.getProperty(key, "")
+        val rawSourceValue = sourceProps.getProperty(key, "")
+        val calibration = calibrationStore.get(key)
+        val sourceValue = calibration?.calibratedText ?: rawSourceValue
+        val isCalibrated = calibration != null
+        val originalSourceValue = if (isCalibrated) rawSourceValue else null
         val isMissingInFile = !targetProps.containsKey(key) && sourceProps.containsKey(key)
         val isDeletedEntry = targetProps.containsKey(key) && !sourceProps.containsKey(key)
         val isStaged = _stagedChanges.value.containsKey(key)
@@ -1651,7 +1714,9 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
           isDeleted = isDeletedEntry && !isStagedDeletion,
           isDiff = isDiff,
           dictValue = dictEntry?.translation,
-          dictSourceValue = dictEntry?.sourceText
+          dictSourceValue = dictEntry?.sourceText,
+          isCalibrated = isCalibrated,
+          originalSourceValue = originalSourceValue
         )
       }
       _allEntries.value = newEntries
