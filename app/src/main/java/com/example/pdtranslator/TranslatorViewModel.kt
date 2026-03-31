@@ -55,7 +55,8 @@ data class TranslationEntry(
   val dictValue: String? = null,
   val dictSourceValue: String? = null,
   val isCalibrated: Boolean = false,
-  val originalSourceValue: String? = null
+  val originalSourceValue: String? = null,
+  val isNoTranslationNeeded: Boolean = false
 )
 
 // A3: UI data class for DELETED view
@@ -188,6 +189,10 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
 
   // --- Created Languages (for export even without staged changes) ---
   private val _createdLanguages = MutableStateFlow<Set<String>>(emptySet())
+
+  // --- No Translation Needed ---
+  private val _noTranslationNeeded = MutableStateFlow<Set<String>>(emptySet())
+  val noTranslationNeeded = _noTranslationNeeded.asStateFlow()
 
   // --- A3: Deleted Items for DELETED view ---
   private val _deletedItems = MutableStateFlow<List<DeletedItem>>(emptyList())
@@ -479,6 +484,23 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
     }
   }
 
+  fun markNoTranslationNeeded(key: String, sourceValue: String) {
+    stageChange(key, sourceValue)
+    val newSet = _noTranslationNeeded.value + key
+    _noTranslationNeeded.value = newSet
+    _scopedWorkspaceState.update { workspace ->
+      workspace.withNoTranslationNeeded(activeEditScope(), newSet)
+    }
+  }
+
+  fun unmarkNoTranslationNeeded(key: String) {
+    val newSet = _noTranslationNeeded.value - key
+    _noTranslationNeeded.value = newSet
+    _scopedWorkspaceState.update { workspace ->
+      workspace.withNoTranslationNeeded(activeEditScope(), newSet)
+    }
+  }
+
   // A6: Check if staged changes have any effective difference from original
   private fun hasEffectiveChanges(): Boolean {
     return hasEffectiveChanges(activeEditScope(), _stagedChanges.value, _languageGroups.value)
@@ -552,6 +574,7 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
     _stagedChanges.value = workspace.stagedChanges(scope)
     _stagedDeletions.value = workspace.stagedDeletions(scope)
     _createdLanguages.value = workspace.createdLanguages(groupName)
+    _noTranslationNeeded.value = workspace.noTranslationNeeded(scope)
   }
 
   private fun updateActiveStagedChanges(newChanges: Map<String, String>) {
@@ -1691,6 +1714,7 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
     _stagedChanges.value = emptyMap()
     _stagedDeletions.value = emptySet()
     _createdLanguages.value = emptySet()
+    _noTranslationNeeded.value = emptySet()
     _scopedWorkspaceState.value = ScopedWorkspaceState()
     resetSearchState()
   }
@@ -1719,6 +1743,7 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
       var missingCount = 0
       var deletedCount = 0
       var diffCount = 0
+      val noTransNeeded = _noTranslationNeeded.value
 
       // A3: Collect deleted items for the DELETED view
       val deletedItemList = mutableListOf<DeletedItem>()
@@ -1757,7 +1782,7 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
         if (isDiff) diffCount++
 
         val isIdentical = sourceValue == finalTargetValue && finalTargetValue.isNotBlank()
-        val isUntranslated = finalTargetValue.isBlank() || isIdentical
+        val isUntranslated = (finalTargetValue.isBlank() || isIdentical) && key !in noTransNeeded
 
         TranslationEntry(
           key = key,
@@ -1773,7 +1798,8 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
           dictValue = dictEntry?.translation,
           dictSourceValue = dictEntry?.sourceText,
           isCalibrated = isCalibrated,
-          originalSourceValue = originalSourceValue
+          originalSourceValue = originalSourceValue,
+          isNoTranslationNeeded = key in noTransNeeded
         )
       }
       _allEntries.value = newEntries
