@@ -36,6 +36,10 @@
     <string name="pagination_next">下一页</string>
     <string name="pagination_page_info">第 %1$d / %2$d 页</string>
 
+    <string name="pagination_jump_title">跳转到页面</string>
+    <string name="pagination_jump_hint">页码 (1-%1$d)</string>
+    <string name="pagination_jump_confirm">跳转</string>
+    <string name="pagination_jump_cancel">取消</string>
     <!-- Filter States -->
     <string name="filter_all">全部</string>
     <string name="filter_untranslated">未翻译</string>

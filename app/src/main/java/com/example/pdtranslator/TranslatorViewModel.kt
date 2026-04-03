@@ -235,6 +235,7 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   val currentPage = MutableStateFlow(1)
   val pageSize = 20
   val totalPages = MutableStateFlow(1)
+  private var _pageBeforeSearch: Int = 1
 
   // Smart Info Bar State
   val infoBarText = MutableStateFlow("")
@@ -716,9 +717,18 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   }
 
   fun setSearchQuery(query: String) {
+    val wasBlank = searchQuery.value.isBlank()
+    val nowBlank = query.isBlank()
+    if (wasBlank && !nowBlank) {
+      _pageBeforeSearch = currentPage.value
+    }
     searchQuery.value = query
-    currentPage.value = 1
-    _currentSearchResultIndex.value = if (query.isBlank()) -1 else 0
+    if (nowBlank) {
+      currentPage.value = _pageBeforeSearch
+    } else {
+      currentPage.value = 1
+    }
+    _currentSearchResultIndex.value = if (nowBlank) -1 else 0
   }
   fun setReplaceQuery(query: String) { replaceQuery.value = query }
   fun setCaseSensitive(isSensitive: Boolean) {
@@ -739,6 +749,9 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   }
   fun nextPage() { if (currentPage.value < totalPages.value) currentPage.value++ }
   fun previousPage() { if (currentPage.value > 1) currentPage.value-- }
+  fun goToPage(page: Int) {
+    currentPage.value = page.coerceAtLeast(1)
+  }
   fun setShowAboutDialog(show: Boolean) { _showAboutDialog.value = show }
   fun setThemeColor(theme: ThemeColor) {
     _themeColor.value = theme
@@ -1855,12 +1868,20 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
   }
 
   private fun loadProperties(content: String): Properties {
+    val cleaned = content.removePrefix("\uFEFF")
     val props = Properties()
     try {
-      props.load(StringReader(content))
+      props.load(StringReader(cleaned))
     } catch (_: IllegalArgumentException) {
-      val sanitized = content.replace(Regex("""\x5Cu(?![0-9a-fA-F]{4})"""), "\\\\u")
+      val sanitized = cleaned.replace(Regex("""\x5Cu(?![0-9a-fA-F]{4})"""), "\\\\u")
       props.load(StringReader(sanitized))
+    }
+    val bomKeys = props.keys.mapNotNull { it as? String }.filter { it.startsWith("\uFEFF") }
+    for (bomKey in bomKeys) {
+      val value = props.getProperty(bomKey)
+      val cleanKey = bomKey.removePrefix("\uFEFF")
+      props.remove(bomKey)
+      if (!props.containsKey(cleanKey)) props.setProperty(cleanKey, value)
     }
     return props
   }
@@ -1968,6 +1989,7 @@ class TranslatorViewModel(application: Application) : AndroidViewModel(applicati
     searchResultCount.value = 0
     _currentSearchResultIndex.value = -1
     currentSearchResultKey.value = null
+    _pageBeforeSearch = 1
     currentPage.value = 1
   }
 

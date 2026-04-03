@@ -79,6 +79,10 @@
     <string name="pagination_previous">Previous</string>
     <string name="pagination_next">Next</string>
     <string name="pagination_page_info">Page %1$d / %2$d</string>
+    <string name="pagination_jump_title">Jump to Page</string>
+    <string name="pagination_jump_hint">Page (1-%1$d)</string>
+    <string name="pagination_jump_confirm">Go</string>
+    <string name="pagination_jump_cancel">Cancel</string>
 
     <!-- Filter States -->
     <string name="filter_all">All</string>

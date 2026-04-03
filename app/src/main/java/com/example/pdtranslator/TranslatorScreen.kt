@@ -293,7 +293,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
               }
             }
           }
-          PaginationControls(deletedPage, deletedTotalPages, viewModel::previousPage, viewModel::nextPage)
+          PaginationControls(deletedPage, deletedTotalPages, viewModel::previousPage, viewModel::nextPage, viewModel::goToPage)
         }
       }
       filterState == FilterState.DIFF -> {
@@ -357,7 +357,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
               }
             }
           }
-          PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
+          PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage, viewModel::goToPage)
         }
       }
       displayEntries.isEmpty() -> {
@@ -430,7 +430,7 @@ fun TranslatorScreen(viewModel: TranslatorViewModel) {
             }
           }
         }
-        PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage)
+        PaginationControls(currentPage, totalPages, viewModel::previousPage, viewModel::nextPage, viewModel::goToPage)
       }
     }
 
